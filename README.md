@@ -170,4 +170,4 @@ If you call complete without any arguments, it will start a REPL.
 ./chloe complete
 ```
 
-![REPL](.github/resources/gifs/complete.webm)
+[complete.webm](https://user-images.githubusercontent.com/242529/226279941-d9ed067b-927b-40b1-89b2-3589b0f0bf0e.webm)
