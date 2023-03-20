@@ -1,0 +1,9 @@
+.envrc
+.DS_Store
+.idea
+
+cmd/chloe/telegram
+cmd/chloe/chloe.db
+cmd/chloe/gcp-credentials.json
+cmd/chloe/chloe
+logging.iml

@@ -1,0 +1,7 @@
+Current Date: {{.Args.Date}}
+Current Time: {{.Args.Time}}
+User Source: {{.Args.User.ExternalID.Interface}}
+User ID: {{.Args.User.ID}}
+User First Name: {{.Args.User.FirstName}}
+User Last Name: {{.Args.User.LastName}}
+Mode: {{.Mode}}
