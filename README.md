@@ -93,6 +93,21 @@ The following commands are available:
 - **/generate** - Generate an image using DALL-E
 - **/tts** - Converts text to speech
 
+#### Examples
+
+Here, Chloe understands that I want an image of a cat and responds with one. It also understands when I ask it to give the cat a cute yellow hat, and it preserves the context of the previous image.
+
+![show me a picture of a cat](.github/resources/images/telegram.png)
+
+Here, Chloe says "Beware of the dog, the cat is shady too". I then ask (in a voice message) for it to show me a picture of what she just said, and she generates relevant images.
+
+
+![show me a picture of what you just said](.github/resources/images/telegram2.png)
+
+You can see how Chloe reasons about the context and understands what I want to do.
+
+![log](.github/resources/images/log.png)
+
 ### HTTP
 
 Chloe can also be used as an HTTP server. By default, it will listen on port `8080`. You can change
@@ -184,11 +199,11 @@ We welcome contributions! If you would like to improve Chloe, please follow thes
 
 Chloe is licensed under the [MIT License](LICENSE).
 
-## Acknowledgements
-
-- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts) for the personalities
-- [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
-
 ## References
 
 - [A simple Python implementation of the ReAct pattern for LLMs](https://til.simonwillison.net/llms/python-react-pattern)
+
+## Acknowledgements
+
+- [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
+- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts) for the personalities
