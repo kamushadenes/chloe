@@ -26,13 +26,15 @@ simply adding new actions.
 
 # Table of Contents
 
-- Installation
-- Usage
-    - Telegram
-    - HTTP
-    - Command Line (CLI)
-- Contributing
-- License
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Telegram](#telegram)
+    - [HTTP](#http)
+    - [Command Line (CLI)](#command-line-cli)
+- [Contributing](#contributing)
+- [License](#license)
+- [References](#references)
+- [Acknowledgements](#acknowledgements)
 
 ## Installation
 
