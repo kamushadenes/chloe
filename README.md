@@ -213,6 +213,7 @@ Chloe is licensed under the [MIT License](LICENSE).
 
 ## References
 
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://react-lm.github.io)
 - [A simple Python implementation of the ReAct pattern for LLMs](https://til.simonwillison.net/llms/python-react-pattern)
 
 ## Acknowledgements
