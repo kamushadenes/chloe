@@ -11,6 +11,8 @@ It offers multiple interfaces and utilizes
 the [Chain of Thought](https://til.simonwillison.net/llms/python-react-pattern) approach to
 understand and respond to complex instructions.
 
+[Blog Post](https://blog.hadenes.io/post/chloe-ai-assistant/)
+
 ## Features
 
 - Use Chain of Thought to determine actions, falling back to standard completion if no action is
