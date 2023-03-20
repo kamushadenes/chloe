@@ -170,4 +170,25 @@ If you call complete without any arguments, it will start a REPL.
 ./chloe complete
 ```
 
-[complete.webm](https://user-images.githubusercontent.com/242529/226279941-d9ed067b-927b-40b1-89b2-3589b0f0bf0e.webm)
+[complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
+
+## Contributing
+
+We welcome contributions! If you would like to improve Chloe, please follow these steps:
+
+1. Fork the repository
+2. Make your changes
+3. Open a pull request
+
+## License
+
+Chloe is licensed under the [MIT License](LICENSE).
+
+## Acknowledgements
+
+- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts) for the personalities
+- [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
+
+## References
+
+- [A simple Python implementation of the ReAct pattern for LLMs](https://til.simonwillison.net/llms/python-react-pattern)
