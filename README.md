@@ -99,14 +99,13 @@ Here, Chloe understands that I want an image of a cat and responds with one. It 
 
 ![show me a picture of a cat](.github/resources/images/telegram.png)
 
-Here, Chloe says "Beware of the dog, the cat is shady too". I then ask (in a voice message) for it to show me a picture of what she just said, and she generates relevant images.
-
-
-![show me a picture of what you just said](.github/resources/images/telegram2.png)
-
 You can see how Chloe reasons about the context and understands what I want to do.
 
 ![log](.github/resources/images/log.png)
+
+Here, Chloe says "Beware of the dog, the cat is shady too". I then ask (in a voice message) for it to show me a picture of what she just said, and she generates relevant images.
+
+![show me a picture of what you just said](.github/resources/images/telegram2.png)
 
 ### HTTP
 
