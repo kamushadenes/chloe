@@ -160,7 +160,7 @@ In case the Chain of Thought detects the user wants to convert text to speech, y
 MP3 audio as a response.
 
 ```bash
-curl -N -X POST -H "Content-Type: application/json" -d '{"content": "Say out loud: Hello, Chloe!"}' http://localhost:8080/api/complete
+curl -N -X POST -H "Content-Type: application/json" -d '{"content": "Say out loud: Hello, my name is Chloe!"}' http://localhost:8080/api/complete
 ```
 
 https://user-images.githubusercontent.com/242529/226274960-9086191d-4267-476e-8c0f-f3a449bfac53.mp4
