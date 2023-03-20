@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/rs/zerolog"
-	"os"
 )
 
 func newBot(ctx context.Context, token string) (*tgbotapi.BotAPI, error) {
@@ -27,9 +27,14 @@ func Start(ctx context.Context) {
 	logger := zerolog.Ctx(ctx).With().Str("interface", "telegram").Logger()
 	ctx = logger.WithContext(ctx)
 
+	if config.Telegram.Token == "" {
+		logger.Warn().Msg("token not configured, telegram interface disabled")
+		return
+	}
+
 	logger.Info().Msg("starting telegram interface")
 
-	bot, err := newBot(ctx, os.Getenv("TELEGRAM_TOKEN"))
+	bot, err := newBot(ctx, config.Telegram.Token)
 	if err != nil {
 		logger.Panic().Err(err).Msg("error in telegram interface")
 	}

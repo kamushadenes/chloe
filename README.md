@@ -28,6 +28,7 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 
 ## Roadmap
 
+- [ ] Add additional storage backends
 - [ ] Add Discord interface
 - [ ] Add Slack interface
 - [ ] Add IDE plugins (using Codex)

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"net/http"
-	"os"
 	"sync"
 	"time"
 )
@@ -76,13 +76,8 @@ func Start(ctx context.Context) {
 
 	router := getRouter(ctx)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
+		Addr:    fmt.Sprintf("%s:%s", config.HTTP.Host, config.HTTP.Port),
 		Handler: router,
 	}
 
