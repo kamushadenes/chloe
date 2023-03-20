@@ -24,7 +24,7 @@ understand and respond to complex instructions.
 - Use OpenAI's DALL-E to generate images
 
 Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
-simply adding new actions.
+simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L116).
 
 # Table of Contents
 
