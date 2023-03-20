@@ -26,6 +26,15 @@ understand and respond to complex instructions.
 Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
 simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L116).
 
+## Roadmap
+
+- [ ] Add Discord interface
+- [ ] Add Slack interface
+- [ ] Add IDE plugins (using Codex)
+- [ ] Add more actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
+
+I also plan to release an Alexa open hardware clone that will be able to run Chloe, but this will take quite some time.
+
 # Table of Contents
 
 - [Installation](#installation)
