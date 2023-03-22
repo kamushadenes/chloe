@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/briandowns/spinner"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils/colors"
@@ -44,15 +43,4 @@ func Complete(ctx context.Context, text string) error {
 		Mode:            "default",
 		Content:         text,
 	})
-}
-
-func Forget(ctx context.Context) error {
-	err := memory.DeleteMessages(ctx, user.ID)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Forgot")
-
-	return nil
 }

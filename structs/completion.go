@@ -2,12 +2,14 @@ package structs
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/users"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
+	"strings"
 	"time"
 )
 
@@ -74,12 +76,15 @@ func (creq *CompletionRequest) GetResultChannel() chan interface{} {
 	return creq.ResultChannel
 }
 
-func (creq *CompletionRequest) GetTokenCount(chainOfThought bool) int {
-	messages := creq.ToChatCompletionMessages(creq.Context, chainOfThought)
-
+func (creq *CompletionRequest) CountTokens(messages []openai.ChatCompletionMessage) int {
 	var tokens int
+	tokens += 2 // every reply is primed with <im_start>assistant
 	for k := range messages {
-		tokens += int(float64(len(messages[k].Content)) * 0.75)
+		tokens += 4 // every message follows <im_start>{role/name}\n{content}<im_end>\n
+		if messages[k].Name != "" && messages[k].Role == "" {
+			tokens -= 1 // if there's a name, the role can be ommited, so we need to remove one token if it's empty
+		}
+		tokens += int(float64(len(strings.Fields(messages[k].Content))) * 0.75) // count words
 	}
 
 	return tokens
@@ -119,11 +124,6 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 		logger.Error().Err(err).Msg("failed to load saved messages")
 		return nil
 	}
-	var tokens float64
-	for k := range messages {
-		tokens += float64(len(messages[k].Content)) * 0.75
-	}
-	tokens += float64(len(creq.Content)) * 0.75
 
 	for k, m := range savedMessages {
 		role := m[1]
@@ -145,13 +145,15 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 		if len(content) > 0 {
 			userMessages = append(userMessages, openai.ChatCompletionMessage{Role: role, Content: content})
 		}
-		tokens += float64(len(content)) * 0.75
 	}
 
+	systemCount := creq.CountTokens(messages)
+	userCount := creq.CountTokens(userMessages)
+
 	for {
-		if tokens > 4096 {
-			tokens -= float64(len(userMessages[0].Content)) * 0.75
+		if (systemCount + userCount) > config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeCompletion]] {
 			userMessages = userMessages[1:]
+			userCount = creq.CountTokens(userMessages)
 		} else {
 			break
 		}

@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react"
@@ -18,19 +19,16 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 	logger := zerolog.Ctx(ctx)
 	ctx = logger.WithContext(ctx)
 
-	/*
-		cotreq := request.Copy()
-		cotreq.Content = fmt.Sprintf("Question: %s", cotreq.Content)
-		err := react.ChainOfThought(ctx, cotreq, false)
-		if err == nil {
-			if !request.SkipClose {
-				err := request.Writer.Close()
-				return react.NotifyError(request, err)
-			}
-			return react.NotifyError(request, nil)
+	cotreq := request.Copy()
+	cotreq.Content = fmt.Sprintf("Question: %s", cotreq.Content)
+	err := react.ChainOfThought(ctx, cotreq, false)
+	if err == nil {
+		if !request.SkipClose {
+			err := request.Writer.Close()
+			return react.NotifyError(request, err)
 		}
-
-	*/
+		return react.NotifyError(request, nil)
+	}
 
 	req := openai.ChatCompletionRequest{
 		Model:    config.OpenAI.DefaultModel[config.ModelPurposeCompletion],

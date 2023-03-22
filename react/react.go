@@ -114,10 +114,10 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 }
 
 func HandleAction(ctx context.Context, request *structs.CompletionRequest, action string, params string, allowObservation bool) error {
-	tokenCount := request.GetTokenCount(true)
-	maxTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]] - tokenCount - 500
-	if maxTokenCount < 1000 {
-		maxTokenCount = 1000
+	tokenCount := request.CountTokens(request.ToChatCompletionMessages(ctx, true))
+	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]] - tokenCount
+	if truncateTokenCount < config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]] {
+		truncateTokenCount = config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]]
 	}
 
 	switch strings.ToLower(action) {
@@ -143,7 +143,7 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 			return err
 		}
 
-		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), maxTokenCount))
+		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 		if err := memory.SaveMessage(ctx, request.User.ID, "user", params, content); err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 			return err
 		}
 
-		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), maxTokenCount))
+		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 		if err := memory.SaveMessage(ctx, request.User.ID, "user", params, content); err != nil {
 			return err
 		}
@@ -240,7 +240,7 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 			return NotifyError(request, err)
 		}
 
-		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), maxTokenCount))
+		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 		if err := memory.SaveMessage(ctx, request.User.ID, "assistant", params, content); err != nil {
 			return err
 		}
