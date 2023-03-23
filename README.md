@@ -1,6 +1,12 @@
-# Chloe AI Assistant
+<h1 align="center">Chloe AI Assistant</h1>
 
-Chloe is a powerful AI Assistant written in Go that leverages OpenAI
+<p align="center">A powerful AI assistant</p>
+
+![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml)
+![license](https://img.shields.io/github/license/kamushadenes/chloe)
+
+[Chloe](https://blog.hadenes.io/post/chloe-ai-assistant/) is a powerful AI Assistant written in Go
+that leverages OpenAI
 technologies ([ChatGPT](https://openai.com/product/gpt-4), [Whisper](https://openai.com/research/whisper),
 and [DALL-E](https://openai.com/product/dall-e-2)) along
 with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine to provide versatile
@@ -9,8 +15,6 @@ and comprehensive assistance.
 It offers multiple interfaces and utilizes
 the [Chain of Thought](https://til.simonwillison.net/llms/python-react-pattern) approach to
 understand and respond to complex instructions.
-
-[Blog Post](https://blog.hadenes.io/post/chloe-ai-assistant/)
 
 ## Features
 
