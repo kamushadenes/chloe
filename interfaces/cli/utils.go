@@ -3,11 +3,10 @@ package cli
 import (
 	"context"
 	"fmt"
-	"github.com/kamushadenes/chloe/memory"
 )
 
 func Forget(ctx context.Context) error {
-	err := memory.DeleteMessages(ctx, user.ID)
+	err := user.DeleteMessages(ctx)
 	if err != nil {
 		return err
 	}

@@ -3,15 +3,15 @@ package server
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 	"os"
 )
 
-func ProcessMessage(ctx context.Context, msg *messages.Message) error {
+func ProcessMessage(ctx context.Context, msg *memory.Message) error {
 	logger := zerolog.Ctx(ctx)
 
-	logger.Info().Str("userId", msg.User.ID).Str("interface", msg.User.ExternalID.Interface).Msg("message received")
+	logger.Info().Uint("userId", msg.User.ID).Str("interface", msg.Interface).Msg("message received")
 
 	return nil
 }
@@ -19,7 +19,7 @@ func ProcessMessage(ctx context.Context, msg *messages.Message) error {
 func DeliverMessage(ctx context.Context, msg *channels.OutgoingMessage) error {
 	logger := zerolog.Ctx(ctx)
 
-	switch msg.User.ExternalID.Interface {
+	switch msg.Interface {
 	case "telegram":
 		for k := range msg.Texts {
 			text := msg.Texts[k]

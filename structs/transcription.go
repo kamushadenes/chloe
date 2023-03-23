@@ -2,7 +2,7 @@ package structs
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
@@ -17,8 +17,9 @@ type TranscriptionRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
-	User     *users.User `json:"user,omitempty"`
-	FilePath string      `json:"filePath"`
+	User     *memory.User    `json:"user,omitempty"`
+	Message  *memory.Message `json:"message,omitempty"`
+	FilePath string          `json:"filePath"`
 }
 
 func (creq *TranscriptionRequest) GetContext() context.Context {

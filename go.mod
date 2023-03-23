@@ -17,6 +17,8 @@ require (
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2
 	github.com/stretchr/testify v1.8.1
+	gorm.io/driver/sqlite v1.4.4
+	gorm.io/gorm v1.24.0
 )
 
 require (
@@ -40,6 +42,8 @@ require (
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect

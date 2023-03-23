@@ -5,7 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/resources"
-	"github.com/kamushadenes/chloe/users"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -24,11 +23,11 @@ type CompletionRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
-	User    *users.User            `json:"user,omitempty"`
-	Content string                 `json:"content"`
-	Summary string                 `json:"summary"`
-	Mode    string                 `json:"mode"`
-	Args    map[string]interface{} `json:"args"`
+	Message *memory.Message
+	User    *memory.User `json:"user,omitempty"`
+
+	Mode string                 `json:"mode"`
+	Args map[string]interface{} `json:"args"`
 }
 
 func (creq *CompletionRequest) Copy() *CompletionRequest {
@@ -41,8 +40,7 @@ func (creq *CompletionRequest) Copy() *CompletionRequest {
 		ErrorChannel:    creq.ErrorChannel,
 		ResultChannel:   creq.ResultChannel,
 		User:            creq.User,
-		Content:         creq.Content,
-		Summary:         creq.Summary,
+		Message:         creq.Message.Copy(),
 		Mode:            creq.Mode,
 		Args:            creq.Args,
 	}
@@ -99,6 +97,7 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 	if args == nil {
 		args = make(map[string]interface{})
 	}
+	args["Interface"] = creq.Message.Interface
 	args["User"] = creq.User
 
 	args["Date"] = time.Now().Format("2006-01-02")
@@ -119,31 +118,23 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 
 	var userMessages []openai.ChatCompletionMessage
 
-	savedMessages, err := memory.LoadMessages(ctx, creq.User.ID)
+	savedMessages, err := creq.User.LoadMessages(ctx)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load saved messages")
 		return nil
 	}
 
 	for k, m := range savedMessages {
-		role := m[1]
 		var content string
 
-		if chainOfThought {
-			if len(m[4]) > 0 {
-				content = m[4]
-			}
-		}
-		if len(content) == 0 {
-			if k >= len(savedMessages)-4 || (len(m[2]) < len(m[3]) || len(m[3]) == 0) {
-				content = m[2]
-			} else {
-				content = m[3]
-			}
+		if k >= len(savedMessages)-config.OpenAI.MessagesToKeepFullContent {
+			content = m.Content
+		} else {
+			content = m.GetContent(chainOfThought)
 		}
 
 		if len(content) > 0 {
-			userMessages = append(userMessages, openai.ChatCompletionMessage{Role: role, Content: content})
+			userMessages = append(userMessages, openai.ChatCompletionMessage{Role: m.Role, Content: content})
 		}
 	}
 
@@ -161,12 +152,12 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 
 	messages = append(messages, userMessages...)
 
-	err = memory.SaveMessage(ctx, creq.User.ID, "user", creq.Content, "")
+	err = creq.Message.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: creq.Content})
+	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: creq.Message.Content})
 
 	return messages
 }

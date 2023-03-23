@@ -2,7 +2,7 @@ package structs
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
@@ -17,8 +17,8 @@ type TTSRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
-	User    *users.User `json:"user,omitempty"`
-	Content string      `json:"content"`
+	User    *memory.User `json:"user,omitempty"`
+	Content string       `json:"content"`
 }
 
 func (creq *TTSRequest) GetContext() context.Context {

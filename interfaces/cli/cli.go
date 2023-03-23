@@ -5,24 +5,29 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/flags"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/utils/colors"
 	"os"
 	"strings"
 )
 
-var user = &users.User{
-	ID: "0",
-	ExternalID: &users.ExternalID{
-		ID:        "0",
-		Interface: "cli",
-	},
-	FirstName: "Henrique",
-	LastName:  "Goncalves",
-	Username:  "kamushadenes",
-}
+var user *memory.User
 
 func Handle(ctx context.Context) error {
+	var err error
+
+	user, err = memory.GetUserByExternalID(ctx, "cli", "cli")
+	if err != nil {
+		user, err = memory.NewUser(ctx, "User", "CLI", "cli")
+		if err != nil {
+			return err
+		}
+		err = user.AddExternalID(ctx, "cli", "cli")
+		if err != nil {
+			return err
+		}
+	}
+
 	switch os.Args[1] {
 	case "complete":
 		if len(os.Args) > 2 {

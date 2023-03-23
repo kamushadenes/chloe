@@ -1,12 +1,13 @@
 package channels
 
 import (
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type OutgoingMessage struct {
-	User         *users.User
+	Interface    string
+	User         *memory.User
 	Texts        []string
 	Audios       []string
 	Images       []string

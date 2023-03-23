@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -19,8 +21,10 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 	logger := zerolog.Ctx(ctx)
 	ctx = logger.WithContext(ctx)
 
+	ocontent := request.Message.Content
+
 	cotreq := request.Copy()
-	cotreq.Content = fmt.Sprintf("Question: %s", cotreq.Content)
+	cotreq.Message.Content = fmt.Sprintf("Question: %s", ocontent)
 	err := react.ChainOfThought(ctx, cotreq, false)
 	if err == nil {
 		if !request.SkipClose {
@@ -37,10 +41,21 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 
 	logger.Info().Int("messagesInContext", len(req.Messages)).Msg("requesting completion")
 
-	stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
+	var stream *openai.ChatCompletionStream
+
+	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeCompletion, func(ch chan interface{}, errCh chan error) {
+		stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
+		if err != nil {
+			logger.Error().Err(err).Msg("error requesting completion")
+			errCh <- err
+		}
+		ch <- stream
+	})
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
+
+	stream = respi.(*openai.ChatCompletionStream)
 
 	react.StartAndWait(request)
 
@@ -67,7 +82,13 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 	}
 
 	responseMessage = strings.TrimSpace(responseMessage)
-	_ = memory.SaveMessage(ctx, request.User.ID, "assistant", responseMessage, "")
+
+	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+	nmsg.Content = responseMessage
+	nmsg.Role = "assistant"
+	nmsg.User = request.User
+
+	_ = nmsg.Save(ctx)
 
 	react.WriteResult(request, responseMessage)
 

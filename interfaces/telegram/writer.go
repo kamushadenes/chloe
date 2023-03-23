@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
@@ -14,7 +14,7 @@ type TelegramWriter struct {
 	ChatID     int64
 	Type       string
 	ReplyID    int
-	msg        *messages.Message
+	msg        *memory.Message
 	bufs       []bytes.Buffer
 	bufId      int
 	closedBufs int
@@ -112,7 +112,7 @@ func (t *TelegramWriter) ToAudioWriter() io.WriteCloser {
 	return NewAudioWriter(t.Context, t.msg, t.ReplyID != 0)
 }
 
-func NewTextWriter(ctx context.Context, msg *messages.Message, reply bool) io.WriteCloser {
+func NewTextWriter(ctx context.Context, msg *memory.Message, reply bool) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     msg.Source.Telegram.API,
@@ -130,7 +130,7 @@ func NewTextWriter(ctx context.Context, msg *messages.Message, reply bool) io.Wr
 	return w
 }
 
-func NewImageWriter(ctx context.Context, msg *messages.Message, reply bool) io.WriteCloser {
+func NewImageWriter(ctx context.Context, msg *memory.Message, reply bool) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     msg.Source.Telegram.API,
@@ -148,7 +148,7 @@ func NewImageWriter(ctx context.Context, msg *messages.Message, reply bool) io.W
 	return w
 }
 
-func NewAudioWriter(ctx context.Context, msg *messages.Message, reply bool) io.WriteCloser {
+func NewAudioWriter(ctx context.Context, msg *memory.Message, reply bool) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     msg.Source.Telegram.API,

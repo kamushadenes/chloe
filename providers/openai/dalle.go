@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -15,6 +16,7 @@ import (
 )
 
 func writeImage(ctx context.Context, request structs.Request, writer io.WriteCloser, url string) error {
+
 	resp, err := http.Get(url)
 	if err != nil {
 		return react.NotifyError(request, err)
@@ -66,10 +68,21 @@ func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 		Size:   request.Size,
 	}
 
-	response, err := openAIClient.CreateImage(ctx, req)
+	var response openai.ImageResponse
+
+	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageGeneration, func(ch chan interface{}, errCh chan error) {
+		response, err := openAIClient.CreateImage(ctx, req)
+		if err != nil {
+			logger.Error().Err(err).Msg("error generating image")
+			errCh <- err
+		}
+		ch <- response
+	})
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
+
+	response = respi.(openai.ImageResponse)
 
 	react.StartAndWait(request)
 
@@ -107,10 +120,21 @@ func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 		Image:  f,
 	}
 
-	response, err := openAIClient.CreateEditImage(ctx, req)
+	var response openai.ImageResponse
+
+	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageEdit, func(ch chan interface{}, errCh chan error) {
+		response, err := openAIClient.CreateEditImage(ctx, req)
+		if err != nil {
+			logger.Error().Err(err).Msg("error generating image edits")
+			errCh <- err
+		}
+		ch <- response
+	})
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
+
+	response = respi.(openai.ImageResponse)
 
 	react.StartAndWait(request)
 
@@ -144,10 +168,21 @@ func Variations(ctx context.Context, request *structs.VariationRequest) error {
 		Size:  config.OpenAI.DefaultSize[config.ImageTypeVariation],
 	}
 
-	response, err := openAIClient.CreateVariImage(ctx, req)
+	var response openai.ImageResponse
+
+	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageVariation, func(ch chan interface{}, errCh chan error) {
+		response, err := openAIClient.CreateVariImage(ctx, req)
+		if err != nil {
+			logger.Error().Err(err).Msg("error generating image variations")
+			errCh <- err
+		}
+		ch <- response
+	})
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
+
+	response = respi.(openai.ImageResponse)
 
 	react.StartAndWait(request)
 

@@ -7,9 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/messages"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/users"
 	"io"
 	"net/http"
 )
@@ -20,15 +18,27 @@ func aiContext(next http.Handler) http.Handler {
 		reqId := middleware.GetReqID(ctx)
 
 		if reqId != "" {
-			msg := messages.NewMessage(reqId)
-			msg.Source.HTTP = &messages.HTTPMessageSource{
+			msg := memory.NewMessage(reqId, "http")
+			msg.Role = "user"
+			msg.Source.HTTP = &memory.HTTPMessageSource{
 				Request: r,
 			}
-			msg.User, _ = users.GetUser(ctx, "1")
-			msg.User.ExternalID = &users.ExternalID{
-				ID:        fmt.Sprintf("%d", 1),
-				Interface: "http",
+
+			user, err := memory.GetUserByExternalID(ctx, "http", "http")
+			if err != nil {
+				user, err = memory.NewUser(ctx, "User", "HTTP", "http")
+				if err != nil {
+					_ = render.Render(w, r, ErrInvalidRequest(err))
+					return
+				}
+				err = user.AddExternalID(ctx, "http", "http")
+				if err != nil {
+					_ = render.Render(w, r, ErrInvalidRequest(err))
+					return
+				}
 			}
+
+			msg.User = user
 
 			ctx = context.WithValue(ctx, "msg", msg)
 
@@ -41,7 +51,7 @@ func aiContext(next http.Handler) http.Handler {
 
 func aiComplete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	msg := ctx.Value("msg").(*messages.Message)
+	msg := ctx.Value("msg").(*memory.Message)
 
 	var params = struct {
 		Content string                 `json:"content"`
@@ -62,16 +72,15 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 	request.User = msg.User
 
 	if request.Mode == "" {
-		mode, _ := memory.GetUserMode(ctx, request.User.ID)
-		request.Mode = mode
+		request.Mode = request.User.Mode
 	}
 
-	request.User.ExternalID = &users.ExternalID{
-		ID:        fmt.Sprintf("%d", 1),
-		Interface: "http",
+	if err := msg.User.AddExternalID(ctx, "1", "http"); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 
-	request.Content = params.Content
+	request.Message = msg
 	request.Args = params.Args
 
 	request.Writer = NewHTTPResponseWriteCloser(w)
@@ -90,7 +99,7 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 
 func aiGenerate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	msg := ctx.Value("msg").(*messages.Message)
+	msg := ctx.Value("msg").(*memory.Message)
 
 	var params = struct {
 		Prompt string `json:"prompt"`
@@ -110,9 +119,9 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 
 	request.User = msg.User
 
-	request.User.ExternalID = &users.ExternalID{
-		ID:        fmt.Sprintf("%d", 1),
-		Interface: "http",
+	if err := msg.User.AddExternalID(ctx, "1", "http"); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 
 	request.Prompt = params.Prompt
@@ -134,7 +143,7 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 
 func aiTTS(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	msg := ctx.Value("msg").(*messages.Message)
+	msg := ctx.Value("msg").(*memory.Message)
 
 	var params = struct {
 		Content string                 `json:"content"`

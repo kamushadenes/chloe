@@ -1,12 +1,12 @@
 package channels
 
 import (
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 
 var (
-	IncomingMessagesCh   = make(chan *messages.Message, 100)
+	IncomingMessagesCh   = make(chan *memory.Message, 100)
 	OutgoingMessagesCh   = make(chan *OutgoingMessage, 100)
 	CompletionRequestsCh = make(chan *structs.CompletionRequest)
 	TranscribeRequestsCh = make(chan *structs.TranscriptionRequest)

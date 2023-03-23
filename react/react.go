@@ -3,11 +3,13 @@ package react
 import (
 	"context"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -35,10 +37,21 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		Messages: request.ToChatCompletionMessages(ctx, true),
 	}
 
-	resp, err := openAIClient.CreateChatCompletion(ctx, req)
+	var resp openai.ChatCompletionResponse
+
+	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeChainOfThought, func(ch chan interface{}, errCh chan error) {
+		resp, err := openAIClient.CreateChatCompletion(ctx, req)
+		if err != nil {
+			logger.Error().Err(err).Msg("error requesting chain of thought")
+			errCh <- err
+		}
+		ch <- resp
+	})
 	if err != nil {
 		return NotifyError(request, err)
 	}
+
+	resp = respi.(openai.ChatCompletionResponse)
 
 	content := resp.Choices[0].Message.Content
 
@@ -101,7 +114,14 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		params = answer
 	}
 
-	_ = memory.SaveMessage(ctx, request.User.ID, "assistant", params, content)
+	msgs := memory.MessagesFromOpenAIChatCompletionResponse(ctx, request.User, request.Message.Interface, &resp)
+	for _, msg := range msgs {
+		msg.Content = params
+		msg.ChainOfThought = content
+		if err := msg.Save(ctx); err != nil {
+			return NotifyError(request, err)
+		}
+	}
 
 	logger.Info().Str("action", action).
 		Str("params", params).
@@ -144,12 +164,19 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
-		if err := memory.SaveMessage(ctx, request.User.ID, "user", params, content); err != nil {
+
+		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+		nmsg.Role = "user"
+		nmsg.Content = params
+		nmsg.ChainOfThought = content
+		nmsg.User = request.User
+
+		if err := nmsg.Save(ctx); err != nil {
 			return err
 		}
 
 		var nreq = request.Copy()
-		nreq.Content = fmt.Sprintf(content)
+		nreq.Message.Content = fmt.Sprintf(content)
 
 		return ChainOfThought(ctx, nreq, true)
 	case "scrape", "web":
@@ -168,18 +195,25 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
-		if err := memory.SaveMessage(ctx, request.User.ID, "user", params, content); err != nil {
+
+		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+		nmsg.Role = "user"
+		nmsg.Content = params
+		nmsg.ChainOfThought = content
+		nmsg.User = request.User
+
+		if err := nmsg.Save(ctx); err != nil {
 			return err
 		}
 
 		var nreq = request.Copy()
-		nreq.Content = fmt.Sprintf("Observation: %s", content)
+		nreq.Message.Content = fmt.Sprintf("Observation: %s", content)
 
 		return ChainOfThought(ctx, nreq, true)
 	case "image", "dalle", "dall-e":
 		var ws []io.WriteCloser
 
-		if request.User.ExternalID.Interface == "telegram" {
+		if request.Message.Interface == "telegram" {
 			iw := request.Writer.(*telegram.TelegramWriter).ToImageWriter()
 			for k := 0; k < 4; k++ {
 				ws = append(ws, iw.(*telegram.TelegramWriter).Subwriter())
@@ -206,7 +240,7 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 	case "audio", "tts", "speak":
 		var ws []io.WriteCloser
 
-		if request.User.ExternalID.Interface == "telegram" {
+		if request.Message.Interface == "telegram" {
 			iw := request.Writer.(*telegram.TelegramWriter).ToAudioWriter()
 			ws = append(ws, iw)
 		} else {
@@ -241,12 +275,19 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
-		if err := memory.SaveMessage(ctx, request.User.ID, "assistant", params, content); err != nil {
+
+		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+		nmsg.Role = "user"
+		nmsg.Content = params
+		nmsg.ChainOfThought = content
+		nmsg.User = request.User
+
+		if err := nmsg.Save(ctx); err != nil {
 			return err
 		}
 
 		var nreq = request.Copy()
-		nreq.Content = fmt.Sprintf("Observation: %s", content)
+		nreq.Message.Content = fmt.Sprintf("Observation: %s", content)
 
 		return ChainOfThought(ctx, nreq, true)
 	default:

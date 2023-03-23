@@ -1,6 +1,8 @@
 package react
 
-import "github.com/kamushadenes/chloe/structs"
+import (
+	"github.com/kamushadenes/chloe/structs"
+)
 
 func StartAndWait(req structs.Request) {
 	if req.GetStartChannel() != nil {

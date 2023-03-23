@@ -5,13 +5,12 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/messages"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/rs/zerolog"
 	"strings"
 )
 
-func handleCommands(ctx context.Context, msg *messages.Message) bool {
+func handleCommands(ctx context.Context, msg *memory.Message) bool {
 	//logger := zerolog.Ctx(ctx)
 
 	switch msg.Source.Telegram.Update.Message.Command() {
@@ -57,7 +56,7 @@ func handleCommands(ctx context.Context, msg *messages.Message) bool {
 	return false
 }
 
-func generate(ctx context.Context, msg *messages.Message) {
+func generate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatUploadPhoto))
@@ -67,7 +66,7 @@ func generate(ctx context.Context, msg *messages.Message) {
 	}
 }
 
-func tts(ctx context.Context, msg *messages.Message) {
+func tts(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatRecordVoice))
@@ -77,12 +76,12 @@ func tts(ctx context.Context, msg *messages.Message) {
 	}
 }
 
-func forgetUser(ctx context.Context, msg *messages.Message) error {
-	return memory.DeleteMessages(ctx, msg.User.ID)
+func forgetUser(ctx context.Context, msg *memory.Message) error {
+	return msg.User.DeleteMessages(ctx)
 }
 
-func setUserMode(ctx context.Context, msg *messages.Message) error {
-	return memory.SetUserMode(ctx, msg.User.ID, msg.Source.Telegram.Update.Message.CommandArguments())
+func setUserMode(ctx context.Context, msg *memory.Message) error {
+	return msg.User.SetMode(ctx, msg.Source.Telegram.Update.Message.CommandArguments())
 }
 
 func listModes() (string, error) {

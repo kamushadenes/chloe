@@ -2,7 +2,7 @@ package structs
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
@@ -17,10 +17,10 @@ type GenerationRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
-	User      *users.User `json:"user,omitempty"`
-	Prompt    string      `json:"prompt"`
-	Size      string      `json:"size"`
-	ImagePath string      `json:"image"`
+	User      *memory.User `json:"user,omitempty"`
+	Prompt    string       `json:"prompt"`
+	Size      string       `json:"size"`
+	ImagePath string       `json:"image"`
 }
 
 func (creq *GenerationRequest) GetContext() context.Context {

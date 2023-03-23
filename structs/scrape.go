@@ -2,7 +2,7 @@ package structs
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
@@ -17,8 +17,8 @@ type ScrapeRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
-	User    *users.User `json:"user,omitempty"`
-	Content string      `json:"content"`
+	User    *memory.User `json:"user,omitempty"`
+	Content string       `json:"content"`
 }
 
 func (creq *ScrapeRequest) GetContext() context.Context {

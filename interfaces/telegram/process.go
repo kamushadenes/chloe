@@ -2,10 +2,10 @@ package telegram
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 )
 
-func processText(ctx context.Context, msg *messages.Message, ch chan interface{}) error {
+func processText(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
 	err := aiComplete(ctx, msg, ch)
 	if err != nil {
 		return err
@@ -14,10 +14,10 @@ func processText(ctx context.Context, msg *messages.Message, ch chan interface{}
 	return nil
 }
 
-func processAudio(ctx context.Context, msg *messages.Message, ch chan interface{}) error {
+func processAudio(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
 	return aiTranscribe(ctx, msg, ch)
 }
 
-func processImage(ctx context.Context, msg *messages.Message) error {
+func processImage(ctx context.Context, msg *memory.Message) error {
 	return aiImage(ctx, msg)
 }

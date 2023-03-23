@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/briandowns/spinner"
+	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils/colors"
@@ -33,6 +35,11 @@ func Complete(ctx context.Context, text string) error {
 		}
 	}()
 
+	msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
+	msg.Role = "user"
+	msg.User = user
+	msg.Content = text
+
 	return openai.Complete(ctx, &structs.CompletionRequest{
 		Context:         ctx,
 		Writer:          os.Stdout,
@@ -41,6 +48,6 @@ func Complete(ctx context.Context, text string) error {
 		ContinueChannel: continueCh,
 		User:            user,
 		Mode:            "default",
-		Content:         text,
+		Message:         msg,
 	})
 }

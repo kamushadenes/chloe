@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kamushadenes/chloe/messages"
-	"github.com/kamushadenes/chloe/users"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 )
 
-func tryAndRespond(ctx context.Context, msg *messages.Message, successText, errorText string, err error, reply bool) {
+func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorText string, err error, reply bool) {
 	logger := zerolog.Ctx(ctx)
 
 	text := successText
@@ -31,15 +30,11 @@ func tryAndRespond(ctx context.Context, msg *messages.Message, successText, erro
 	}
 }
 
-func userFromMessage(ctx context.Context, msg *messages.Message) (*users.User, error) {
-	return users.GetUserOrSetByExternalId(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID),
-		"telegram",
-		msg.Source.Telegram.Update.Message.From.FirstName,
-		msg.Source.Telegram.Update.Message.From.LastName,
-		msg.Source.Telegram.Update.Message.From.UserName)
+func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, error) {
+	return memory.GetUserByExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
 }
 
-func promptFromMessage(msg *messages.Message) string {
+func promptFromMessage(msg *memory.Message) string {
 	if msg.Source.Telegram.Update.Message.CommandArguments() != "" {
 		return msg.Source.Telegram.Update.Message.CommandArguments()
 	} else {

@@ -3,7 +3,7 @@ package telegram
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"os/exec"
@@ -23,7 +23,7 @@ func convertImageToPng(filePath string) (string, error) {
 	return npath, err
 }
 
-func aiGenerate(ctx context.Context, msg *messages.Message) error {
+func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	request := &structs.GenerationRequest{}
 
 	request.User = msg.User
@@ -45,7 +45,7 @@ func aiGenerate(ctx context.Context, msg *messages.Message) error {
 	return nil
 }
 
-func aiImage(ctx context.Context, msg *messages.Message) error {
+func aiImage(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetImages() {
 		w := NewImageWriter(ctx, msg, true)
 

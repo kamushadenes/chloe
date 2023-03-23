@@ -49,7 +49,7 @@ func GetPromptSize(prompt string) (int, error) {
 		return 0, err
 	}
 
-	return len(buf.String()), nil
+	return len(strings.Fields(buf.String())), nil
 }
 
 func ListPrompts() ([]string, error) {

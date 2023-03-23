@@ -5,16 +5,16 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/messages"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 )
 
-func handleTextUpdate(ctx context.Context, msg *messages.Message) {
+func handleTextUpdate(ctx context.Context, msg *memory.Message) {
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
 	_ = processText(ctx, msg, nil)
 }
 
-func handleAudioUpdate(ctx context.Context, msg *messages.Message) {
+func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
@@ -32,12 +32,14 @@ func handleAudioUpdate(ctx context.Context, msg *messages.Message) {
 	transcription := (<-ch).(string)
 
 	oresp := transcription
-	response := fmt.Sprintf("Transcription: %s", transcription)
+	/*
+		response := fmt.Sprintf("Transcription: %s", transcription)
 
-	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	tmsg = tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, fmt.Sprintf("Transcription: %s", response))
-	tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-	_, _ = msg.Source.Telegram.API.Send(tmsg)
+		_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
+		tmsg = tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, fmt.Sprintf("Transcription: %s", response))
+		tmsg.ParseMode = tgbotapi.ModeMarkdownV2
+		_, _ = msg.Source.Telegram.API.Send(tmsg)
+	*/
 
 	msg.Source.Telegram.Update.Message.Text = oresp
 
@@ -55,7 +57,7 @@ func handleAudioUpdate(ctx context.Context, msg *messages.Message) {
 	_, _ = msg.Source.Telegram.API.Send(tmsg)
 }
 
-func handleImageUpdate(ctx context.Context, msg *messages.Message) {
+func handleImageUpdate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	tmsg := tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, "Processing image...")
@@ -81,16 +83,26 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 		return
 	}
 
-	msg := messages.NewMessage(fmt.Sprintf("%d", update.Message.MessageID))
-	msg.Source.Telegram = &messages.TelegramMessageSource{
+	msg := memory.NewMessage(fmt.Sprintf("%d", update.Message.MessageID), "telegram")
+	msg.Role = "user"
+	msg.Content = update.Message.Text
+	msg.Source.Telegram = &memory.TelegramMessageSource{
 		API:    bot,
 		Update: update,
 	}
 
 	user, err := userFromMessage(ctx, msg)
 	if err != nil {
-		logger.Error().Err(err).Msg("error getting user from message")
-		return
+		user, err = memory.NewUser(ctx, update.Message.From.FirstName, update.Message.From.LastName, update.Message.From.UserName)
+		if err != nil {
+			logger.Error().Err(err).Msg("error getting user from message")
+			return
+		}
+		err = user.AddExternalID(ctx, fmt.Sprintf("%d", update.Message.From.ID), "telegram")
+		if err != nil {
+			logger.Error().Err(err).Msg("error getting user from message")
+			return
+		}
 	}
 	msg.User = user
 
