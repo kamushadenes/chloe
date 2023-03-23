@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	utils2 "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -59,7 +60,7 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 
 	react.StartAndWait(request)
 
-	writeStatusCode(request.Writer, http.StatusOK)
+	utils2.WriteStatusCode(request.Writer, http.StatusOK)
 
 	var responseMessage string
 
@@ -78,7 +79,7 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 		responseMessage += content
 		_, _ = request.Writer.Write([]byte(content))
 
-		flush(request.Writer)
+		utils2.Flush(request.Writer)
 	}
 
 	responseMessage = strings.TrimSpace(responseMessage)

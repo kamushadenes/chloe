@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
+	utils2 "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -33,10 +34,10 @@ func writeImage(ctx context.Context, request structs.Request, writer io.WriteClo
 		"Content-MD5",
 		"ETag",
 	} {
-		cloneHeader(resp, writer, key)
+		utils2.CloneHeader(resp, writer, key)
 	}
 
-	writeStatusCode(writer, resp.StatusCode)
+	utils2.WriteStatusCode(writer, resp.StatusCode)
 
 	if _, err := io.Copy(writer, resp.Body); err != nil {
 		return react.NotifyError(request, err)

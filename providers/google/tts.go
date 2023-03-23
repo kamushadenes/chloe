@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
+	"github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
 	"io"
@@ -68,8 +69,8 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 	}
 
 	for k := range request.Writers {
-		writeHeader(request.Writers[k], "Content-Type", contentType)
-		writeHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
+		utils.WriteHeader(request.Writers[k], "Content-Type", contentType)
+		utils.WriteHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
 
 		if _, err := io.Copy(request.Writers[k], bytes.NewReader(resp.AudioContent)); err != nil {
 			return err

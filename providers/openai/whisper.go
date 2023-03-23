@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	utils2 "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -44,7 +45,7 @@ func Transcribe(ctx context.Context, request *structs.TranscriptionRequest) erro
 
 	react.StartAndWait(request)
 
-	writeStatusCode(request.Writer, http.StatusOK)
+	utils2.WriteStatusCode(request.Writer, http.StatusOK)
 
 	_, err = request.Writer.Write([]byte(response.Text))
 	defer request.Writer.Close()
