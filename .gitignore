@@ -7,3 +7,5 @@ cmd/chloe/chloe.db
 cmd/chloe/gcp-credentials.json
 cmd/chloe/chloe
 logging.iml
+
+dist/
