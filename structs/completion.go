@@ -142,7 +142,7 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 	userCount := creq.CountTokens(userMessages)
 
 	for {
-		if (systemCount + userCount) > config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeCompletion]] {
+		if (systemCount + userCount) > config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Completion] {
 			userMessages = userMessages[1:]
 			userCount = creq.CountTokens(userMessages)
 		} else {

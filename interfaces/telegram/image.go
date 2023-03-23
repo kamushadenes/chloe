@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -33,7 +34,7 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	w := NewImageWriter(ctx, msg, false)
 
 	var ws []io.WriteCloser
-	for k := 0; k < 4; k++ {
+	for k := 0; k < config.Telegram.ImageCount; k++ {
 		ws = append(ws, w.(*TelegramWriter).Subwriter())
 	}
 
@@ -50,7 +51,7 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 		w := NewImageWriter(ctx, msg, true)
 
 		var ws []io.WriteCloser
-		for k := 0; k < 4; k++ {
+		for k := 0; k < config.Telegram.ImageCount; k++ {
 			ws = append(ws, w.(*TelegramWriter).Subwriter())
 		}
 

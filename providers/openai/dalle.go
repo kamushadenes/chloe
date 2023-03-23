@@ -59,7 +59,7 @@ func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 	logger.Info().Msg("generating image")
 
 	if request.Size == "" {
-		request.Size = config.OpenAI.DefaultSize[config.ImageTypeGeneration]
+		request.Size = config.OpenAI.DefaultSize.ImageGeneration
 	}
 
 	req := openai.ImageRequest{
@@ -70,7 +70,7 @@ func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 
 	var response openai.ImageResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageGeneration, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageGeneration, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image")
@@ -110,7 +110,7 @@ func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 	}
 
 	if request.Size == "" {
-		request.Size = config.OpenAI.DefaultSize[config.ImageTypeEdit]
+		request.Size = config.OpenAI.DefaultSize.ImageEdit
 	}
 
 	req := openai.ImageEditRequest{
@@ -122,7 +122,7 @@ func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 
 	var response openai.ImageResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageEdit, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageEdit, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateEditImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image edits")
@@ -165,12 +165,12 @@ func Variations(ctx context.Context, request *structs.VariationRequest) error {
 	req := openai.ImageVariRequest{
 		Image: f,
 		N:     len(request.Writers),
-		Size:  config.OpenAI.DefaultSize[config.ImageTypeVariation],
+		Size:  config.OpenAI.DefaultSize.ImageVariation,
 	}
 
 	var response openai.ImageResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeImageVariation, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageVariation, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateVariImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image variations")

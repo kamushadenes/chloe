@@ -27,7 +27,7 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 	prompt, err := resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
 			"text": react.Truncate(msg.Content,
-				int(float64(config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeCompletion]])-
+				int(float64(config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Summarization])-
 					(float64(promptSize)*0.75)-
 					(float64(len(strings.Fields(msg.Content)))*0.75))),
 		},
@@ -38,7 +38,7 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 	}
 
 	req := openai.ChatCompletionRequest{
-		Model: config.OpenAI.DefaultModel[config.ModelPurposeCompletion],
+		Model: config.OpenAI.DefaultModel.Summarization,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    "system",
@@ -49,7 +49,7 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 
 	var response openai.ChatCompletionResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeChainOfThought, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error summarizing message")

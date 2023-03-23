@@ -6,6 +6,6 @@ type HTTPConfig struct {
 }
 
 var HTTP = &HTTPConfig{
-	Host: "0.0.0.0",
-	Port: "8080",
+	Host: envOrDefault("CHLOE_HTTP_HOST", "0.0.0.0"),
+	Port: envOrDefault("CHLOE_HTTP_PORT", "8080"),
 }

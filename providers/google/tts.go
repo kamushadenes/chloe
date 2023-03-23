@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
@@ -37,12 +38,12 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 		// Build the voice request, select the language code ("en-US") and the SSML
 		// voice gender ("neutral").
 		Voice: &texttospeechpb.VoiceSelectionParams{
-			LanguageCode: "en-US",
-			Name:         "en-US-Wavenet-F",
+			LanguageCode: config.GCP.TTSLanguageCode,
+			Name:         config.GCP.TTSVoiceName,
 		},
 		// Select the type of audio file you want returned.
 		AudioConfig: &texttospeechpb.AudioConfig{
-			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
+			AudioEncoding: config.GCP.TTSEncoding,
 		},
 	}
 
@@ -51,8 +52,23 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 		return err
 	}
 
+	var contentType string
+
+	switch config.GCP.TTSEncoding {
+	case texttospeechpb.AudioEncoding_MP3:
+		contentType = "audio/mpeg"
+	case texttospeechpb.AudioEncoding_OGG_OPUS:
+		contentType = "audio/ogg"
+	case texttospeechpb.AudioEncoding_LINEAR16:
+		contentType = "audio/wav"
+	case texttospeechpb.AudioEncoding_MULAW:
+		contentType = "audio/mulaw"
+	case texttospeechpb.AudioEncoding_ALAW:
+		contentType = "audio/alaw"
+	}
+
 	for k := range request.Writers {
-		writeHeader(request.Writers[k], "Content-Type", "audio/mpeg")
+		writeHeader(request.Writers[k], "Content-Type", contentType)
 		writeHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
 
 		if _, err := io.Copy(request.Writers[k], bytes.NewReader(resp.AudioContent)); err != nil {

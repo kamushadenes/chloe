@@ -22,13 +22,13 @@ func Transcribe(ctx context.Context, request *structs.TranscriptionRequest) erro
 	logger.Info().Msg("transcribing file")
 
 	req := openai.AudioRequest{
-		Model:    config.OpenAI.DefaultModel[config.ModelPurposeTranscription],
+		Model:    config.OpenAI.DefaultModel.Transcription,
 		FilePath: request.FilePath,
 	}
 
 	var response openai.AudioResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeModeration, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateTranscription(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error transcribing audio")

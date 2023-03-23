@@ -16,7 +16,7 @@ func Moderate(ctx context.Context, msg *memory.Message) error {
 
 	logger.Info().Msg("moderating message")
 
-	model := config.OpenAI.DefaultModel[config.ModelPurposeModeration]
+	model := config.OpenAI.DefaultModel.Moderation
 	content := msg.Content
 	if content == "" {
 		content = msg.ChainOfThought
@@ -33,7 +33,7 @@ func Moderate(ctx context.Context, msg *memory.Message) error {
 
 	var resp openai.ModerationResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeModeration, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.Moderations(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error moderating message")

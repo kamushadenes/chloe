@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func WaitTimeout(ctx context.Context, ttype config.TimeoutType, fn func(ch chan interface{}, errCh chan error)) (interface{}, error) {
+func WaitTimeout(ctx context.Context, timeout time.Duration, fn func(ch chan interface{}, errCh chan error)) (interface{}, error) {
 	logger := zerolog.Ctx(ctx)
 
 	nch := make(chan interface{})
@@ -16,23 +16,23 @@ func WaitTimeout(ctx context.Context, ttype config.TimeoutType, fn func(ch chan 
 
 	go fn(nch, errCh)
 
-	ticker := time.NewTicker(config.OpenAI.Timeouts[config.TimeoutTypeSlowness])
-	timeout := time.NewTimer(config.OpenAI.Timeouts[ttype])
+	ticker := time.NewTicker(config.Timeouts.SlownessWarning)
+	timeoutTicker := time.NewTimer(timeout)
 
 	for {
 		select {
 		case <-ticker.C:
 			logger.Warn().Msg("still waiting for chain of thought analysis")
-		case <-timeout.C:
+		case <-timeoutTicker.C:
 			return nil, fmt.Errorf("timeout waiting for chain of thought analysis")
 		case r := <-nch:
 			ticker.Stop()
-			timeout.Stop()
+			timeoutTicker.Stop()
 
 			return r, nil
 		case err := <-errCh:
 			ticker.Stop()
-			timeout.Stop()
+			timeoutTicker.Stop()
 
 			return nil, err
 		}

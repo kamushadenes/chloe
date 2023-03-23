@@ -33,13 +33,13 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 
 	request.Mode = "chain_of_thought"
 	req := openai.ChatCompletionRequest{
-		Model:    config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought],
+		Model:    config.OpenAI.DefaultModel.ChainOfThought,
 		Messages: request.ToChatCompletionMessages(ctx, true),
 	}
 
 	var resp openai.ChatCompletionResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeChainOfThought, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting chain of thought")
@@ -135,9 +135,9 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 
 func HandleAction(ctx context.Context, request *structs.CompletionRequest, action string, params string, allowObservation bool) error {
 	tokenCount := request.CountTokens(request.ToChatCompletionMessages(ctx, true))
-	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]] - tokenCount
-	if truncateTokenCount < config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]] {
-		truncateTokenCount = config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel[config.ModelPurposeChainOfThought]]
+	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.ChainOfThought] - tokenCount
+	if truncateTokenCount < config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought] {
+		truncateTokenCount = config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought]
 	}
 
 	switch strings.ToLower(action) {

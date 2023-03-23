@@ -35,7 +35,7 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 	}
 
 	req := openai.ChatCompletionRequest{
-		Model:    config.OpenAI.DefaultModel[config.ModelPurposeCompletion],
+		Model:    config.OpenAI.DefaultModel.Completion,
 		Messages: request.ToChatCompletionMessages(ctx, false),
 	}
 
@@ -43,7 +43,7 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 
 	var stream *openai.ChatCompletionStream
 
-	respi, err := utils.WaitTimeout(ctx, config.TimeoutTypeCompletion, func(ch chan interface{}, errCh chan error) {
+	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting completion")
