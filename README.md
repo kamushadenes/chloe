@@ -24,7 +24,7 @@ understand and respond to complex instructions.
 - Automatically summarizes messages in order to have a longer context
 
 Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
-simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L116).
+simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L136).
 
 ## Roadmap
 

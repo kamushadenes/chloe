@@ -2,6 +2,7 @@ package config
 
 import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -63,7 +64,7 @@ func envOrDefaultInt(key string, defaultValue int) int {
 func mustEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		panic("environment variable " + key + " is not set")
+		panic(fmt.Sprintf("environment variable %s is not set", key))
 	}
 
 	return value
