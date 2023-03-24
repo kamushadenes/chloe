@@ -1,3 +1,3 @@
 package flags
 
-var CLI bool
+var InteractiveCLI bool

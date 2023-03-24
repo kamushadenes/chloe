@@ -36,7 +36,7 @@ func Handle(ctx context.Context) error {
 				return err
 			}
 		} else {
-			flags.CLI = true
+			flags.InteractiveCLI = true
 
 			fmt.Println("Welcome to Chloe CLI")
 			fmt.Println("Type 'quit' to exit")

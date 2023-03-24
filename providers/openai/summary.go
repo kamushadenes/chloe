@@ -10,21 +10,17 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"strings"
-	"time"
 )
 
-func Summarize(ctx context.Context, msg *memory.Message) error {
-	logger := zerolog.Ctx(ctx).With().Uint("messageId", msg.ID).Logger()
-	ctx = logger.WithContext(ctx)
-
-	logger.Info().Msg("summarizing text")
-
+// getSummarizationPrompt retrieves a summarization prompt for the given message.
+// Returns an error if there's an issue during the process.
+func getSummarizationPrompt(ctx context.Context, msg *memory.Message) (string, error) {
 	promptSize, err := resources.GetPromptSize("summarize")
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	prompt, err := resources.GetPrompt("summarize", &resources.PromptArgs{
+	return resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
 			"text": react.Truncate(msg.Content,
 				int(float64(config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Summarization])-
@@ -33,11 +29,17 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 		},
 		Mode: "summarize",
 	})
+}
+
+// newSummarizationRequest creates a new openai.ChatCompletionRequest for summarization.
+// Returns an error if there's an issue during the process.
+func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.ChatCompletionRequest, error) {
+	prompt, err := getSummarizationPrompt(ctx, msg)
 	if err != nil {
-		return err
+		return openai.ChatCompletionRequest{}, err
 	}
 
-	req := openai.ChatCompletionRequest{
+	return openai.ChatCompletionRequest{
 		Model: config.OpenAI.DefaultModel.Summarization,
 		Messages: []openai.ChatCompletionMessage{
 			{
@@ -45,9 +47,14 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 				Content: prompt,
 			},
 		},
-	}
+	}, nil
+}
 
-	var response openai.ChatCompletionResponse
+// createSummarizationWithTimeout attempts to create a ChatCompletionResponse with a timeout.
+// Returns the created ChatCompletionResponse or an error if the request times out or encounters an issue.
+func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
+	logger := zerolog.Ctx(ctx)
+	ctx = logger.WithContext(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
@@ -57,36 +64,27 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 		}
 		ch <- resp
 	})
+
+	return respi.(openai.ChatCompletionResponse), err
+}
+
+// Summarize processes a summarization request for a message using the OpenAI API.
+// Returns an error if there's an issue during the process.
+func Summarize(ctx context.Context, msg *memory.Message) error {
+	logger := zerolog.Ctx(ctx).With().Uint("messageId", msg.ID).Logger()
+	ctx = logger.WithContext(ctx)
+
+	logger.Info().Msg("summarizing text")
+
+	req, err := newSummarizationRequest(ctx, msg)
 	if err != nil {
 		return err
 	}
 
-	response = respi.(openai.ChatCompletionResponse)
+	response, err := createSummarizationWithTimeout(ctx, req)
+	if err != nil {
+		return err
+	}
 
 	return msg.SetSummary(ctx, response.Choices[0].Message.Content)
-}
-
-func MonitorSummary(ctx context.Context) {
-	logger := zerolog.Ctx(ctx)
-	ticker := time.NewTicker(1 * time.Second)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			messages, err := memory.LoadNonSummarizedMessages(ctx)
-			if err != nil {
-				logger.Error().Err(err).Msg("failed to load non summarized messages")
-				continue
-			}
-			for k := range messages {
-				err := Summarize(ctx, messages[k])
-				if err != nil {
-					logger.Error().Err(err).Msg("failed to summarize message")
-					continue
-				}
-			}
-		}
-	}
 }

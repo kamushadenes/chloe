@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
-	utils2 "github.com/kamushadenes/chloe/providers/utils"
+	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -16,8 +16,21 @@ import (
 	"os"
 )
 
-func writeImage(ctx context.Context, request structs.Request, writer io.WriteCloser, url string) error {
+// cloneImageHeaders clones specified headers from an http.Response to an io.Writer.
+func cloneImageHeaders(resp *http.Response, writer io.Writer) {
+	for _, key := range []string{
+		"Content-Type",
+		"Content-Lenght",
+		"Content-Disposition",
+		"Content-MD5",
+		"ETag",
+	} {
+		putils.CloneHeader(resp, writer, key)
+	}
+}
 
+// writeImage writes an image from a URL to an io.WriteCloser.
+func writeImage(request structs.Request, writer io.WriteCloser, url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return react.NotifyError(request, err)
@@ -27,49 +40,47 @@ func writeImage(ctx context.Context, request structs.Request, writer io.WriteClo
 		return fmt.Errorf("unexpected status: %s", resp.Status)
 	}
 
-	for _, key := range []string{
-		"Content-Type",
-		"Content-Lenght",
-		"Content-Disposition",
-		"Content-MD5",
-		"ETag",
-	} {
-		utils2.CloneHeader(resp, writer, key)
-	}
+	cloneImageHeaders(resp, writer)
 
-	utils2.WriteStatusCode(writer, resp.StatusCode)
+	putils.WriteStatusCode(writer, resp.StatusCode)
 
 	if _, err := io.Copy(writer, resp.Body); err != nil {
 		return react.NotifyError(request, err)
 	}
 
-	if err := writer.Close(); err != nil {
-		return react.NotifyError(request, err)
-	}
-
-	return nil
+	return react.NotifyAndClose(request, err)
 }
 
-func Generate(ctx context.Context, request *structs.GenerationRequest) error {
-	logger := zerolog.Ctx(ctx)
-
-	if flags.CLI {
-		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
+// getImageSize returns the appropriate image size for the request.
+func getImageSize(request structs.ImageRequest) string {
+	if request.GetSize() != "" {
+		return request.GetSize()
 	}
 
-	logger.Info().Msg("generating image")
-
-	if request.Size == "" {
-		request.Size = config.OpenAI.DefaultSize.ImageGeneration
+	switch request.(type) {
+	case *structs.GenerationRequest:
+		return config.OpenAI.DefaultSize.ImageGeneration
+	case *structs.VariationRequest:
+		return config.OpenAI.DefaultSize.ImageVariation
 	}
 
-	req := openai.ImageRequest{
+	return ""
+}
+
+// newImageRequest creates a new openai.ImageRequest for image generation.
+func newImageRequest(request *structs.GenerationRequest) openai.ImageRequest {
+	request.Size = getImageSize(request)
+
+	return openai.ImageRequest{
 		Prompt: request.Prompt,
 		N:      len(request.Writers),
 		Size:   request.Size,
 	}
+}
 
-	var response openai.ImageResponse
+// createImageWithTimeout attempts to create an ImageResponse with a timeout.
+func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (openai.ImageResponse, error) {
+	logger := zerolog.Ctx(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageGeneration, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateImage(ctx, req)
@@ -80,48 +91,65 @@ func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 		ch <- response
 	})
 	if err != nil {
-		return react.NotifyError(request, err)
+		return openai.ImageResponse{}, err
 	}
 
-	response = respi.(openai.ImageResponse)
+	return respi.(openai.ImageResponse), nil
+}
 
+// processSuccessfulImageRequest processes a successful image generation request.
+func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
 	react.StartAndWait(request)
 
 	for k := range request.Writers {
-		if err := writeImage(ctx, request, request.Writers[k], response.Data[k].URL); err != nil {
-			return react.NotifyError(request, err)
+		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
+			return err
 		}
 	}
 
-	return react.NotifyError(request, nil)
+	return nil
 }
 
-func Edits(ctx context.Context, request *structs.GenerationRequest) error {
+// Generate generates an image based on a text prompt using the OpenAI API.
+func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 	logger := zerolog.Ctx(ctx)
 
-	if flags.CLI {
+	if flags.InteractiveCLI {
 		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
 	}
 
-	logger.Info().Msg("generating image edits")
+	logger.Info().Msg("generating image")
 
-	f, err := os.Open(request.ImagePath)
+	req := newImageRequest(request)
+
+	response, err := createImageWithTimeout(ctx, req)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
 
-	if request.Size == "" {
-		request.Size = config.OpenAI.DefaultSize.ImageEdit
+	return react.NotifyError(request, processSuccessfulImageRequest(request, response))
+}
+
+// newImageEditRequest creates a new openai.ImageEditRequest for image editing.
+func newImageEditRequest(request *structs.GenerationRequest) (openai.ImageEditRequest, error) {
+	request.Size = getImageSize(request)
+
+	f, err := os.Open(request.ImagePath)
+	if err != nil {
+		return openai.ImageEditRequest{}, err
 	}
 
-	req := openai.ImageEditRequest{
+	return openai.ImageEditRequest{
 		Prompt: request.Prompt,
 		N:      len(request.Writers),
 		Size:   request.Size,
 		Image:  f,
-	}
+	}, nil
+}
 
-	var response openai.ImageResponse
+// createImageEditWithTimeout attempts to create an ImageResponse with a timeout for image editing.
+func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest) (openai.ImageResponse, error) {
+	logger := zerolog.Ctx(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageEdit, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateEditImage(ctx, req)
@@ -132,44 +160,54 @@ func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 		ch <- response
 	})
 	if err != nil {
-		return react.NotifyError(request, err)
+		return openai.ImageResponse{}, err
 	}
 
-	response = respi.(openai.ImageResponse)
-
-	react.StartAndWait(request)
-
-	for k := range request.Writers {
-		if err := writeImage(ctx, request, request.Writers[k], response.Data[k].URL); err != nil {
-			return react.NotifyError(request, err)
-		}
-	}
-
-	return react.NotifyError(request, nil)
+	return respi.(openai.ImageResponse), nil
 }
 
-func Variations(ctx context.Context, request *structs.VariationRequest) error {
+// Edits creates a new version of an image based on a text prompt using the OpenAI API.
+func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 	logger := zerolog.Ctx(ctx)
 
-	if flags.CLI {
+	if flags.InteractiveCLI {
 		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
 	}
 
-	logger.Info().Msg("generating image variations")
+	logger.Info().Msg("generating image edits")
 
-	f, err := os.Open(request.ImagePath)
+	req, err := newImageEditRequest(request)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
-	defer f.Close()
 
-	req := openai.ImageVariRequest{
+	response, err := createImageEditWithTimeout(ctx, req)
+	if err != nil {
+		return react.NotifyError(request, err)
+	}
+
+	return react.NotifyError(request, processSuccessfulImageRequest(request, response))
+}
+
+// newImageVariationRequest creates a new openai.ImageVariRequest for image variations.
+func newImageVariationRequest(request *structs.VariationRequest) (openai.ImageVariRequest, error) {
+	request.Size = getImageSize(request)
+
+	f, err := os.Open(request.ImagePath)
+	if err != nil {
+		return openai.ImageVariRequest{}, err
+	}
+
+	return openai.ImageVariRequest{
 		Image: f,
 		N:     len(request.Writers),
 		Size:  config.OpenAI.DefaultSize.ImageVariation,
-	}
+	}, nil
+}
 
-	var response openai.ImageResponse
+// createImageVariationWithTimeout attempts to create an ImageResponse with a timeout for image variations.
+func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRequest) (openai.ImageResponse, error) {
+	logger := zerolog.Ctx(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ImageVariation, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateVariImage(ctx, req)
@@ -180,31 +218,46 @@ func Variations(ctx context.Context, request *structs.VariationRequest) error {
 		ch <- response
 	})
 	if err != nil {
-		return react.NotifyError(request, err)
+		return openai.ImageResponse{}, err
 	}
 
-	response = respi.(openai.ImageResponse)
+	return respi.(openai.ImageResponse), nil
+}
 
+// processSuccessfulImageVariationRequest processes a successful image variation request.
+func processSuccessfulImageVariationRequest(request *structs.VariationRequest, response openai.ImageResponse) error {
 	react.StartAndWait(request)
 
 	for k := range request.Writers {
-		resp, err := http.Get(response.Data[k].URL)
-		if err != nil {
-			return react.NotifyError(request, err)
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("unexpected status: %s", resp.Status)
-		}
-
-		if _, err = io.Copy(request.Writers[k], resp.Body); err != nil {
-			return react.NotifyError(request, err)
-		}
-
-		if err := request.Writers[k].Close(); err != nil {
-			return react.NotifyError(request, err)
+		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
+			return err
 		}
 	}
 
-	return react.NotifyError(request, nil)
+	return nil
+}
+
+// Variations generates variations of an input image using the OpenAI API.
+func Variations(ctx context.Context, request *structs.VariationRequest) error {
+	logger := zerolog.Ctx(ctx)
+
+	if flags.InteractiveCLI {
+		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
+	}
+
+	logger.Info().Msg("generating image variations")
+
+	req, err := newImageVariationRequest(request)
+	if err != nil {
+		return react.NotifyError(request, err)
+	}
+
+	response, err := createImageVariationWithTimeout(ctx, req)
+	if err != nil {
+		return react.NotifyError(request, err)
+	}
+
+	react.StartAndWait(request)
+
+	return react.NotifyError(request, processSuccessfulImageVariationRequest(request, response))
 }

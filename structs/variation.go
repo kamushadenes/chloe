@@ -22,6 +22,10 @@ type VariationRequest struct {
 	ImagePath string       `json:"image"`
 }
 
+func (creq *VariationRequest) GetSize() string {
+	return creq.Size
+}
+
 func (creq *VariationRequest) GetContext() context.Context {
 	return creq.Context
 }

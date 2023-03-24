@@ -21,6 +21,19 @@ func NotifyError(req structs.Request, err error) error {
 	return err
 }
 
+func NotifyAndClose(req structs.Request, err error) error {
+	for _, writer := range req.GetWriters() {
+		if !req.GetSkipClose() {
+			err := writer.Close()
+			_ = NotifyError(req, err)
+		} else {
+			_ = NotifyError(req, err)
+		}
+	}
+
+	return err
+}
+
 func WriteResult(req structs.Request, result interface{}) {
 	if req.GetResultChannel() != nil {
 		req.GetResultChannel() <- result

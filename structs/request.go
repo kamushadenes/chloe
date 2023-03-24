@@ -14,3 +14,8 @@ type Request interface {
 	GetErrorChannel() chan error
 	GetResultChannel() chan interface{}
 }
+
+type ImageRequest interface {
+	Request
+	GetSize() string
+}

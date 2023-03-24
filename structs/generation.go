@@ -23,6 +23,10 @@ type GenerationRequest struct {
 	ImagePath string       `json:"image"`
 }
 
+func (creq *GenerationRequest) GetSize() string {
+	return creq.Size
+}
+
 func (creq *GenerationRequest) GetContext() context.Context {
 	return creq.Context
 }

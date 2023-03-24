@@ -17,7 +17,7 @@ import (
 func TTS(ctx context.Context, request *structs.TTSRequest) error {
 	logger := zerolog.Ctx(ctx)
 
-	if flags.CLI {
+	if flags.InteractiveCLI {
 		return fmt.Errorf("can't generate audio in CLI mode")
 	}
 
