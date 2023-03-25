@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
 	"net/http"
@@ -17,9 +18,16 @@ type HTTPMessageSource struct {
 	Request *http.Request
 }
 
+type DiscordMessageSource struct {
+	API         *discordgo.Session
+	Message     *discordgo.Message
+	Interaction bool
+}
+
 type MessageSource struct {
 	Telegram *TelegramMessageSource `json:"telegram,omitempty"`
 	HTTP     *HTTPMessageSource     `json:"http,omitempty"`
+	Discord  *DiscordMessageSource  `json:"discord,omitempty"`
 }
 
 type MessageModeration struct {

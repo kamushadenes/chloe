@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/cli"
+	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/http"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/logging"
@@ -39,6 +40,7 @@ func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 	} else {
 		go http.Start(ctx)
 		go telegram.Start(ctx)
+		go discord.Start(ctx)
 	}
 
 	for {

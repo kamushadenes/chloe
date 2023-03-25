@@ -40,8 +40,6 @@ func Start(ctx context.Context) {
 		logger.Panic().Err(err).Msg("error in telegram interface")
 	}
 
-	//bot.Debug = true
-
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -50,7 +48,8 @@ func Start(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			logger.Panic().Err(ctx.Err()).Msg("error in telegram interface")
+			logger.Warn().Err(ctx.Err()).Msg("closing telegram interface")
+			return
 		case update := <-updates:
 			go handleUpdates(ctx, bot, update)
 		}

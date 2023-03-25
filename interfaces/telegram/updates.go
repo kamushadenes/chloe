@@ -103,6 +103,10 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 		}
 	}
 	msg.User = user
+	if err := msg.Save(ctx); err != nil {
+		logger.Error().Err(err).Msg("error saving message")
+		return
+	}
 
 	channels.IncomingMessagesCh <- msg
 

@@ -59,12 +59,9 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 
 			w := NewImageWriter(ctx, req, true)
 
-			var ws []io.WriteCloser
 			for k := 0; k < config.Telegram.ImageCount; k++ {
-				ws = append(ws, w.(*TelegramWriter).Subwriter())
+				req.Writers = append(req.Writers, w.(*TelegramWriter).Subwriter())
 			}
-
-			req.Writers = ws
 
 			channels.VariationRequestsCh <- req
 		} else {

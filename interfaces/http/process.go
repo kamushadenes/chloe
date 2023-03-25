@@ -39,6 +39,10 @@ func aiContext(next http.Handler) http.Handler {
 			}
 
 			msg.User = user
+			if err := msg.Save(ctx); err != nil {
+				_ = render.Render(w, r, ErrInvalidRequest(err))
+				return
+			}
 
 			ctx = context.WithValue(ctx, "msg", msg)
 

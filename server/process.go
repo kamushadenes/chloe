@@ -2,61 +2,21 @@ package server
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
-	"os"
 )
 
 func ProcessMessage(ctx context.Context, msg *memory.Message) error {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 
-	logger.Info().Uint("userId", msg.User.ID).Str("interface", msg.Interface).Msg("message received")
-
-	return nil
-}
-
-func DeliverMessage(ctx context.Context, msg *channels.OutgoingMessage) error {
-	logger := zerolog.Ctx(ctx)
-
-	switch msg.Interface {
-	case "telegram":
-		for k := range msg.Texts {
-			text := msg.Texts[k]
-			for kk := range msg.TextWriters {
-				writer := msg.TextWriters[kk]
-				writer.Write([]byte(text))
-			}
-		}
-
-		for k := range msg.Audios {
-			audio := msg.Audios[k]
-			for kk := range msg.AudioWriters {
-				writer := msg.AudioWriters[kk]
-
-				b, err := os.ReadFile(audio)
-				if err != nil {
-					logger.Err(err).Msg("failed to open audio file")
-					continue
-				}
-				writer.Write(b)
-			}
-		}
-
-		for k := range msg.Images {
-			image := msg.Images[k]
-			for kk := range msg.ImageWriters {
-				writer := msg.ImageWriters[kk]
-
-				b, err := os.ReadFile(image)
-				if err != nil {
-					logger.Err(err).Msg("failed to open image file")
-					continue
-				}
-				writer.Write(b)
-			}
-		}
-	}
+	logger.Info().
+		Uint("userID", msg.User.ID).
+		Str("username", msg.User.Username).
+		Str("firstName", msg.User.FirstName).
+		Str("lastName", msg.User.LastName).
+		Str("interface", msg.Interface).
+		Str("content", msg.Content).
+		Msg("message received")
 
 	return nil
 }

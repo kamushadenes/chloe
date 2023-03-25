@@ -49,6 +49,18 @@ func envOrDefaultDuration(key string, defaultValue time.Duration) time.Duration 
 	return defaultValue
 }
 
+func envOrDefaultBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		b, err := strconv.ParseBool(value)
+		if err != nil {
+			panic(err)
+		}
+		return b
+	}
+
+	return defaultValue
+}
+
 func envOrDefaultInt(key string, defaultValue int) int {
 	if value := os.Getenv(key); value != "" {
 		i, err := strconv.Atoi(value)

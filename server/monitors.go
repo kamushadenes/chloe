@@ -18,10 +18,6 @@ func MonitorMessages(ctx context.Context) {
 			if err := ProcessMessage(ctx, msg); err != nil {
 				logger.Err(err).Msg("failed to process message")
 			}
-		case msg := <-channels.OutgoingMessagesCh:
-			if err := DeliverMessage(ctx, msg); err != nil {
-				logger.Err(err).Msg("failed to deliver message")
-			}
 		}
 	}
 }

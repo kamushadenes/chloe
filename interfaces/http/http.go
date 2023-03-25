@@ -86,11 +86,15 @@ func Start(ctx context.Context) {
 
 	go listen(ctx, server, &wg)
 
-	<-ctx.Done()
-
-	if err := server.Shutdown(ctx); err != nil {
-		logger.Panic().Err(err).Msg("error in http interface")
+	for {
+		select {
+		case <-ctx.Done():
+			logger.Warn().Err(ctx.Err()).Msg("closing http interface")
+			if err := server.Shutdown(ctx); err != nil && err != http.ErrServerClosed {
+				logger.Error().Err(err).Msg("error in http interface")
+			}
+			wg.Wait()
+			return
+		}
 	}
-
-	wg.Wait()
 }

@@ -168,12 +168,5 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 
 	messages = append(messages, userMessages...)
 
-	err = creq.Message.Save(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: creq.Message.Content})
-
 	return messages
 }

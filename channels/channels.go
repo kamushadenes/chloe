@@ -7,7 +7,6 @@ import (
 
 var (
 	IncomingMessagesCh   = make(chan *memory.Message, 100)
-	OutgoingMessagesCh   = make(chan *OutgoingMessage, 100)
 	CompletionRequestsCh = make(chan *structs.CompletionRequest)
 	TranscribeRequestsCh = make(chan *structs.TranscriptionRequest)
 	GenerationRequestsCh = make(chan *structs.GenerationRequest)

@@ -39,6 +39,9 @@ func Complete(ctx context.Context, text string) error {
 	msg.Role = "user"
 	msg.User = user
 	msg.Content = text
+	if err := msg.Save(ctx); err != nil {
+		return err
+	}
 
 	req := structs.NewCompletionRequest()
 	req.Context = ctx

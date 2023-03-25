@@ -27,7 +27,7 @@ func wait(quitCh chan os.Signal, errorCh chan bool, cancel context.CancelFunc) {
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	quitCh := make(chan os.Signal)
+	quitCh := make(chan os.Signal, 1)
 	signal.Notify(quitCh, os.Interrupt, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
 	errorCh := make(chan bool)
