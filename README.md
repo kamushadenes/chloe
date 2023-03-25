@@ -7,7 +7,8 @@
 
 [Chloe](https://blog.hadenes.io/post/chloe-ai-assistant/) is a powerful AI Assistant written in Go
 that leverages OpenAI
-technologies ([ChatGPT](https://openai.com/product/gpt-4), [Whisper](https://openai.com/research/whisper),
+technologies ([ChatGPT](https://openai.com/product/gpt-4),
+ [Whisper](https://openai.com/research/whisper),
 and [DALL-E](https://openai.com/product/dall-e-2)) along
 with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine to provide versatile
 and comprehensive assistance.
@@ -82,15 +83,16 @@ cd chloe
 go build -o chloe cmd/chloe/main.go
 ```
 
-4. Setup the required environment variables
+## Usage
+
+Setup the required environment variables
 
 ```bash
-export TELEGRAM_TOKEN="your_telegram_bot_token"
+export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"
+export CHLOE_DISCORD_TOKEN="your_discord_bot_token"
 export OPENAI_API_KEY="your_openai_api_key"
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/google/application/credentials.json"
 ```
-
-## Usage
 
 Running the `chloe` binary will start the bot.
 
@@ -98,23 +100,18 @@ Running the `chloe` binary will start the bot.
 ./chloe
 ```
 
-For more information pertaining each interface, see the [docs](docs/).
-
 ## Configuration
 
 See [docs/configuration.md](docs/configuration.md) for more information.
 
 ## Contributing
 
-We welcome contributions! If you would like to improve Chloe, please follow these steps:
+We welcome contributions! If you would like to improve Chloe, please check out the [Contributing Guide](CONTRIBUTING.md).
 
-1. Fork the repository
-2. Make your changes
-3. Open a pull request
 
 ## License
 
-Chloe is licensed under the [MIT License](LICENSE).
+Chloe is licensed under the [MIT License](LICENSE.md).
 
 ## References
 
