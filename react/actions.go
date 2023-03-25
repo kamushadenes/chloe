@@ -82,18 +82,21 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		var ws []io.WriteCloser
 
 		if request.Message.Interface == "telegram" {
-			iw := request.Writer.(*telegram.TelegramWriter).ToImageWriter()
+			w := request.Writer.(*telegram.TelegramWriter)
+			iw := w.ToImageWriter().(*telegram.TelegramWriter)
 			for k := 0; k < config.Telegram.ImageCount; k++ {
-				ws = append(ws, iw.(*telegram.TelegramWriter).Subwriter())
+				siw := iw.Subwriter()
+				siw.SetPrompt(params)
+				ws = append(ws, siw)
 			}
 		} else if request.Message.Interface == "discord" {
-			iw := request.Writer.(*discord.DiscordWriter)
-			iw.Prompt = params
+			w := request.Writer.(*discord.DiscordWriter)
+			iw := w.ToImageWriter().(*discord.DiscordWriter)
 			for k := 0; k < config.Discord.ImageCount; k++ {
-				ws = append(ws, iw.Subwriter())
+				siw := iw.Subwriter()
+				siw.SetPrompt(params)
+				ws = append(ws, siw)
 			}
-
-			ws = append(ws, iw.ToImageWriter())
 		} else {
 			ws = append(ws, request.Writer)
 		}

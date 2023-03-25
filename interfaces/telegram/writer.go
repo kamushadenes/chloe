@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
@@ -11,6 +12,7 @@ import (
 
 type TelegramWriter struct {
 	Context    context.Context
+	Prompt     string
 	Bot        *tgbotapi.BotAPI
 	ChatID     int64
 	Type       string
@@ -41,6 +43,7 @@ func (t *TelegramWriter) Close() error {
 	case "image":
 		if t.mainWriter == nil {
 			msg := tgbotapi.NewPhoto(t.ChatID, tgbotapi.FileReader{
+				Name:   "generated.png",
 				Reader: bytes.NewReader(t.bufs[0].Bytes()),
 			})
 			msg.ReplyToMessageID = t.ReplyID
@@ -59,14 +62,19 @@ func (t *TelegramWriter) Close() error {
 		for _, buf := range t.mainWriter.bufs {
 			files = append(files, tgbotapi.NewInputMediaPhoto(
 				tgbotapi.FileReader{
+					Name:   "generated.png",
 					Reader: bytes.NewReader(buf.Bytes()),
 				},
 			))
 		}
 		msg := tgbotapi.NewMediaGroup(t.ChatID, files)
 		msg.ReplyToMessageID = t.ReplyID
-		_, err := t.Bot.SendMediaGroup(msg)
-		return err
+		smsg, err := t.Bot.SendMediaGroup(msg)
+		if err != nil {
+			return err
+		}
+
+		return t.Request.GetMessage().SendText(fmt.Sprintf("Prompt: %s", t.Prompt), smsg[0].MessageID)
 	}
 	return nil
 }
@@ -79,11 +87,16 @@ func (t *TelegramWriter) Write(p []byte) (n int, err error) {
 	return t.bufs[0].Write(p)
 }
 
+func (t *TelegramWriter) SetPrompt(prompt string) {
+	t.Prompt = prompt
+}
+
 func (t *TelegramWriter) Subwriter() *TelegramWriter {
 	t.bufs = append(t.bufs, bytes.Buffer{})
 
 	return &TelegramWriter{
 		Context:    t.Context,
+		Prompt:     t.Prompt,
 		Bot:        t.Bot,
 		ChatID:     t.ChatID,
 		Type:       t.Type,
@@ -110,7 +123,7 @@ func (t *TelegramWriter) ToAudioWriter() io.WriteCloser {
 	return NewAudioWriter(t.Context, t.Request, t.ReplyID != 0)
 }
 
-func NewTextWriter(ctx context.Context, request structs.Request, reply bool) io.WriteCloser {
+func NewTextWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -124,11 +137,14 @@ func NewTextWriter(ctx context.Context, request structs.Request, reply bool) io.
 	if reply {
 		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
 	}
+	if len(prompt) > 0 {
+		w.Prompt = prompt[0]
+	}
 
 	return w
 }
 
-func NewImageWriter(ctx context.Context, request structs.Request, reply bool) io.WriteCloser {
+func NewImageWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -142,11 +158,14 @@ func NewImageWriter(ctx context.Context, request structs.Request, reply bool) io
 	if reply {
 		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
 	}
+	if len(prompt) > 0 {
+		w.Prompt = prompt[0]
+	}
 
 	return w
 }
 
-func NewAudioWriter(ctx context.Context, request structs.Request, reply bool) io.WriteCloser {
+func NewAudioWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -159,6 +178,9 @@ func NewAudioWriter(ctx context.Context, request structs.Request, reply bool) io
 
 	if reply {
 		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
+	}
+	if len(prompt) > 0 {
+		w.Prompt = prompt[0]
 	}
 
 	return w

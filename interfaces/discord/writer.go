@@ -101,6 +101,10 @@ func (t *DiscordWriter) Subwriter() *DiscordWriter {
 	}
 }
 
+func (t *DiscordWriter) SetPrompt(prompt string) {
+	t.Prompt = prompt
+}
+
 func (t *DiscordWriter) ToImageWriter() io.WriteCloser {
 	return NewImageWriter(t.Context, t.Request, t.ReplyID != "", t.Prompt)
 }

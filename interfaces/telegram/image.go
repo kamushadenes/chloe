@@ -40,7 +40,9 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 
 	var ws []io.WriteCloser
 	for k := 0; k < config.Telegram.ImageCount; k++ {
-		ws = append(ws, w.(*TelegramWriter).Subwriter())
+		siw := w.(*TelegramWriter).Subwriter()
+		siw.SetPrompt(request.Prompt)
+		ws = append(ws, siw)
 	}
 
 	request.Writers = ws
@@ -65,7 +67,9 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 			w := NewImageWriter(ctx, req, true)
 
 			for k := 0; k < config.Telegram.ImageCount; k++ {
-				req.Writers = append(req.Writers, w.(*TelegramWriter).Subwriter())
+				siw := w.(*TelegramWriter).Subwriter()
+				siw.SetPrompt(req.Message.Content)
+				req.Writers = append(req.Writers, siw)
 			}
 
 			channels.VariationRequestsCh <- req
@@ -81,7 +85,9 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 
 			var ws []io.WriteCloser
 			for k := 0; k < config.Telegram.ImageCount; k++ {
-				ws = append(ws, w.(*TelegramWriter).Subwriter())
+				siw := w.(*TelegramWriter).Subwriter()
+				siw.SetPrompt(req.Prompt)
+				ws = append(ws, siw)
 			}
 			req.Writers = ws
 

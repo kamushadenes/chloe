@@ -12,8 +12,6 @@ import (
 )
 
 func handleCommands(ctx context.Context, msg *memory.Message) bool {
-	//logger := zerolog.Ctx(ctx)
-
 	switch msg.Source.Telegram.Update.Message.Command() {
 	case "start":
 		_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
