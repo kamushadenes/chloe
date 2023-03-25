@@ -34,6 +34,13 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 
 [complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
 
+## Supported Interfaces
+
+- [Telegram](docs/telegram.md)
+- [Discord](docs/discord.md)
+- [HTTP REST](docs/http.md)
+- [Command Line (CLI)](docs/cli.md)
+
 ## Roadmap
 
 - [x] Add additional storage backends
@@ -91,23 +98,7 @@ Running the `chloe` binary will start the bot.
 ./chloe
 ```
 
-You can use Chloe in multiple ways.
-
-### Telegram
-
-See [Telegram](docs/telegram.md) for more information.
-
-### Discord
-
-See [Discord](docs/discord.md) for more information.
-
-### HTTP
-
-See [HTTP](docs/http.md) for more information.
-
-### Command Line (CLI)
-
-See [CLI](docs/cli.md) for more information.
+For more information pertaining each interface, see the [docs](docs/).
 
 ## Configuration
 
