@@ -26,6 +26,7 @@ understand and respond to complex instructions.
 - Use Google's Text-to-Speech engine to speak
 - Use OpenAI's DALL-E to generate images
 - Automatically summarizes messages in order to have a longer context
+- Automatically moderates message using OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
 
 Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
 simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L136).
@@ -35,6 +36,7 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [x] Add additional storage backends
 - [ ] Add Discord interface
 - [ ] Add Slack interface
+- [ ] Take action when content is flagged by the moderation
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
 
