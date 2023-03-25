@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/i18n"
 )
 
 func Forget(ctx context.Context) error {
@@ -11,7 +12,7 @@ func Forget(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println("Forgot")
+	fmt.Println(i18n.GetForgetText())
 
 	return nil
 }

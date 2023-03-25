@@ -27,21 +27,9 @@ func (t *TelegramWriter) Close() error {
 
 	switch t.Type {
 	case "text":
-		if t.bufs[0].Len() == 0 {
-			return nil
-		}
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with text")
 
-		msg := tgbotapi.NewMessage(t.ChatID, t.bufs[0].String())
-
-		msg.ParseMode = tgbotapi.ModeMarkdown
-		msg.ReplyToMessageID = t.ReplyID
-		_, err := t.Bot.Send(msg)
-		if err != nil {
-			msg.ParseMode = ""
-			_, err = t.Bot.Send(msg)
-		}
-		return err
+		return t.Request.GetMessage().SendText(t.bufs[0].String(), t.ReplyID)
 	case "audio":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with audio")
 		tmsg := tgbotapi.NewVoice(t.ChatID, tgbotapi.FileReader{

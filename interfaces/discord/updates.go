@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
@@ -99,6 +100,8 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 
+	var reply string
+
 	switch i.ApplicationCommandData().Name {
 	case "generate":
 		for _, opt := range options {
@@ -112,6 +115,8 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 		_ = msg.Save(ctx)
 
 		generate(ctx, msg)
+
+		reply = i18n.GetImageGenerationText()
 	case "tts":
 		for _, opt := range options {
 			optionMap[opt.Name] = opt
@@ -124,12 +129,18 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 		_ = msg.Save(ctx)
 
 		tts(ctx, msg)
+
+		reply = i18n.GetTextToSpeechText()
 	case "forget":
 		_ = forgetUser(ctx, msg)
+		reply = i18n.GetForgetText()
 	}
 
 	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: reply,
+		},
 	}); err != nil {
 		logger.Error().Err(err).Msg("error responding to interaction")
 	}

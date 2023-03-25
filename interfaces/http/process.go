@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -183,5 +184,20 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 		case <-request.Writers[0].(*HTTPResponseWriteCloser).CloseCh:
 			return
 		}
+	}
+}
+
+func aiForget(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	msg := ctx.Value("msg").(*memory.Message)
+
+	if err := msg.User.DeleteMessages(ctx); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
+
+	if _, err := w.Write([]byte(i18n.GetForgetText())); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 }

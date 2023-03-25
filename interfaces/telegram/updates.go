@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 )
@@ -18,9 +19,7 @@ func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	tmsg := tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, "Processing audio...")
-	tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-	_, _ = msg.Source.Telegram.API.Send(tmsg)
+	_ = msg.SendText(i18n.GetTranscriptionText())
 
 	ch := make(chan interface{})
 
@@ -32,15 +31,6 @@ func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	transcription := (<-ch).(string)
 
 	oresp := transcription
-	/*
-		response := fmt.Sprintf("Transcription: %s", transcription)
-
-		_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-		tmsg = tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, fmt.Sprintf("Transcription: %s", response))
-		tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-		_, _ = msg.Source.Telegram.API.Send(tmsg)
-	*/
-
 	msg.Source.Telegram.Update.Message.Text = oresp
 
 	ch2 := make(chan interface{})
@@ -52,17 +42,11 @@ func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	response2 := (<-ch2).(string)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	tmsg = tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, response2)
-	tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-	_, _ = msg.Source.Telegram.API.Send(tmsg)
+	_ = msg.SendText(response2)
 }
 
 func handleImageUpdate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
-
-	tmsg := tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, "Processing image...")
-	tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-	_, _ = msg.Source.Telegram.API.Send(tmsg)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatUploadPhoto))
 

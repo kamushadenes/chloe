@@ -26,11 +26,7 @@ type DiscordWriter struct {
 func (t *DiscordWriter) Close() error {
 	switch t.Type {
 	case "text":
-		if t.bufs[0].Len() == 0 {
-			return nil
-		}
-		_, err := t.Bot.ChannelMessageSend(t.ChatID, t.bufs[0].String())
-		return err
+		return t.Request.GetMessage().SendText(t.bufs[0].String())
 	case "audio":
 		msg := &discordgo.MessageSend{
 			File: &discordgo.File{

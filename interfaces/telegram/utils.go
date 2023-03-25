@@ -3,7 +3,6 @@ package telegram
 import (
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 )
@@ -18,15 +17,14 @@ func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorT
 		text = errorText
 	}
 
-	if text != "" {
-		tmsg := tgbotapi.NewMessage(msg.Source.Telegram.Update.Message.Chat.ID, text)
-		tmsg.ParseMode = tgbotapi.ModeMarkdownV2
-		if reply {
-			tmsg.ReplyToMessageID = msg.Source.Telegram.Update.Message.MessageID
-		}
-		if _, err := msg.Source.Telegram.API.Send(tmsg); err != nil {
-			logger.Error().Err(err).Msg("error sending message")
-		}
+	if reply {
+		err = msg.SendText(text, msg.Source.Telegram.Update.Message.MessageID)
+	} else {
+		err = msg.SendText(text)
+	}
+
+	if err != nil {
+		logger.Error().Err(err).Msg("error sending message")
 	}
 }
 

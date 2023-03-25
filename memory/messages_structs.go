@@ -83,6 +83,7 @@ func (m *Message) Copy() *Message {
 	msg.Summary = m.Summary
 	msg.Moderated = m.Moderated
 	msg.Moderation = m.Moderation
+	msg.Source = m.Source
 
 	return msg
 }
@@ -149,4 +150,29 @@ func (m *Message) GetContent(chainOfThought bool) string {
 	}
 
 	return m.Content
+}
+
+func (m *Message) SendText(text string, replyTo ...interface{}) error {
+	if len(text) == 0 {
+		return nil
+	}
+	switch m.Interface {
+	case "telegram":
+		msg := tgbotapi.NewMessage(m.Source.Telegram.Update.Message.Chat.ID, text)
+		msg.ParseMode = tgbotapi.ModeMarkdown
+		if len(replyTo) > 0 {
+			msg.ReplyToMessageID = replyTo[0].(int)
+		}
+		_, err := m.Source.Telegram.API.Send(msg)
+		if err != nil {
+			msg.ParseMode = ""
+			_, err = m.Source.Telegram.API.Send(msg)
+		}
+		return err
+	case "discord":
+		_, err := m.Source.Discord.API.ChannelMessageSend(m.Source.Discord.Message.ChannelID, text)
+		return err
+	}
+
+	return fmt.Errorf("unsupported interface %s", m.Interface)
 }

@@ -41,6 +41,7 @@ func setRoutes(ctx context.Context, r *chi.Mux) {
 		r.Post("/complete", aiComplete)
 		r.Post("/generate", aiGenerate)
 		r.Post("/tts", aiTTS)
+		r.Post("/forget", aiForget)
 	})
 }
 

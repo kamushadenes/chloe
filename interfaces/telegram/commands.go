@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/rs/zerolog"
@@ -26,7 +27,7 @@ func handleCommands(ctx context.Context, msg *memory.Message) bool {
 	case "forget":
 		_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
 		err := forgetUser(ctx, msg)
-		tryAndRespond(ctx, msg, "Forgot", "Failed to forget user", err, true)
+		tryAndRespond(ctx, msg, i18n.GetForgetText(), "Failed to forget user", err, true)
 		return true
 	case "listmodes":
 		_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))

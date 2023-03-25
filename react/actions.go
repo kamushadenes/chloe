@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/structs"
@@ -76,6 +77,8 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 
 		return ChainOfThought(ctx, nreq, true)
 	case "image", "dalle", "dall-e":
+		_ = request.GetMessage().SendText(i18n.GetImageGenerationText())
+
 		var ws []io.WriteCloser
 
 		if request.Message.Interface == "telegram" {

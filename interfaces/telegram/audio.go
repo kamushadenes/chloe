@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
@@ -23,6 +24,8 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 	return npath, err
 }
 func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
+	_ = msg.SendText(i18n.GetTranscriptionText(), msg.Source.Telegram.Update.Message.MessageID)
+
 	for _, path := range msg.GetAudios() {
 		request := structs.NewTranscriptionRequest()
 
@@ -42,6 +45,8 @@ func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{})
 }
 
 func aiTTS(ctx context.Context, msg *memory.Message) error {
+	_ = msg.SendText(i18n.GetTextToSpeechText(), msg.Source.Telegram.Update.Message.MessageID)
+
 	request := structs.NewTTSRequest()
 
 	request.User = msg.User

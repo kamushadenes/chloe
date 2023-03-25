@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -25,6 +26,8 @@ func convertImageToPng(filePath string) (string, error) {
 }
 
 func aiGenerate(ctx context.Context, msg *memory.Message) error {
+	_ = msg.SendText(i18n.GetImageGenerationText(), msg.Source.Telegram.Update.Message.MessageID)
+
 	request := structs.NewGenerationRequest()
 
 	request.User = msg.User
@@ -48,6 +51,8 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 }
 
 func aiImage(ctx context.Context, msg *memory.Message) error {
+	_ = msg.SendText(i18n.GetImageGenerationText(), msg.Source.Telegram.Update.Message.MessageID)
+
 	for _, path := range msg.GetImages() {
 
 		if msg.Source.Telegram.Update.Message.Caption == "" {

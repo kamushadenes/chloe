@@ -6,10 +6,16 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/cli"
 	"github.com/kamushadenes/chloe/server"
 	"github.com/rs/zerolog"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func wait(quitCh chan os.Signal, errorCh chan bool, cancel context.CancelFunc) {
 	for {
