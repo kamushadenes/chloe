@@ -8,7 +8,7 @@
 [Chloe](https://blog.hadenes.io/post/chloe-ai-assistant/) is a powerful AI Assistant written in Go
 that leverages OpenAI
 technologies ([ChatGPT](https://openai.com/product/gpt-4),
- [Whisper](https://openai.com/research/whisper),
+[Whisper](https://openai.com/research/whisper),
 and [DALL-E](https://openai.com/product/dall-e-2)) along
 with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine to provide versatile
 and comprehensive assistance.
@@ -48,6 +48,8 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [x] Add Discord interface
 - [ ] Add Slack interface
 - [ ] Take action when content is flagged by the moderation
+- [ ] Add GPT-4 support (waiting for the API to be released)
+- [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
 
@@ -106,8 +108,8 @@ See [docs/configuration.md](docs/configuration.md) for more information.
 
 ## Contributing
 
-We welcome contributions! If you would like to improve Chloe, please check out the [Contributing Guide](CONTRIBUTING.md).
-
+We welcome contributions! If you would like to improve Chloe, please check out
+the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 

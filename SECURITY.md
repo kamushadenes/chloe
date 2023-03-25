@@ -9,7 +9,7 @@ make every effort to acknowledge your contributions.
 
 Report security vulnerabilities by emailing the Atomist security team at:
 
-    security@hadenes.io
+    security@chloe-ai.io
 
 The lead maintainer will acknowledge your email within 24 hours, and will
 send a more detailed response within 48 hours indicating the next steps in
