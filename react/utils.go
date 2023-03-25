@@ -1,8 +1,8 @@
 package react
 
 import (
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 	"io"
 )
 
@@ -16,7 +16,7 @@ func StartAndWait(req structs.Request) {
 }
 
 func NotifyError(req structs.Request, err error) error {
-	logger := zerolog.Ctx(req.GetContext()).With().Str("requestID", req.GetID()).Logger()
+	logger := logging.GetLogger().With().Str("requestID", req.GetID()).Logger()
 	if err != nil {
 		logger.Error().Err(err).Msg("an error occurred")
 	}
