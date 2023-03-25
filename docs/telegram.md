@@ -34,3 +34,7 @@ Here, Chloe says "Beware of the dog, the cat is shady too". I then ask (in a voi
 to show me a picture of what she just said, and she generates relevant images.
 
 ![show me a picture of what you just said](../.github/resources/images/telegram2.png)
+
+See
+the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#telegram)
+for more details.

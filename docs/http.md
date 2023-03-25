@@ -51,3 +51,8 @@ curl -N -X POST -H "Content-Type: application/json" -d '{"content": "Say out lou
 ```
 
 https://user-images.githubusercontent.com/242529/226274960-9086191d-4267-476e-8c0f-f3a449bfac53.mp4
+
+
+See
+the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#http)
+for more details.
