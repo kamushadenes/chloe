@@ -6,7 +6,7 @@ Please provide a detailed description of the changes you have made. Include any 
 
 Before submitting your pull request, please ensure that you have completed the following tasks:
 
-- [ ] I have read the [Contributing Guidelines]()
+- [ ] I have read the [Contributing Guidelines](https://github.com/kamushadenes/chloe/blob/main/CONTRIBUTING.md)
 - [ ] All tests are passing after running `go test ./...`
 - [ ] All files are formatted with `go fmt ./...`
 - [ ] All code has been checked with `go vet ./...` and no issues were reported
