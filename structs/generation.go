@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type GenerationRequest struct {
+	ID      string
 	Context context.Context
 
 	Writers   []io.WriteCloser
@@ -17,10 +19,26 @@ type GenerationRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
+	Message *memory.Message `json:"message,omitempty"`
+
 	User      *memory.User `json:"user,omitempty"`
 	Prompt    string       `json:"prompt"`
 	Size      string       `json:"size"`
 	ImagePath string       `json:"image"`
+}
+
+func NewGenerationRequest() *GenerationRequest {
+	return &GenerationRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *GenerationRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *GenerationRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *GenerationRequest) GetSize() string {

@@ -40,14 +40,15 @@ func Complete(ctx context.Context, text string) error {
 	msg.User = user
 	msg.Content = text
 
-	return openai.Complete(ctx, &structs.CompletionRequest{
-		Context:         ctx,
-		Writer:          os.Stdout,
-		SkipClose:       true,
-		StartChannel:    startCh,
-		ContinueChannel: continueCh,
-		User:            user,
-		Mode:            "default",
-		Message:         msg,
-	})
+	req := structs.NewCompletionRequest()
+	req.Context = ctx
+	req.Writer = os.Stdout
+	req.SkipClose = true
+	req.StartChannel = startCh
+	req.ContinueChannel = continueCh
+	req.User = user
+	req.Mode = "default"
+	req.Message = msg
+
+	return openai.Complete(ctx, req)
 }

@@ -73,11 +73,9 @@ func handleImageUpdate(ctx context.Context, msg *memory.Message) {
 
 func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	logger := zerolog.Ctx(ctx)
-
-	l := logger.With().Str("externalUserId", fmt.Sprintf("%d", update.Message.From.ID)).Logger()
-	logger = &l
-
-	ctx = logger.WithContext(ctx)
+	logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
+		return c.Str("externalUserID", fmt.Sprintf("%d", update.Message.From.ID))
+	})
 
 	if update.Message == nil { // ignore non-Message updates
 		return
@@ -129,8 +127,10 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 	}
 
 	if update.Message.Photo != nil {
-		for _, photo := range update.Message.Photo {
-			msg.AddImage(downloadFile(ctx, bot, photo.FileID))
+		photo := update.Message.Photo[len(update.Message.Photo)-1]
+		path, err := convertImageToPng(downloadFile(ctx, bot, photo.FileID))
+		if err == nil {
+			msg.AddImage(path)
 		}
 
 		handleImageUpdate(ctx, msg)

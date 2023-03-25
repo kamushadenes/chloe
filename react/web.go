@@ -10,7 +10,7 @@ import (
 )
 
 func Google(ctx context.Context, request *structs.ScrapeRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := zerolog.Ctx(ctx).With().Str("requestID", request.GetID()).Logger()
 
 	logger.Info().Str("args", request.Content).Msg("searching google")
 
@@ -40,7 +40,7 @@ func Google(ctx context.Context, request *structs.ScrapeRequest) error {
 }
 
 func Scrape(ctx context.Context, request *structs.ScrapeRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := zerolog.Ctx(ctx).With().Str("requestID", request.GetID()).Logger()
 
 	logger.Info().Str("url", request.Content).Msg("scraping page")
 

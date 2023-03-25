@@ -25,20 +25,21 @@ func convertImageToPng(filePath string) (string, error) {
 }
 
 func aiGenerate(ctx context.Context, msg *memory.Message) error {
-	request := &structs.GenerationRequest{}
+	request := structs.NewGenerationRequest()
 
 	request.User = msg.User
 
 	request.Prompt = promptFromMessage(msg)
+	request.Message = msg
+	request.Context = ctx
 
-	w := NewImageWriter(ctx, msg, false)
+	w := NewImageWriter(ctx, request, false)
 
 	var ws []io.WriteCloser
 	for k := 0; k < config.Telegram.ImageCount; k++ {
 		ws = append(ws, w.(*TelegramWriter).Subwriter())
 	}
 
-	request.Context = ctx
 	request.Writers = ws
 
 	channels.GenerationRequestsCh <- request
@@ -48,28 +49,41 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 
 func aiImage(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetImages() {
-		w := NewImageWriter(ctx, msg, true)
-
-		var ws []io.WriteCloser
-		for k := 0; k < config.Telegram.ImageCount; k++ {
-			ws = append(ws, w.(*TelegramWriter).Subwriter())
-		}
 
 		if msg.Source.Telegram.Update.Message.Caption == "" {
-			channels.VariationRequestsCh <- &structs.VariationRequest{
-				Context:   ctx,
-				ImagePath: path,
-				User:      msg.User,
-				Writers:   ws,
+			req := structs.NewVariationRequest()
+			req.Context = ctx
+			req.ImagePath = path
+			req.User = msg.User
+			req.Message = msg
+
+			w := NewImageWriter(ctx, req, true)
+
+			var ws []io.WriteCloser
+			for k := 0; k < config.Telegram.ImageCount; k++ {
+				ws = append(ws, w.(*TelegramWriter).Subwriter())
 			}
+
+			req.Writers = ws
+
+			channels.VariationRequestsCh <- req
 		} else {
-			channels.EditRequestsCh <- &structs.GenerationRequest{
-				Context:   ctx,
-				ImagePath: path,
-				Prompt:    msg.Source.Telegram.Update.Message.Caption,
-				User:      msg.User,
-				Writers:   ws,
+			req := structs.NewGenerationRequest()
+			req.Context = ctx
+			req.ImagePath = path
+			req.Prompt = msg.Source.Telegram.Update.Message.Caption
+			req.User = msg.User
+			req.Message = msg
+
+			w := NewImageWriter(ctx, req, true)
+
+			var ws []io.WriteCloser
+			for k := 0; k < config.Telegram.ImageCount; k++ {
+				ws = append(ws, w.(*TelegramWriter).Subwriter())
 			}
+			req.Writers = ws
+
+			channels.EditRequestsCh <- req
 		}
 	}
 

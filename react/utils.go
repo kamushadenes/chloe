@@ -2,6 +2,8 @@ package react
 
 import (
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/rs/zerolog"
+	"io"
 )
 
 func StartAndWait(req structs.Request) {
@@ -14,6 +16,10 @@ func StartAndWait(req structs.Request) {
 }
 
 func NotifyError(req structs.Request, err error) error {
+	logger := zerolog.Ctx(req.GetContext()).With().Str("requestID", req.GetID()).Logger()
+	if err != nil {
+		logger.Error().Err(err).Msg("an error occurred")
+	}
 	if req.GetErrorChannel() != nil {
 		req.GetErrorChannel() <- err
 	}
@@ -21,17 +27,13 @@ func NotifyError(req structs.Request, err error) error {
 	return err
 }
 
-func NotifyAndClose(req structs.Request, err error) error {
-	for _, writer := range req.GetWriters() {
-		if !req.GetSkipClose() {
-			err := writer.Close()
-			_ = NotifyError(req, err)
-		} else {
-			_ = NotifyError(req, err)
+func NotifyAndClose(req structs.Request, writer io.WriteCloser, err error) error {
+	if !req.GetSkipClose() {
+		if err2 := writer.Close(); err2 != nil {
+			return NotifyError(req, err2)
 		}
 	}
-
-	return err
+	return NotifyError(req, err)
 }
 
 func WriteResult(req structs.Request, result interface{}) {

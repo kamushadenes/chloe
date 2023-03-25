@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/resources"
@@ -54,7 +55,6 @@ func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.C
 // Returns the created ChatCompletionResponse or an error if the request times out or encounters an issue.
 func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
 	logger := zerolog.Ctx(ctx)
-	ctx = logger.WithContext(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
@@ -71,7 +71,7 @@ func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompleti
 // Summarize processes a summarization request for a message using the OpenAI API.
 // Returns an error if there's an issue during the process.
 func Summarize(ctx context.Context, msg *memory.Message) error {
-	logger := zerolog.Ctx(ctx).With().Uint("messageId", msg.ID).Logger()
+	logger := logging.GetLogger().With().Uint("messageId", msg.ID).Logger()
 	ctx = logger.WithContext(ctx)
 
 	logger.Info().Msg("summarizing text")

@@ -27,7 +27,6 @@ func newTranscriptionRequest(ctx context.Context, request *structs.Transcription
 // Returns the created AudioResponse or an error if the request times out or encounters an issue.
 func createTranscriptionRequestWithTimeout(ctx context.Context, request *structs.TranscriptionRequest, req openai.AudioRequest) (openai.AudioResponse, error) {
 	logger := zerolog.Ctx(ctx).With().Str("file", request.FilePath).Logger()
-	ctx = logger.WithContext(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateTranscription(ctx, req)
@@ -78,7 +77,7 @@ func recordTranscriptionResponse(ctx context.Context, request *structs.Transcrip
 // Transcribe processes a transcription request for an audio file using the OpenAI API.
 // Returns an error if there's an issue during the process.
 func Transcribe(ctx context.Context, request *structs.TranscriptionRequest) error {
-	logger := zerolog.Ctx(ctx).With().Str("file", request.FilePath).Logger()
+	logger := structs.LoggerFromRequest(request)
 	ctx = logger.WithContext(ctx)
 
 	logger.Info().Msg("transcribing file")

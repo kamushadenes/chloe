@@ -5,7 +5,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/rs/zerolog"
+	"github.com/kamushadenes/chloe/logging"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -17,7 +17,7 @@ import (
 var db *gorm.DB
 
 func Setup(ctx context.Context) (*gorm.DB, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 
 	logger.Info().Msg("initializing database")
 

@@ -3,13 +3,13 @@ package openai
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
 	"time"
 )
 
 func MonitorModeration(ctx context.Context) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 	ticker := time.NewTicker(1 * time.Second)
 
 	for {
@@ -36,7 +36,7 @@ func MonitorModeration(ctx context.Context) {
 }
 
 func MonitorSummary(ctx context.Context) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 	ticker := time.NewTicker(1 * time.Second)
 
 	for {

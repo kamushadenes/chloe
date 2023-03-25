@@ -24,16 +24,16 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 }
 func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
 	for _, path := range msg.GetAudios() {
-		request := &structs.TranscriptionRequest{
-			FilePath:      path,
-			ResultChannel: ch,
-		}
+		request := structs.NewTranscriptionRequest()
+
+		request.FilePath = path
+		request.ResultChannel = ch
 
 		request.User = msg.User
 		request.Message = msg
 
 		request.Context = ctx
-		request.Writer = NewTextWriter(ctx, msg, true)
+		request.Writer = NewTextWriter(ctx, request, true)
 
 		channels.TranscribeRequestsCh <- request
 	}
@@ -42,15 +42,15 @@ func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{})
 }
 
 func aiTTS(ctx context.Context, msg *memory.Message) error {
-	request := &structs.TTSRequest{}
+	request := structs.NewTTSRequest()
 
 	request.User = msg.User
 
 	request.Content = promptFromMessage(msg)
-
-	w := NewAudioWriter(ctx, msg, false)
-
+	request.Message = msg
 	request.Context = ctx
+
+	w := NewAudioWriter(ctx, request, false)
 	request.Writers = []io.WriteCloser{w}
 
 	channels.TTSRequestsCh <- request

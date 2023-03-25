@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
@@ -58,7 +59,6 @@ func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error)
 // Returns the created ModerationResponse or an error if the request times out or encounters an issue.
 func createModerationWithTimeout(ctx context.Context, req openai.ModerationRequest) (openai.ModerationResponse, error) {
 	logger := zerolog.Ctx(ctx)
-	ctx = logger.WithContext(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.Moderations(ctx, req)
@@ -78,7 +78,7 @@ func createModerationWithTimeout(ctx context.Context, req openai.ModerationReque
 // Moderate processes a moderation request for a message using the OpenAI API.
 // Returns an error if there's an issue during the process.
 func Moderate(ctx context.Context, msg *memory.Message) error {
-	logger := zerolog.Ctx(ctx).With().Uint("messageId", msg.ID).Logger()
+	logger := logging.GetLogger().With().Uint("messageId", msg.ID).Logger()
 
 	logger.Info().Msg("moderating message")
 

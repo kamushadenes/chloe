@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type ScrapeRequest struct {
+	ID      string
 	Context context.Context
 
 	Writer    io.WriteCloser
@@ -17,8 +19,24 @@ type ScrapeRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
+	Message *memory.Message `json:"message,omitempty"`
+
 	User    *memory.User `json:"user,omitempty"`
 	Content string       `json:"content"`
+}
+
+func NewScrapeRequest() *ScrapeRequest {
+	return &ScrapeRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *ScrapeRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *ScrapeRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *ScrapeRequest) GetContext() context.Context {

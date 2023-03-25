@@ -8,7 +8,7 @@ import (
 )
 
 func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
-	request := &structs.CompletionRequest{}
+	request := structs.NewCompletionRequest()
 
 	request.User = msg.User
 
@@ -24,7 +24,7 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 
 	request.ResultChannel = ch
 	request.Context = ctx
-	request.Writer = NewTextWriter(ctx, msg, false)
+	request.Writer = NewTextWriter(ctx, request, false)
 
 	channels.CompletionRequestsCh <- request
 

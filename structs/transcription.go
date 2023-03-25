@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type TranscriptionRequest struct {
+	ID      string
 	Context context.Context
 
 	Writer    io.WriteCloser
@@ -20,6 +22,20 @@ type TranscriptionRequest struct {
 	User     *memory.User    `json:"user,omitempty"`
 	Message  *memory.Message `json:"message,omitempty"`
 	FilePath string          `json:"filePath"`
+}
+
+func NewTranscriptionRequest() *TranscriptionRequest {
+	return &TranscriptionRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *TranscriptionRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *TranscriptionRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *TranscriptionRequest) GetContext() context.Context {

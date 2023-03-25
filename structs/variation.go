@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type VariationRequest struct {
+	ID      string
 	Context context.Context
 
 	Writers   []io.WriteCloser
@@ -17,9 +19,25 @@ type VariationRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
+	Message *memory.Message `json:"message,omitempty"`
+
 	User      *memory.User `json:"user,omitempty"`
 	Size      string       `json:"size"`
 	ImagePath string       `json:"image"`
+}
+
+func NewVariationRequest() *VariationRequest {
+	return &VariationRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *VariationRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *VariationRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *VariationRequest) GetSize() string {

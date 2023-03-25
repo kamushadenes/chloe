@@ -10,7 +10,7 @@ import (
 )
 
 func Calculate(ctx context.Context, request *structs.CalculationRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := zerolog.Ctx(ctx).With().Str("requestID", request.GetID()).Logger()
 
 	expr := strings.ReplaceAll(request.Content, ",", "")
 

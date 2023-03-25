@@ -48,7 +48,7 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		ch <- resp
 	})
 	if err != nil {
-		return NotifyError(request, err)
+		return err
 	}
 
 	resp = respi.(openai.ChatCompletionResponse)
@@ -106,7 +106,7 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 
 	if answer == "" && (action == "" || action == "none" || params == "" || action == "Action") {
 		logger.Info().Str("action", action).Str("params", params).Str("thought", thought).Msg("chain of thought not found")
-		return NotifyError(request, fmt.Errorf("no action found in response: %s", content))
+		return fmt.Errorf("no action found in response: %s", content)
 	}
 
 	if len(answer) > 0 {
@@ -119,7 +119,7 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		msg.Content = params
 		msg.ChainOfThought = content
 		if err := msg.Save(ctx); err != nil {
-			return NotifyError(request, err)
+			return err
 		}
 	}
 
@@ -130,7 +130,17 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		Str("answer", answer).
 		Msg("chain of thought")
 
-	return NotifyError(request, HandleAction(ctx, request, action, params, allowObservation))
+	return HandleAction(ctx, request, action, params, allowObservation)
+}
+
+func storeChainOfThoughtResult(ctx context.Context, request *structs.CompletionRequest, params string, content string) error {
+	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+	nmsg.Role = "user"
+	nmsg.Content = params
+	nmsg.ChainOfThought = content
+	nmsg.User = request.User
+
+	return nmsg.Save(ctx)
 }
 
 func HandleAction(ctx context.Context, request *structs.CompletionRequest, action string, params string, allowObservation bool) error {
@@ -151,27 +161,20 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 	case "google":
 		var bw = BytesWriter{}
 
-		req := structs.ScrapeRequest{
-			Context:   ctx,
-			Writer:    &bw,
-			SkipClose: false,
-			User:      request.User,
-			Content:   params,
-		}
+		req := structs.NewScrapeRequest()
+		req.Context = ctx
+		req.Writer = &bw
+		req.SkipClose = false
+		req.User = request.User
+		req.Content = params
 
-		if err := Google(ctx, &req); err != nil {
+		if err := Google(ctx, req); err != nil {
 			return err
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 
-		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-		nmsg.Role = "user"
-		nmsg.Content = params
-		nmsg.ChainOfThought = content
-		nmsg.User = request.User
-
-		if err := nmsg.Save(ctx); err != nil {
+		if err := storeChainOfThoughtResult(ctx, request, params, content); err != nil {
 			return err
 		}
 
@@ -182,27 +185,20 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 	case "scrape", "web":
 		var bw = BytesWriter{}
 
-		req := structs.ScrapeRequest{
-			Context:   ctx,
-			Writer:    &bw,
-			SkipClose: false,
-			User:      request.User,
-			Content:   params,
-		}
+		req := structs.NewScrapeRequest()
+		req.Context = ctx
+		req.Writer = &bw
+		req.SkipClose = false
+		req.User = request.User
+		req.Content = params
 
-		if err := Scrape(ctx, &req); err != nil {
+		if err := Scrape(ctx, req); err != nil {
 			return err
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 
-		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-		nmsg.Role = "user"
-		nmsg.Content = params
-		nmsg.ChainOfThought = content
-		nmsg.User = request.User
-
-		if err := nmsg.Save(ctx); err != nil {
+		if err := storeChainOfThoughtResult(ctx, request, params, content); err != nil {
 			return err
 		}
 
@@ -223,18 +219,17 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		}
 
 		errorCh := make(chan error)
-		req := structs.GenerationRequest{
-			Context:         ctx,
-			User:            request.User,
-			Prompt:          params,
-			StartChannel:    request.StartChannel,
-			ContinueChannel: request.ContinueChannel,
-			ErrorChannel:    errorCh,
+		req := structs.NewGenerationRequest()
+		req.Context = ctx
+		req.User = request.User
+		req.Prompt = params
+		req.StartChannel = request.StartChannel
+		req.ContinueChannel = request.ContinueChannel
+		req.ErrorChannel = errorCh
 
-			Writers: ws,
-		}
+		req.Writers = ws
 
-		channels.GenerationRequestsCh <- &req
+		channels.GenerationRequestsCh <- req
 
 		return <-errorCh
 	case "audio", "tts", "speak":
@@ -248,41 +243,34 @@ func HandleAction(ctx context.Context, request *structs.CompletionRequest, actio
 		}
 
 		errorCh := make(chan error)
-		req := structs.TTSRequest{
-			Context:      ctx,
-			User:         request.User,
-			Content:      params,
-			ErrorChannel: errorCh,
 
-			Writers: ws,
-		}
+		req := structs.NewTTSRequest()
+		req.Context = ctx
+		req.User = request.User
+		req.Content = params
+		req.ErrorChannel = errorCh
 
-		channels.TTSRequestsCh <- &req
+		req.Writers = ws
+
+		channels.TTSRequestsCh <- req
 
 		return <-errorCh
 	case "calculate", "math":
 		var bw = BytesWriter{}
 
-		req := structs.CalculationRequest{
-			Context: ctx,
-			Writer:  &bw,
-			User:    request.User,
-			Content: params,
-		}
+		req := structs.NewCalculationRequest()
+		req.Context = ctx
+		req.Writer = &bw
+		req.User = request.User
+		req.Content = params
 
-		if err := Calculate(ctx, &req); err != nil {
+		if err := Calculate(ctx, req); err != nil {
 			return NotifyError(request, err)
 		}
 
 		content := fmt.Sprintf("Observation: %s", Truncate(string(bw.Bytes), truncateTokenCount))
 
-		nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-		nmsg.Role = "user"
-		nmsg.Content = params
-		nmsg.ChainOfThought = content
-		nmsg.User = request.User
-
-		if err := nmsg.Save(ctx); err != nil {
+		if err := storeChainOfThoughtResult(ctx, request, params, content); err != nil {
 			return err
 		}
 

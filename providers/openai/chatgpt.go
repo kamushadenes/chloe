@@ -41,7 +41,6 @@ func newChatCompletionRequest(ctx context.Context, request *structs.CompletionRe
 // Returns the created ChatCompletionStream or an error if the request times out or encounters an issue.
 func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (*openai.ChatCompletionStream, error) {
 	logger := zerolog.Ctx(ctx)
-	ctx = logger.WithContext(ctx)
 
 	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
@@ -61,9 +60,6 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 // processSuccessfulCompletionStream processes a ChatCompletionStream and writes the response to the request.Writer.
 // Returns the response message as a string, or an error if there's an issue while processing the stream.
 func processSuccessfulCompletionStream(ctx context.Context, request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
-	logger := zerolog.Ctx(ctx)
-	ctx = logger.WithContext(ctx)
-
 	react.StartAndWait(request)
 
 	putils.WriteStatusCode(request.Writer, http.StatusOK)
@@ -83,7 +79,10 @@ func processSuccessfulCompletionStream(ctx context.Context, request *structs.Com
 		content := response.Choices[0].Delta.Content
 
 		responseMessage += content
-		_, _ = request.Writer.Write([]byte(content))
+		_, err = request.Writer.Write([]byte(content))
+		if err != nil {
+			return "", err
+		}
 
 		putils.Flush(request.Writer)
 	}
@@ -107,11 +106,10 @@ func recordAssistantResponse(ctx context.Context, request *structs.CompletionReq
 // Complete processes a completion request by interacting with the OpenAI API.
 // Returns an error if there's an issue during the process.
 func Complete(ctx context.Context, request *structs.CompletionRequest) error {
-	logger := zerolog.Ctx(ctx)
-	ctx = logger.WithContext(ctx)
+	logger := structs.LoggerFromRequest(request)
 
 	if err := processChainOfThought(ctx, request); err == nil {
-		return react.NotifyAndClose(request, err)
+		return react.NotifyAndClose(request, request.Writer, err)
 	}
 
 	req := newChatCompletionRequest(ctx, request)
@@ -125,10 +123,10 @@ func Complete(ctx context.Context, request *structs.CompletionRequest) error {
 
 	responseMessage, err := processSuccessfulCompletionStream(ctx, request, stream)
 	if err != nil {
-		return react.NotifyAndClose(request, err)
+		return react.NotifyAndClose(request, request.Writer, err)
 	}
 
 	err = recordAssistantResponse(ctx, request, responseMessage)
 
-	return react.NotifyAndClose(request, err)
+	return react.NotifyAndClose(request, request.Writer, err)
 }

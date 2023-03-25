@@ -9,10 +9,11 @@ import (
 )
 
 func TTS(ctx context.Context, text string) error {
-	return google.TTS(ctx, &structs.TTSRequest{
-		Context: ctx,
-		User:    user,
-		Writers: []io.WriteCloser{os.Stdout},
-		Content: text,
-	})
+	req := structs.NewTTSRequest()
+	req.Context = ctx
+	req.User = user
+	req.Writers = []io.WriteCloser{os.Stdout}
+	req.Content = text
+
+	return google.TTS(ctx, req)
 }

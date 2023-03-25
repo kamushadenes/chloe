@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type CalculationRequest struct {
+	ID      string
 	Context context.Context
 
 	Writer    io.WriteCloser
@@ -17,8 +19,24 @@ type CalculationRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
+	Message *memory.Message `json:"message,omitempty"`
+
 	User    *memory.User `json:"user,omitempty"`
 	Content string       `json:"content"`
+}
+
+func NewCalculationRequest() *CalculationRequest {
+	return &CalculationRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *CalculationRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *CalculationRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *CalculationRequest) GetContext() context.Context {

@@ -22,15 +22,18 @@ func WaitTimeout(ctx context.Context, timeout time.Duration, fn func(ch chan int
 	for {
 		select {
 		case <-ticker.C:
-			logger.Warn().Msg("still waiting for chain of thought analysis")
+			logger.Warn().Msg("still waiting for request to complete")
 		case <-timeoutTicker.C:
-			return nil, fmt.Errorf("timeout waiting for chain of thought analysis")
+			logger.Debug().Msg("request timed out")
+			return nil, fmt.Errorf("timeout waiting for request to complete")
 		case r := <-nch:
+			logger.Debug().Msg("finished waiting for request to complete")
 			ticker.Stop()
 			timeoutTicker.Stop()
 
 			return r, nil
 		case err := <-errCh:
+			logger.Debug().Msg("request completed with error")
 			ticker.Stop()
 			timeoutTicker.Stop()
 

@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"net/http"
@@ -69,7 +70,7 @@ func listen(ctx context.Context, server *http.Server, wg *sync.WaitGroup) {
 }
 
 func Start(ctx context.Context) {
-	logger := zerolog.Ctx(ctx).With().Str("interface", "http").Logger()
+	logger := logging.GetLogger().With().Str("interface", "http").Logger()
 	ctx = logger.WithContext(ctx)
 
 	logger.Info().Msg("starting http interface")

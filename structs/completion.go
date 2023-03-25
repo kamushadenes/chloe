@@ -2,6 +2,7 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/resources"
@@ -13,6 +14,7 @@ import (
 )
 
 type CompletionRequest struct {
+	ID      string
 	Context context.Context
 
 	Writer    io.WriteCloser
@@ -28,6 +30,20 @@ type CompletionRequest struct {
 
 	Mode string                 `json:"mode"`
 	Args map[string]interface{} `json:"args"`
+}
+
+func NewCompletionRequest() *CompletionRequest {
+	return &CompletionRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *CompletionRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *CompletionRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *CompletionRequest) Copy() *CompletionRequest {

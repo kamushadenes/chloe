@@ -9,14 +9,12 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/openai"
-	"github.com/rs/zerolog"
 )
 
 func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 	ctx, cancel := context.WithCancel(ctx)
 
-	ctx = logging.GetLogger(ctx)
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 
 	if config.OpenAI.APIKey == "" {
 		logger.Fatal().Msg("OpenAI API key is not set")

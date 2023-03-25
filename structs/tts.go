@@ -2,11 +2,13 @@ package structs
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
 	"io"
 )
 
 type TTSRequest struct {
+	ID      string
 	Context context.Context
 
 	Writers   []io.WriteCloser
@@ -17,8 +19,24 @@ type TTSRequest struct {
 	ErrorChannel    chan error
 	ResultChannel   chan interface{}
 
+	Message *memory.Message `json:"message,omitempty"`
+
 	User    *memory.User `json:"user,omitempty"`
 	Content string       `json:"content"`
+}
+
+func NewTTSRequest() *TTSRequest {
+	return &TTSRequest{
+		ID: uuid.Must(uuid.NewV4()).String(),
+	}
+}
+
+func (creq *TTSRequest) GetID() string {
+	return creq.ID
+}
+
+func (creq *TTSRequest) GetMessage() *memory.Message {
+	return creq.Message
 }
 
 func (creq *TTSRequest) GetContext() context.Context {

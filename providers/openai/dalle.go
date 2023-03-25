@@ -33,7 +33,7 @@ func cloneImageHeaders(resp *http.Response, writer io.Writer) {
 func writeImage(request structs.Request, writer io.WriteCloser, url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -45,10 +45,14 @@ func writeImage(request structs.Request, writer io.WriteCloser, url string) erro
 	putils.WriteStatusCode(writer, resp.StatusCode)
 
 	if _, err := io.Copy(writer, resp.Body); err != nil {
-		return react.NotifyError(request, err)
+		return err
 	}
 
-	return react.NotifyAndClose(request, err)
+	if !request.GetSkipClose() {
+		return writer.Close()
+	}
+
+	return nil
 }
 
 // getImageSize returns the appropriate image size for the request.
@@ -73,7 +77,7 @@ func newImageRequest(request *structs.GenerationRequest) openai.ImageRequest {
 
 	return openai.ImageRequest{
 		Prompt: request.Prompt,
-		N:      len(request.Writers),
+		N:      len(request.GetWriters()),
 		Size:   request.Size,
 	}
 }
@@ -101,7 +105,7 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
 	react.StartAndWait(request)
 
-	for k := range request.Writers {
+	for k := range request.GetWriters() {
 		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
 			return err
 		}
@@ -112,7 +116,7 @@ func processSuccessfulImageRequest(request *structs.GenerationRequest, response 
 
 // Generate generates an image based on a text prompt using the OpenAI API.
 func Generate(ctx context.Context, request *structs.GenerationRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
 		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
@@ -168,7 +172,7 @@ func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest
 
 // Edits creates a new version of an image based on a text prompt using the OpenAI API.
 func Edits(ctx context.Context, request *structs.GenerationRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
 		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
@@ -239,7 +243,7 @@ func processSuccessfulImageVariationRequest(request *structs.VariationRequest, r
 
 // Variations generates variations of an input image using the OpenAI API.
 func Variations(ctx context.Context, request *structs.VariationRequest) error {
-	logger := zerolog.Ctx(ctx)
+	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
 		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
@@ -256,8 +260,6 @@ func Variations(ctx context.Context, request *structs.VariationRequest) error {
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
-
-	react.StartAndWait(request)
 
 	return react.NotifyError(request, processSuccessfulImageVariationRequest(request, response))
 }

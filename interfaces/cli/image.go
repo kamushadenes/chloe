@@ -9,10 +9,11 @@ import (
 )
 
 func Generate(ctx context.Context, text string) error {
-	return openai.Generate(ctx, &structs.GenerationRequest{
-		Context: ctx,
-		Writers: []io.WriteCloser{os.Stdout},
-		User:    user,
-		Prompt:  text,
-	})
+	req := structs.NewGenerationRequest()
+	req.Context = ctx
+	req.User = user
+	req.Writers = []io.WriteCloser{os.Stdout}
+	req.Prompt = text
+
+	return openai.Generate(ctx, req)
 }

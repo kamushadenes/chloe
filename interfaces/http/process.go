@@ -66,7 +66,8 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request := &structs.CompletionRequest{}
+	request := structs.NewCompletionRequest()
+	request.ID = msg.ExternalID
 	request.Context = ctx
 
 	request.User = msg.User
@@ -114,7 +115,8 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request := &structs.GenerationRequest{}
+	request := structs.NewGenerationRequest()
+	request.ID = msg.ExternalID
 	request.Context = ctx
 
 	request.User = msg.User
@@ -158,7 +160,8 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request := &structs.TTSRequest{}
+	request := structs.NewTTSRequest()
+	request.ID = msg.ExternalID
 	request.Context = ctx
 
 	request.User = msg.User

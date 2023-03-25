@@ -1,20 +1,19 @@
 package logging
 
 import (
-	"context"
 	"github.com/rs/zerolog"
 	"os"
 	"time"
 )
 
-func GetLogger(ctx context.Context) context.Context {
+func GetLogger() zerolog.Logger {
 	zerolog.DurationFieldUnit = time.Second
 	zerolog.TimeFieldFormat = time.RFC3339
 
 	multi := zerolog.MultiLevelWriter(consoleWriter())
 	logger := zerolog.New(multi).With().Timestamp().Logger()
 
-	return logger.WithContext(ctx)
+	return logger
 }
 
 func consoleWriter() ConsoleWriter {
