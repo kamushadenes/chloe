@@ -10,12 +10,14 @@ Chloe should automatically detect what you want to do and respond accordingly, i
 images and voice messages. You can also send voice messages and it will convert them to text and
 respond accordingly.
 
+See
+the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#discord)
+for more details.
+
+## Commands
+
 The following commands are available via DM:
 
 - **/forget** - Wipe all context and reset the conversation with the bot
 - **/generate** - Generate an image using DALL-E
 - **/tts** - Converts text to speech
-
-See
-the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#discord)
-for more details.

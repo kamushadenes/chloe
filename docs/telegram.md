@@ -1,7 +1,8 @@
 # Telegram
 
 Chloe can be used as a Telegram bot. To use it, you need to create a bot using
-the [BotFather](https://t.me/botfather) and set the `CHLOE_TELEGRAM_TOKEN` environment variable to the
+the [BotFather](https://t.me/botfather) and set the `CHLOE_TELEGRAM_TOKEN` environment variable to
+the
 token provided by the BotFather.
 
 1. Start a conversation with your bot
@@ -10,6 +11,12 @@ token provided by the BotFather.
 Chloe should automatically detect what you want to do and respond accordingly, including
 images and voice messages. You can also send voice messages and it will convert them to text and
 respond accordingly.
+
+See
+the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#telegram)
+for more details.
+
+## Commands
 
 The following commands are available:
 
@@ -34,7 +41,3 @@ Here, Chloe says "Beware of the dog, the cat is shady too". I then ask (in a voi
 to show me a picture of what she just said, and she generates relevant images.
 
 ![show me a picture of what you just said](../.github/resources/images/telegram2.png)
-
-See
-the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#telegram)
-for more details.
