@@ -10,8 +10,6 @@ import (
 func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
 	request := structs.NewCompletionRequest()
 
-	request.User = msg.User
-
 	if request.Mode == "" {
 		request.Mode = msg.User.Mode
 	}

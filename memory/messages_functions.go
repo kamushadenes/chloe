@@ -20,8 +20,8 @@ func LoadNonModeratedMessages(ctx context.Context) ([]*Message, error) {
 	var messages []*Message
 
 	if err := db.WithContext(ctx).Where("moderated = ? AND "+
-		"(content IS NOT NULL OR chain_of_thought IS NOT NULL) AND "+
-		"(content != '' OR chain_of_thought != '')", false).
+		"content IS NOT NULL AND "+
+		"content != ''", false).
 		Find(&messages).Error; err != nil {
 		return nil, err
 	}

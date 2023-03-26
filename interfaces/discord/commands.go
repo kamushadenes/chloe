@@ -56,7 +56,7 @@ func complete(ctx context.Context, msg *memory.Message) {
 
 	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
 
-	if err := aiComplete(ctx, msg, nil); err != nil {
+	if err := aiComplete(ctx, msg); err != nil {
 		logger.Error().Err(err).Msg("error generating image")
 	}
 }

@@ -52,19 +52,20 @@ type MessageModeration struct {
 
 type Message struct {
 	gorm.Model
-	ExternalID     string             `json:"externalId"`
-	Interface      string             `json:"interface"`
-	User           *User              `json:"user,omitempty"`
-	UserID         uint               `json:"userId,omitempty"`
-	Source         *MessageSource     `json:"source" gorm:"-"`
-	Role           string             `json:"role"`
-	Content        string             `json:"content"`
-	Summary        string             `json:"summary"`
-	ChainOfThought string             `json:"chainOfThought"`
-	Moderated      bool               `json:"moderated"`
-	Moderation     *MessageModeration `json:"moderation" gorm:"embedded;embeddedPrefix:moderation_"`
-	audioPaths     []string
-	imagePaths     []string
+	Context    context.Context    `json:"-" gorm:"-"`
+	ExternalID string             `json:"externalId"`
+	Interface  string             `json:"interface"`
+	User       *User              `json:"user,omitempty"`
+	UserID     uint               `json:"userId,omitempty"`
+	Source     *MessageSource     `json:"source" gorm:"-"`
+	Role       string             `json:"role"`
+	Content    string             `json:"content"`
+	Summary    string             `json:"summary"`
+	Moderated  bool               `json:"moderated"`
+	Moderation *MessageModeration `json:"moderation" gorm:"embedded;embeddedPrefix:moderation_"`
+	ErrorCh    chan error         `json:"-" gorm:"-"`
+	audioPaths []string
+	imagePaths []string
 }
 
 func NewMessage(externalID string, interf string) *Message {
@@ -72,6 +73,7 @@ func NewMessage(externalID string, interf string) *Message {
 		ExternalID: externalID,
 		Interface:  interf,
 		Source:     &MessageSource{},
+		ErrorCh:    make(chan error),
 	}
 }
 
@@ -103,12 +105,18 @@ func (m *Message) GetExternalMessageID() string {
 func (m *Message) GetTexts() []string {
 	var txts []string
 
-	if m.Source.HTTP != nil {
-		//return m.Source.HTTP.Request.GetBody()
-	}
+	/*
+		if m.Source.HTTP != nil {
+			//return m.Source.HTTP.Request.GetBody()
+		}
+	*/
 
 	if m.Source.Telegram != nil {
 		txts = append(txts, m.Source.Telegram.Update.Message.Text)
+	}
+
+	if m.Source.Discord != nil {
+		txts = append(txts, m.Source.Discord.Message.Content)
 	}
 
 	return txts
@@ -138,13 +146,7 @@ func (m *Message) Save(ctx context.Context) error {
 	return db.WithContext(ctx).Save(m).Error
 }
 
-func (m *Message) GetContent(chainOfThought bool) string {
-	if chainOfThought {
-		if m.ChainOfThought != "" {
-			return m.ChainOfThought
-		}
-	}
-
+func (m *Message) GetContent() string {
 	if len(m.Summary) < len(m.Content) && m.Summary != "" {
 		return m.Summary
 	}
@@ -175,4 +177,8 @@ func (m *Message) SendText(text string, replyTo ...interface{}) error {
 	}
 
 	return fmt.Errorf("unsupported interface %s", m.Interface)
+}
+
+func (m *Message) NotifyAction(act string) {
+	_ = m.SendText(act)
 }

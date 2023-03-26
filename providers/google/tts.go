@@ -4,18 +4,17 @@ import (
 	"bytes"
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 	"io"
 )
 
-func TTS(ctx context.Context, request *structs.TTSRequest) error {
-	logger := zerolog.Ctx(ctx)
+func TTS(request *structs.TTSRequest) error {
+	logger := logging.GetLogger().With().Str("provider", "google").Str("action", "tts").Logger()
 
 	if flags.InteractiveCLI {
 		return fmt.Errorf("can't generate audio in CLI mode")
@@ -23,7 +22,7 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 
 	logger.Info().Msg("converting text to speech")
 
-	client, err := texttospeech.NewClient(ctx)
+	client, err := texttospeech.NewClient(request.Context)
 	if err != nil {
 		return err
 	}
@@ -48,7 +47,7 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 		},
 	}
 
-	resp, err := client.SynthesizeSpeech(ctx, &req)
+	resp, err := client.SynthesizeSpeech(request.Context, &req)
 	if err != nil {
 		return err
 	}
@@ -73,9 +72,6 @@ func TTS(ctx context.Context, request *structs.TTSRequest) error {
 		utils.WriteHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
 
 		if _, err := io.Copy(request.Writers[k], bytes.NewReader(resp.AudioContent)); err != nil {
-			return err
-		}
-		if err := request.Writers[k].Close(); err != nil {
 			return err
 		}
 	}

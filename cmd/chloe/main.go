@@ -17,13 +17,15 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func wait(quitCh chan os.Signal, errorCh chan bool, cancel context.CancelFunc) {
+func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-quitCh:
 			cancel()
 			os.Exit(0)
-		case <-errorCh:
+		case err := <-errorCh:
+			fmt.Println(err)
+			fmt.Println("Shutting down...")
 			cancel()
 			os.Exit(1)
 		}
@@ -36,7 +38,7 @@ func main() {
 	quitCh := make(chan os.Signal, 1)
 	signal.Notify(quitCh, os.Interrupt, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-	errorCh := make(chan bool)
+	errorCh := make(chan error)
 
 	go wait(quitCh, errorCh, cancel)
 
@@ -49,9 +51,7 @@ func main() {
 
 		<-readyCh
 
-		if err := cli.Handle(ctx); err != nil {
-			errorCh <- true
-		}
+		errorCh <- cli.Handle(ctx)
 	} else {
 		fmt.Println("Chloe is starting...")
 		go server.InitServer(ctx, false, readyCh)

@@ -7,10 +7,8 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
+func aiComplete(ctx context.Context, msg *memory.Message) error {
 	request := structs.NewCompletionRequest()
-
-	request.User = msg.User
 
 	if request.Mode == "" {
 		request.Mode = msg.User.Mode
@@ -22,7 +20,6 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 
 	request.Message = msg
 
-	request.ResultChannel = ch
 	request.Context = ctx
 	request.Writer = NewTextWriter(ctx, request, false)
 

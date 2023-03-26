@@ -48,10 +48,6 @@ func writeImage(request structs.Request, writer io.WriteCloser, url string) erro
 		return err
 	}
 
-	if !request.GetSkipClose() {
-		return writer.Close()
-	}
-
 	return nil
 }
 
@@ -115,7 +111,7 @@ func processSuccessfulImageRequest(request *structs.GenerationRequest, response 
 }
 
 // Generate generates an image based on a text prompt using the OpenAI API.
-func Generate(ctx context.Context, request *structs.GenerationRequest) error {
+func Generate(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
@@ -126,7 +122,7 @@ func Generate(ctx context.Context, request *structs.GenerationRequest) error {
 
 	req := newImageRequest(request)
 
-	response, err := createImageWithTimeout(ctx, req)
+	response, err := createImageWithTimeout(request.GetContext(), req)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
@@ -171,7 +167,7 @@ func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest
 }
 
 // Edits creates a new version of an image based on a text prompt using the OpenAI API.
-func Edits(ctx context.Context, request *structs.GenerationRequest) error {
+func Edits(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
@@ -185,7 +181,7 @@ func Edits(ctx context.Context, request *structs.GenerationRequest) error {
 		return react.NotifyError(request, err)
 	}
 
-	response, err := createImageEditWithTimeout(ctx, req)
+	response, err := createImageEditWithTimeout(request.GetContext(), req)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
@@ -242,7 +238,7 @@ func processSuccessfulImageVariationRequest(request *structs.VariationRequest, r
 }
 
 // Variations generates variations of an input image using the OpenAI API.
-func Variations(ctx context.Context, request *structs.VariationRequest) error {
+func Variations(request *structs.VariationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
@@ -256,7 +252,7 @@ func Variations(ctx context.Context, request *structs.VariationRequest) error {
 		return react.NotifyError(request, err)
 	}
 
-	response, err := createImageVariationWithTimeout(ctx, req)
+	response, err := createImageVariationWithTimeout(request.GetContext(), req)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}

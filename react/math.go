@@ -4,38 +4,78 @@ import (
 	"context"
 	"fmt"
 	"github.com/Knetic/govaluate"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
+	"io"
 	"strings"
 )
 
-func Calculate(ctx context.Context, request *structs.CalculationRequest) error {
-	logger := zerolog.Ctx(ctx).With().Str("requestID", request.GetID()).Logger()
+type CalculateAction struct {
+	Name    string
+	Params  string
+	Writers []io.WriteCloser
+}
 
-	expr := strings.ReplaceAll(request.Content, ",", "")
+func NewCalculateAction() *CalculateAction {
+	return &CalculateAction{
+		Name: "calculate",
+	}
+}
 
-	logger.Info().Str("expression", expr).Msg("evaluating expression")
+func (a *CalculateAction) SetWriters(writers []io.WriteCloser) {
+	a.Writers = writers
+}
+
+func (a *CalculateAction) GetWriters() []io.WriteCloser {
+	return a.Writers
+}
+
+func (a *CalculateAction) GetName() string {
+	return a.Name
+}
+
+func (a *CalculateAction) GetNotification() string {
+	return fmt.Sprintf("🧮 Executing calculation: **%s**", a.Params)
+}
+
+func (a *CalculateAction) SetParams(params string) {
+	a.Params = params
+}
+
+func (a *CalculateAction) GetParams() string {
+	return a.Params
+}
+
+func (a *CalculateAction) SetUser(user *memory.User)          {}
+func (a *CalculateAction) SetMessage(message *memory.Message) {}
+
+func (a *CalculateAction) Execute(ctx context.Context) error {
+	expr := strings.ReplaceAll(a.Params, ",", "")
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
-		return NotifyError(request, err)
+		return err
 	}
-
-	StartAndWait(request)
 
 	result, err := expression.Evaluate(make(map[string]interface{}))
 	if err != nil {
-		return NotifyError(request, err)
+		return err
 	}
 
-	if _, err := request.Writer.Write([]byte(fmt.Sprintf("%v", result))); err != nil {
-		return NotifyError(request, err)
+	for _, w := range a.Writers {
+		_, err := w.Write([]byte(fmt.Sprintf("%v", result)))
+		if err != nil {
+			return err
+		}
 	}
 
-	if !request.SkipClose {
-		err := request.Writer.Close()
-		return NotifyError(request, err)
-	}
+	return nil
+}
 
-	return NotifyError(request, nil)
+func (a *CalculateAction) RunPreActions(request *structs.ActionRequest) error {
+	return defaultPreActions(a, request)
+}
+
+func (a *CalculateAction) RunPostActions(request *structs.ActionRequest) error {
+	return defaultPostActions(a, request)
 }

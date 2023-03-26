@@ -3,11 +3,9 @@ package telegram
 import (
 	"bytes"
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
-	"io"
 )
 
 type TelegramWriter struct {
@@ -17,9 +15,9 @@ type TelegramWriter struct {
 	ChatID     int64
 	Type       string
 	ReplyID    int
-	Request    structs.Request
+	Request    structs.ActionOrCompletionRequest
 	bufs       []bytes.Buffer
-	bufId      int
+	bufID      int
 	closedBufs int
 	mainWriter *TelegramWriter
 }
@@ -69,19 +67,15 @@ func (t *TelegramWriter) Close() error {
 		}
 		msg := tgbotapi.NewMediaGroup(t.ChatID, files)
 		msg.ReplyToMessageID = t.ReplyID
-		smsg, err := t.Bot.SendMediaGroup(msg)
-		if err != nil {
-			return err
-		}
-
-		return t.Request.GetMessage().SendText(fmt.Sprintf("Prompt: %s", t.Prompt), smsg[0].MessageID)
+		_, err := t.Bot.SendMediaGroup(msg)
+		return err
 	}
 	return nil
 }
 
 func (t *TelegramWriter) Write(p []byte) (n int, err error) {
 	if t.mainWriter != nil {
-		return t.mainWriter.bufs[t.bufId].Write(p)
+		return t.mainWriter.bufs[t.bufID].Write(p)
 	}
 
 	return t.bufs[0].Write(p)
@@ -103,27 +97,27 @@ func (t *TelegramWriter) Subwriter() *TelegramWriter {
 		ReplyID:    t.ReplyID,
 		Request:    t.Request,
 		bufs:       []bytes.Buffer{{}},
-		bufId:      len(t.bufs) - 1,
+		bufID:      len(t.bufs) - 1,
 		mainWriter: t,
 	}
 }
 
-func (t *TelegramWriter) ToImageWriter() io.WriteCloser {
+func (t *TelegramWriter) ToImageWriter() *TelegramWriter {
 	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatUploadPhoto))
 	return NewImageWriter(t.Context, t.Request, t.ReplyID != 0)
 }
 
-func (t *TelegramWriter) ToTextWriter() io.WriteCloser {
+func (t *TelegramWriter) ToTextWriter() *TelegramWriter {
 	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatTyping))
 	return NewTextWriter(t.Context, t.Request, t.ReplyID != 0)
 }
 
-func (t *TelegramWriter) ToAudioWriter() io.WriteCloser {
+func (t *TelegramWriter) ToAudioWriter() *TelegramWriter {
 	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatRecordVoice))
 	return NewAudioWriter(t.Context, t.Request, t.ReplyID != 0)
 }
 
-func NewTextWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewTextWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -131,7 +125,7 @@ func NewTextWriter(ctx context.Context, request structs.Request, reply bool, pro
 		Type:    "text",
 		Request: request,
 		bufs:    []bytes.Buffer{{}},
-		bufId:   0,
+		bufID:   0,
 	}
 
 	if reply {
@@ -144,7 +138,7 @@ func NewTextWriter(ctx context.Context, request structs.Request, reply bool, pro
 	return w
 }
 
-func NewImageWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewImageWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -152,7 +146,7 @@ func NewImageWriter(ctx context.Context, request structs.Request, reply bool, pr
 		Type:    "image",
 		Request: request,
 		bufs:    []bytes.Buffer{},
-		bufId:   0,
+		bufID:   0,
 	}
 
 	if reply {
@@ -165,7 +159,7 @@ func NewImageWriter(ctx context.Context, request structs.Request, reply bool, pr
 	return w
 }
 
-func NewAudioWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewAudioWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
 	w := &TelegramWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Telegram.API,
@@ -173,7 +167,7 @@ func NewAudioWriter(ctx context.Context, request structs.Request, reply bool, pr
 		Type:    "audio",
 		Request: request,
 		bufs:    []bytes.Buffer{{}},
-		bufId:   0,
+		bufID:   0,
 	}
 
 	if reply {

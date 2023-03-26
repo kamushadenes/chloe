@@ -21,10 +21,9 @@ type GenerationRequest struct {
 
 	Message *memory.Message `json:"message,omitempty"`
 
-	User      *memory.User `json:"user,omitempty"`
-	Prompt    string       `json:"prompt"`
-	Size      string       `json:"size"`
-	ImagePath string       `json:"image"`
+	Prompt    string `json:"prompt"`
+	Size      string `json:"size"`
+	ImagePath string `json:"image"`
 }
 
 func NewGenerationRequest() *GenerationRequest {

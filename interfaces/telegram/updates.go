@@ -5,7 +5,6 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
 )
@@ -19,7 +18,6 @@ func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	_ = msg.SendText(i18n.GetTranscriptionText())
 
 	ch := make(chan interface{})
 
@@ -87,12 +85,12 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 		}
 	}
 	msg.User = user
-	if err := msg.Save(ctx); err != nil {
+
+	channels.IncomingMessagesCh <- msg
+	if err := <-msg.ErrorCh; err != nil {
 		logger.Error().Err(err).Msg("error saving message")
 		return
 	}
-
-	channels.IncomingMessagesCh <- msg
 
 	if handleCommands(ctx, msg) {
 		return

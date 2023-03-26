@@ -39,9 +39,6 @@ func newMessageModeration(result openai.ModerationResponse) *memory.MessageModer
 func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error) {
 	model := config.OpenAI.DefaultModel.Moderation
 	content := msg.Content
-	if content == "" {
-		content = msg.ChainOfThought
-	}
 
 	if content == "" {
 		return openai.ModerationRequest{}, fmt.Errorf("no content to moderate")

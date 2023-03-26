@@ -18,5 +18,8 @@ func ProcessMessage(ctx context.Context, msg *memory.Message) error {
 		Str("content", msg.Content).
 		Msg("message received")
 
-	return nil
+	err := msg.Save(ctx)
+	msg.ErrorCh <- err
+
+	return err
 }

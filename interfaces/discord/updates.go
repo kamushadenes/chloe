@@ -59,9 +59,11 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	msg.User = user
 
-	_ = msg.Save(ctx)
-
 	channels.IncomingMessagesCh <- msg
+	if err := <-msg.ErrorCh; err != nil {
+		logger.Error().Msg("error saving message")
+		return
+	}
 
 	complete(ctx, msg)
 }
@@ -111,7 +113,11 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.Content = prompt
 
-		_ = msg.Save(ctx)
+		channels.IncomingMessagesCh <- msg
+		if err := <-msg.ErrorCh; err != nil {
+			logger.Error().Msg("error saving message")
+			return
+		}
 
 		generate(ctx, msg)
 
@@ -125,7 +131,11 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.Content = text
 
-		_ = msg.Save(ctx)
+		channels.IncomingMessagesCh <- msg
+		if err := <-msg.ErrorCh; err != nil {
+			logger.Error().Msg("error saving message")
+			return
+		}
 
 		tts(ctx, msg)
 

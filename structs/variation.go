@@ -21,9 +21,8 @@ type VariationRequest struct {
 
 	Message *memory.Message `json:"message,omitempty"`
 
-	User      *memory.User `json:"user,omitempty"`
-	Size      string       `json:"size"`
-	ImagePath string       `json:"image"`
+	Size      string `json:"size"`
+	ImagePath string `json:"image"`
 }
 
 func NewVariationRequest() *VariationRequest {

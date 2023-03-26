@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type DiscordWriter struct {
@@ -16,9 +15,9 @@ type DiscordWriter struct {
 	ChatID     string
 	Type       string
 	ReplyID    string
-	Request    structs.Request
+	Request    structs.ActionOrCompletionRequest
 	bufs       []bytes.Buffer
-	bufId      int
+	bufID      int
 	closedBufs int
 	mainWriter *DiscordWriter
 }
@@ -78,7 +77,7 @@ func (t *DiscordWriter) Close() error {
 
 func (t *DiscordWriter) Write(p []byte) (n int, err error) {
 	if t.mainWriter != nil {
-		return t.mainWriter.bufs[t.bufId].Write(p)
+		return t.mainWriter.bufs[t.bufID].Write(p)
 	}
 
 	return t.bufs[0].Write(p)
@@ -96,7 +95,7 @@ func (t *DiscordWriter) Subwriter() *DiscordWriter {
 		Request:    t.Request,
 		Prompt:     t.Prompt,
 		bufs:       []bytes.Buffer{{}},
-		bufId:      len(t.bufs) - 1,
+		bufID:      len(t.bufs) - 1,
 		mainWriter: t,
 	}
 }
@@ -105,19 +104,19 @@ func (t *DiscordWriter) SetPrompt(prompt string) {
 	t.Prompt = prompt
 }
 
-func (t *DiscordWriter) ToImageWriter() io.WriteCloser {
+func (t *DiscordWriter) ToImageWriter() *DiscordWriter {
 	return NewImageWriter(t.Context, t.Request, t.ReplyID != "", t.Prompt)
 }
 
-func (t *DiscordWriter) ToTextWriter() io.WriteCloser {
+func (t *DiscordWriter) ToTextWriter() *DiscordWriter {
 	return NewTextWriter(t.Context, t.Request, t.ReplyID != "", t.Prompt)
 }
 
-func (t *DiscordWriter) ToAudioWriter() io.WriteCloser {
+func (t *DiscordWriter) ToAudioWriter() *DiscordWriter {
 	return NewAudioWriter(t.Context, t.Request, t.ReplyID != "", t.Prompt)
 }
 
-func NewTextWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewTextWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
 	w := &DiscordWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Discord.API,
@@ -125,7 +124,7 @@ func NewTextWriter(ctx context.Context, request structs.Request, reply bool, pro
 		Type:    "text",
 		Request: request,
 		bufs:    []bytes.Buffer{{}},
-		bufId:   0,
+		bufID:   0,
 	}
 
 	if reply {
@@ -138,7 +137,7 @@ func NewTextWriter(ctx context.Context, request structs.Request, reply bool, pro
 	return w
 }
 
-func NewImageWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewImageWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
 	w := &DiscordWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Discord.API,
@@ -146,7 +145,7 @@ func NewImageWriter(ctx context.Context, request structs.Request, reply bool, pr
 		Type:    "image",
 		Request: request,
 		bufs:    []bytes.Buffer{},
-		bufId:   0,
+		bufID:   0,
 	}
 	if len(prompt) > 0 {
 		w.Prompt = prompt[0]
@@ -159,7 +158,7 @@ func NewImageWriter(ctx context.Context, request structs.Request, reply bool, pr
 	return w
 }
 
-func NewAudioWriter(ctx context.Context, request structs.Request, reply bool, prompt ...string) io.WriteCloser {
+func NewAudioWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
 	w := &DiscordWriter{
 		Context: ctx,
 		Bot:     request.GetMessage().Source.Discord.API,
@@ -167,7 +166,7 @@ func NewAudioWriter(ctx context.Context, request structs.Request, reply bool, pr
 		Type:    "audio",
 		Request: request,
 		bufs:    []bytes.Buffer{{}},
-		bufId:   0,
+		bufID:   0,
 	}
 	if len(prompt) > 0 {
 		w.Prompt = prompt[0]

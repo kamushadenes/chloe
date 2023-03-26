@@ -20,11 +20,19 @@ type Request interface {
 	GetMessage() *memory.Message
 }
 
+type ActionOrCompletionRequest interface {
+	GetID() string
+	GetContext() context.Context
+	GetWriters() []io.WriteCloser
+	GetSkipClose() bool
+	GetMessage() *memory.Message
+}
+
 type ImageRequest interface {
 	Request
 	GetSize() string
 }
 
-func LoggerFromRequest(request Request) zerolog.Logger {
+func LoggerFromRequest(request ActionOrCompletionRequest) zerolog.Logger {
 	return logging.GetLogger().With().Str("requestID", request.GetID()).Logger()
 }

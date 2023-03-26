@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/interfaces/discord"
+	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
@@ -20,20 +22,20 @@ import (
 
 // processChainOfThought processes the chain of thought for a completion request
 // and returns an error if there is any issue.
-func processChainOfThought(ctx context.Context, request *structs.CompletionRequest) error {
+func processChainOfThought(request *structs.CompletionRequest) error {
 	ocontent := request.Message.Content
 
 	cotreq := request.Copy()
 	cotreq.Message.Content = fmt.Sprintf("Question: %s", ocontent)
-	return react.ChainOfThought(ctx, cotreq, false)
+	return react.ChainOfThought(cotreq)
 }
 
 // newChatCompletionRequest creates a new OpenAI ChatCompletionRequest
 // from the provided CompletionRequest.
-func newChatCompletionRequest(ctx context.Context, request *structs.CompletionRequest) openai.ChatCompletionRequest {
+func newChatCompletionRequest(request *structs.CompletionRequest) openai.ChatCompletionRequest {
 	return openai.ChatCompletionRequest{
 		Model:    config.OpenAI.DefaultModel.Completion,
-		Messages: request.ToChatCompletionMessages(ctx, false),
+		Messages: request.ToChatCompletionMessages(),
 	}
 }
 
@@ -59,7 +61,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 
 // processSuccessfulCompletionStream processes a ChatCompletionStream and writes the response to the request.Writer.
 // Returns the response message as a string, or an error if there's an issue while processing the stream.
-func processSuccessfulCompletionStream(ctx context.Context, request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
+func processSuccessfulCompletionStream(request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
 	react.StartAndWait(request)
 
 	putils.WriteStatusCode(request.Writer, http.StatusOK)
@@ -94,39 +96,47 @@ func processSuccessfulCompletionStream(ctx context.Context, request *structs.Com
 
 // recordAssistantResponse saves the assistant's response as a message in the memory.
 // Returns an error if there's an issue while saving the message.
-func recordAssistantResponse(ctx context.Context, request *structs.CompletionRequest, responseMessage string) error {
+func recordAssistantResponse(request *structs.CompletionRequest, responseMessage string) error {
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
 	nmsg.Content = responseMessage
 	nmsg.Role = "assistant"
-	nmsg.User = request.User
+	nmsg.User = request.GetMessage().User
 
-	return nmsg.Save(ctx)
+	return nmsg.Save(request.GetContext())
 }
 
 // Complete processes a completion request by interacting with the OpenAI API.
 // Returns an error if there's an issue during the process.
-func Complete(ctx context.Context, request *structs.CompletionRequest) error {
+func Complete(request *structs.CompletionRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
-	if err := processChainOfThought(ctx, request); err == nil {
+	switch w := request.Writer.(type) {
+	case *telegram.TelegramWriter:
+		request.Writer = w.ToTextWriter()
+	case *discord.DiscordWriter:
+		request.Writer = w.ToTextWriter()
+	}
+
+	// TODO: call CoT outside of this function
+	if err := processChainOfThought(request); err == nil {
 		return react.NotifyAndClose(request, request.Writer, err)
 	}
 
-	req := newChatCompletionRequest(ctx, request)
+	req := newChatCompletionRequest(request)
 
 	logger.Info().Int("messagesInContext", len(req.Messages)).Msg("requesting completion")
 
-	stream, err := createChatCompletionWithTimeout(ctx, req)
+	stream, err := createChatCompletionWithTimeout(request.GetContext(), req)
 	if err != nil {
 		return react.NotifyError(request, err)
 	}
 
-	responseMessage, err := processSuccessfulCompletionStream(ctx, request, stream)
+	responseMessage, err := processSuccessfulCompletionStream(request, stream)
 	if err != nil {
 		return react.NotifyAndClose(request, request.Writer, err)
 	}
 
-	err = recordAssistantResponse(ctx, request, responseMessage)
+	err = recordAssistantResponse(request, responseMessage)
 
 	return react.NotifyAndClose(request, request.Writer, err)
 }

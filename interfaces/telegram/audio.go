@@ -3,11 +3,9 @@ package telegram
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
-	"io"
 	"os/exec"
 )
 
@@ -24,41 +22,29 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 	return npath, err
 }
 func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
-	_ = msg.SendText(i18n.GetTranscriptionText(), msg.Source.Telegram.Update.Message.MessageID)
-
 	for _, path := range msg.GetAudios() {
-		request := structs.NewTranscriptionRequest()
+		req := structs.NewActionRequest()
+		req.Message = msg
+		req.Context = ctx
+		req.Action = "transcribe"
+		req.Params = path
+		req.Writers = append(req.Writers, NewTextWriter(ctx, req, true))
 
-		request.FilePath = path
-		request.ResultChannel = ch
-
-		request.User = msg.User
-		request.Message = msg
-
-		request.Context = ctx
-		request.Writer = NewTextWriter(ctx, request, true)
-
-		channels.TranscribeRequestsCh <- request
+		channels.ActionRequestsCh <- req
 	}
 
 	return nil
 }
 
 func aiTTS(ctx context.Context, msg *memory.Message) error {
-	_ = msg.SendText(i18n.GetTextToSpeechText(), msg.Source.Telegram.Update.Message.MessageID)
+	req := structs.NewActionRequest()
+	req.Message = msg
+	req.Context = ctx
+	req.Action = "tts"
+	req.Params = promptFromMessage(msg)
+	req.Writers = append(req.Writers, NewAudioWriter(ctx, req, false))
 
-	request := structs.NewTTSRequest()
-
-	request.User = msg.User
-
-	request.Content = promptFromMessage(msg)
-	request.Message = msg
-	request.Context = ctx
-
-	w := NewAudioWriter(ctx, request, false)
-	request.Writers = append(request.Writers, w.(io.WriteCloser))
-
-	channels.TTSRequestsCh <- request
+	channels.ActionRequestsCh <- req
 
 	return nil
 }

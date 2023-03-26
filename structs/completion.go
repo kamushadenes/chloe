@@ -26,7 +26,6 @@ type CompletionRequest struct {
 	ResultChannel   chan interface{}
 
 	Message *memory.Message
-	User    *memory.User `json:"user,omitempty"`
 
 	Mode string                 `json:"mode"`
 	Args map[string]interface{} `json:"args"`
@@ -34,7 +33,8 @@ type CompletionRequest struct {
 
 func NewCompletionRequest() *CompletionRequest {
 	return &CompletionRequest{
-		ID: uuid.Must(uuid.NewV4()).String(),
+		ID:   uuid.Must(uuid.NewV4()).String(),
+		Args: make(map[string]interface{}),
 	}
 }
 
@@ -55,7 +55,6 @@ func (creq *CompletionRequest) Copy() *CompletionRequest {
 		ContinueChannel: creq.ContinueChannel,
 		ErrorChannel:    creq.ErrorChannel,
 		ResultChannel:   creq.ResultChannel,
-		User:            creq.User,
 		Message:         creq.Message.Copy(),
 		Mode:            creq.Mode,
 		Args:            creq.Args,
@@ -104,8 +103,8 @@ func (creq *CompletionRequest) CountTokens(messages []openai.ChatCompletionMessa
 	return tokens
 }
 
-func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, chainOfThought bool) []openai.ChatCompletionMessage {
-	logger := zerolog.Ctx(ctx)
+func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletionMessage {
+	logger := zerolog.Ctx(creq.GetContext())
 
 	var messages []openai.ChatCompletionMessage
 
@@ -114,7 +113,7 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 		args = make(map[string]interface{})
 	}
 	args["Interface"] = creq.Message.Interface
-	args["User"] = creq.User
+	args["User"] = creq.Message.User
 
 	args["Date"] = time.Now().Format("2006-01-02")
 	args["Time"] = time.Now().Format("15:04:05")
@@ -134,7 +133,7 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 
 	var userMessages []openai.ChatCompletionMessage
 
-	savedMessages, err := creq.User.LoadMessages(ctx)
+	savedMessages, err := creq.Message.User.LoadMessages(creq.GetContext())
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load saved messages")
 		return nil
@@ -146,7 +145,7 @@ func (creq *CompletionRequest) ToChatCompletionMessages(ctx context.Context, cha
 		if k >= len(savedMessages)-config.OpenAI.MessagesToKeepFullContent {
 			content = m.Content
 		} else {
-			content = m.GetContent(chainOfThought)
+			content = m.GetContent()
 		}
 
 		if len(content) > 0 {

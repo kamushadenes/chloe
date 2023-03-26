@@ -38,12 +38,12 @@ func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID
 	return &eid
 }
 
-func (u *User) AddExternalID(ctx context.Context, externalId, interf string) error {
+func (u *User) AddExternalID(ctx context.Context, externalID, interf string) error {
 	var eid ExternalID
 
 	if tx := db.WithContext(ctx).First(&eid, "user_id = ? AND interface = ?", u.ID, interf); tx.Error == gorm.ErrRecordNotFound {
 		eid = ExternalID{
-			ExternalID: externalId,
+			ExternalID: externalID,
 			UserID:     u.ID,
 			Interface:  interf,
 		}
@@ -54,7 +54,7 @@ func (u *User) AddExternalID(ctx context.Context, externalId, interf string) err
 		return tx.Error
 	}
 
-	eid.ExternalID = externalId
+	eid.ExternalID = externalID
 
 	return db.WithContext(ctx).Save(&eid).Error
 }

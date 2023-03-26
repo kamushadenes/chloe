@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
@@ -39,7 +40,9 @@ func Complete(ctx context.Context, text string) error {
 	msg.Role = "user"
 	msg.User = user
 	msg.Content = text
-	if err := msg.Save(ctx); err != nil {
+
+	channels.IncomingMessagesCh <- msg
+	if err := <-msg.ErrorCh; err != nil {
 		return err
 	}
 
@@ -49,9 +52,8 @@ func Complete(ctx context.Context, text string) error {
 	req.SkipClose = true
 	req.StartChannel = startCh
 	req.ContinueChannel = continueCh
-	req.User = user
 	req.Mode = "default"
 	req.Message = msg
 
-	return openai.Complete(ctx, req)
+	return openai.Complete(req)
 }

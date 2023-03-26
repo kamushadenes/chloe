@@ -12,7 +12,7 @@ func TestGetFunctionName(t *testing.T) {
 	}{
 		{
 			name:     "test GetFunctionName with a basic function",
-			function: func() { return },
+			function: func() {},
 			wantName: "github.com/kamushadenes/chloe/utils.TestGetFunctionName.func1",
 		},
 		{

@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
@@ -10,6 +9,7 @@ import (
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
+	"io"
 	"regexp"
 	"strings"
 )
@@ -23,21 +23,21 @@ var ptns = map[string]*regexp.Regexp{
 	"answer":      regexp.MustCompile(`^[Aa]nswer:\s*(?P<answer>.*)`),
 }
 
-func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, allowObservation bool) error {
-	logger := zerolog.Ctx(ctx)
+func ChainOfThought(request *structs.CompletionRequest) error {
+	logger := zerolog.Ctx(request.Context)
 
 	logger.Info().Msg("detecting chain of thought")
 
 	request.Mode = "chain_of_thought"
 	req := openai.ChatCompletionRequest{
 		Model:    config.OpenAI.DefaultModel.ChainOfThought,
-		Messages: request.ToChatCompletionMessages(ctx, true),
+		Messages: request.ToChatCompletionMessages(),
 	}
 
 	var resp openai.ChatCompletionResponse
 
-	respi, err := utils.WaitTimeout(ctx, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
-		resp, err := openAIClient.CreateChatCompletion(ctx, req)
+	respi, err := utils.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
+		resp, err := openAIClient.CreateChatCompletion(request.Context, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting chain of thought")
 			errCh <- err
@@ -111,11 +111,11 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		params = answer
 	}
 
-	msgs := memory.MessagesFromOpenAIChatCompletionResponse(ctx, request.User, request.Message.Interface, &resp)
+	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Context, request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
-		msg.Content = params
-		msg.ChainOfThought = content
-		if err := msg.Save(ctx); err != nil {
+		msg.Content = content // params
+		// msg.ChainOfThought = content
+		if err := msg.Save(request.Context); err != nil {
 			return err
 		}
 	}
@@ -127,15 +127,22 @@ func ChainOfThought(ctx context.Context, request *structs.CompletionRequest, all
 		Str("answer", answer).
 		Msg("chain of thought")
 
-	return HandleAction(ctx, request, action, params, allowObservation)
+	actReq := structs.NewActionRequest()
+	actReq.ID = request.ID
+	actReq.Message = request.Message
+	actReq.Context = request.Context
+	actReq.Action = action
+	actReq.Params = params
+	actReq.Writers = []io.WriteCloser{request.Writer}
+
+	return HandleAction(actReq)
 }
 
-func storeChainOfThoughtResult(ctx context.Context, request *structs.CompletionRequest, params string, content string) error {
-	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-	nmsg.Role = "user"
-	nmsg.Content = params
-	nmsg.ChainOfThought = content
-	nmsg.User = request.User
+func storeChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
+	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
+	nmsg.Role = "system"
+	nmsg.Content = content
+	nmsg.User = request.GetMessage().User
 
-	return nmsg.Save(ctx)
+	return nmsg.Save(request.GetContext())
 }

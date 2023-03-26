@@ -28,10 +28,10 @@ func GetUser(ctx context.Context, id string) (*User, error) {
 	return &u, err
 }
 
-func GetUserByExternalID(ctx context.Context, externalId, interf string) (*User, error) {
+func GetUserByExternalID(ctx context.Context, externalID, interf string) (*User, error) {
 	var eid ExternalID
 
-	if err := db.WithContext(ctx).First(&eid, "external_id = ? AND interface = ?", externalId, interf).Error; err != nil {
+	if err := db.WithContext(ctx).First(&eid, "external_id = ? AND interface = ?", externalID, interf).Error; err != nil {
 		return nil, err
 	}
 

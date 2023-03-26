@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/kamushadenes/chloe/react"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 func TestNewHTTPResponseWriteCloser(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	if rwc == nil {
 		t.Error("failed to initialize HTTPResponseWriteCloser")
@@ -18,7 +19,7 @@ func TestNewHTTPResponseWriteCloser(t *testing.T) {
 
 func TestHTTPResponseWriteCloserWrite(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	n, err := rwc.Write([]byte("Hello, World!"))
 
@@ -37,7 +38,7 @@ func TestHTTPResponseWriteCloserWrite(t *testing.T) {
 
 func TestHTTPResponseWriteCloserClose(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	ch := make(chan bool)
 
@@ -56,7 +57,7 @@ func TestHTTPResponseWriteCloserClose(t *testing.T) {
 
 func TestHTTPResponseWriteCloserHeader(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	rwc.Header().Set("Content-Type", "application/json")
 
@@ -67,7 +68,7 @@ func TestHTTPResponseWriteCloserHeader(t *testing.T) {
 
 func TestHTTPResponseWriteCloserWriteHeader(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	rwc.WriteHeader(http.StatusOK)
 
@@ -78,7 +79,7 @@ func TestHTTPResponseWriteCloserWriteHeader(t *testing.T) {
 
 func TestHTTPResponseWriteCloserFlush(t *testing.T) {
 	w := httptest.NewRecorder()
-	rwc := NewHTTPResponseWriteCloser(w)
+	rwc := react.NewHTTPResponseWriteCloser(w)
 
 	rwc.Flush()
 }

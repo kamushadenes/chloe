@@ -5,41 +5,33 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
 	for _, path := range msg.GetAudios() {
-		request := structs.NewTranscriptionRequest()
 
-		request.FilePath = path
-		request.ResultChannel = ch
+		req := structs.NewActionRequest()
+		req.Action = "transcribe"
+		req.Params = path
+		req.Message = msg
+		req.Context = ctx
+		req.Writers = append(req.Writers, NewTextWriter(ctx, req, true))
 
-		request.User = msg.User
-		request.Message = msg
-
-		request.Context = ctx
-		request.Writer = NewTextWriter(ctx, request, true)
-
-		channels.TranscribeRequestsCh <- request
+		channels.ActionRequestsCh <- req
 	}
 
 	return nil
 }
 
 func aiTTS(ctx context.Context, msg *memory.Message) error {
-	request := structs.NewTTSRequest()
+	req := structs.NewActionRequest()
+	req.Action = "tts"
+	req.Params = promptFromMessage(msg)
+	req.Message = msg
+	req.Context = ctx
+	req.Writers = append(req.Writers, NewAudioWriter(ctx, req, false))
 
-	request.User = msg.User
-
-	request.Content = promptFromMessage(msg)
-	request.Message = msg
-	request.Context = ctx
-
-	w := NewAudioWriter(ctx, request, false)
-	request.Writers = append(request.Writers, w.(io.WriteCloser))
-
-	channels.TTSRequestsCh <- request
+	channels.ActionRequestsCh <- req
 
 	return nil
 }

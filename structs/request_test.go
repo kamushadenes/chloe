@@ -21,18 +21,6 @@ func TestRequest(t *testing.T) {
 		s    Request
 	}{
 		{
-			name: "Calculation",
-			s: &CalculationRequest{
-				Context:         ctx,
-				Writer:          w,
-				SkipClose:       skipClose,
-				StartChannel:    startChannel,
-				ContinueChannel: continueChannel,
-				ErrorChannel:    errorChannel,
-				ResultChannel:   resultChannel,
-			},
-		},
-		{
 			name: "Completion",
 			s: &CompletionRequest{
 				Context:         ctx,

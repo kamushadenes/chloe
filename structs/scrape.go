@@ -21,8 +21,7 @@ type ScrapeRequest struct {
 
 	Message *memory.Message `json:"message,omitempty"`
 
-	User    *memory.User `json:"user,omitempty"`
-	Content string       `json:"content"`
+	Content string `json:"content"`
 }
 
 func NewScrapeRequest() *ScrapeRequest {

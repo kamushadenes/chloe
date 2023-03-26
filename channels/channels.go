@@ -13,4 +13,5 @@ var (
 	EditRequestsCh       = make(chan *structs.GenerationRequest)
 	VariationRequestsCh  = make(chan *structs.VariationRequest)
 	TTSRequestsCh        = make(chan *structs.TTSRequest)
+	ActionRequestsCh     = make(chan *structs.ActionRequest)
 )
