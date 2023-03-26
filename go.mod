@@ -18,6 +18,8 @@ require (
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2
 	github.com/stretchr/testify v1.8.1
+	github.com/trietmn/go-wiki v1.0.0
+	github.com/yuin/goldmark v1.4.13
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4

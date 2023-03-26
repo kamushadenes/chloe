@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -12,10 +11,16 @@ type Action interface {
 	GetNotification() string
 	SetParams(string)
 	GetParams() string
-	Execute(context.Context) error
+	Execute(*structs.ActionRequest) error
 	SetWriters([]io.WriteCloser)
 	GetWriters() []io.WriteCloser
 	SetMessage(*memory.Message)
 	RunPreActions(*structs.ActionRequest) error
 	RunPostActions(*structs.ActionRequest) error
+}
+
+type ChainOfThoughtResponse struct {
+	Thought string `json:"thought"`
+	Action  string `json:"action"`
+	Params  string `json:"params"`
 }

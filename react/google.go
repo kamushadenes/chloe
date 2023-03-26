@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
@@ -48,27 +47,27 @@ func (a *GoogleAction) GetParams() string {
 	return a.Params
 }
 
-func (a *GoogleAction) Execute(ctx context.Context) error {
-	res, err := googlesearch.Search(ctx, a.Params, googlesearch.SearchOptions{Limit: 5})
+func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
+	res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: 5})
 	if err != nil {
 		return err
 	}
 
 	for _, r := range res {
-		for _, w := range a.Writers {
-			msg := fmt.Sprintf("URL: %s\nTitle: %s\nDescription: %s\n\n\n", r.URL, r.Title, r.Description)
-			_, err := w.Write([]byte(msg))
-			if err != nil {
-				return err
-			}
+		na := NewScrapeAction()
+		na.SetParams(r.URL)
+		na.SetMessage(request.Message)
+		request.Message.NotifyAction(na.GetNotification())
+		if err := na.Execute(request); err != nil {
+			continue
 		}
 	}
 
-	return nil
+	return ErrProceed
 }
 
 func (a *GoogleAction) RunPreActions(request *structs.ActionRequest) error {
-	return scrapePreActions(a, request)
+	return nil
 }
 
 func (a *GoogleAction) RunPostActions(request *structs.ActionRequest) error {

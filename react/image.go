@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
@@ -47,11 +46,11 @@ func (a *ImageAction) GetParams() string {
 func (a *ImageAction) SetUser(user *memory.User)          {}
 func (a *ImageAction) SetMessage(message *memory.Message) {}
 
-func (a *ImageAction) Execute(ctx context.Context) error {
+func (a *ImageAction) Execute(request *structs.ActionRequest) error {
 	errorCh := make(chan error)
 
 	req := structs.NewGenerationRequest()
-	req.Context = ctx
+	req.Context = request.GetContext()
 	req.Prompt = a.Params
 	req.ErrorChannel = errorCh
 

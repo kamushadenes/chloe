@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/anaskhan96/soup"
 	"github.com/kamushadenes/chloe/memory"
@@ -48,26 +47,25 @@ func (a *ScrapeAction) GetParams() string {
 func (a *ScrapeAction) SetUser(user *memory.User)          {}
 func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 
-func (a *ScrapeAction) Execute(ctx context.Context) error {
+func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
+	truncateTokenCount := getTokenCount(request)
+
 	resp, err := soup.Get(a.Params)
 	if err != nil {
 		return err
 	}
 
-	doc := soup.HTMLParse(resp)
+	doc := soup.HTMLParse(resp).Find("body")
 
-	for _, w := range a.Writers {
-		_, err := w.Write([]byte(doc.FullText()))
-		if err != nil {
-			return err
-		}
+	if err := storeChainOfThoughtResult(request, Truncate(doc.FullText(), truncateTokenCount)); err != nil {
+		return err
 	}
 
-	return nil
+	return ErrProceed
 }
 
 func (a *ScrapeAction) RunPreActions(request *structs.ActionRequest) error {
-	return scrapePreActions(a, request)
+	return nil
 }
 
 func (a *ScrapeAction) RunPostActions(request *structs.ActionRequest) error {

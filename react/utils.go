@@ -4,6 +4,7 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
+	"strings"
 )
 
 func StartAndWait(req structs.Request) {
@@ -43,6 +44,8 @@ func WriteResult(req structs.Request, result interface{}) {
 }
 
 func Truncate(s string, n int) string {
+	s = strings.Join(strings.Fields(s), " ")
+
 	if len(s) > n {
 		return s[:n]
 	}

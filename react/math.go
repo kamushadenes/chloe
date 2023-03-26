@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/kamushadenes/chloe/memory"
@@ -35,7 +34,7 @@ func (a *CalculateAction) GetName() string {
 }
 
 func (a *CalculateAction) GetNotification() string {
-	return fmt.Sprintf("🧮 Executing calculation: **%s**", a.Params)
+	return fmt.Sprintf("🧮 Executing calculation: **%s**", strings.ReplaceAll(a.Params, "*", "\\*"))
 }
 
 func (a *CalculateAction) SetParams(params string) {
@@ -49,7 +48,7 @@ func (a *CalculateAction) GetParams() string {
 func (a *CalculateAction) SetUser(user *memory.User)          {}
 func (a *CalculateAction) SetMessage(message *memory.Message) {}
 
-func (a *CalculateAction) Execute(ctx context.Context) error {
+func (a *CalculateAction) Execute(request *structs.ActionRequest) error {
 	expr := strings.ReplaceAll(a.Params, ",", "")
 
 	expression, err := govaluate.NewEvaluableExpression(expr)

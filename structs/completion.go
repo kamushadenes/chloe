@@ -123,13 +123,15 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 		panic(err)
 	}
 
-	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: prompt})
+	// messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: prompt})
+	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: prompt})
 
 	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{Args: args, Mode: creq.Mode})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load bootstrap prompt")
 	}
-	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: bootstrap})
+	// messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: bootstrap})
+	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: bootstrap})
 
 	var userMessages []openai.ChatCompletionMessage
 

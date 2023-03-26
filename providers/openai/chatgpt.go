@@ -107,7 +107,7 @@ func recordAssistantResponse(request *structs.CompletionRequest, responseMessage
 
 // Complete processes a completion request by interacting with the OpenAI API.
 // Returns an error if there's an issue during the process.
-func Complete(request *structs.CompletionRequest) error {
+func Complete(request *structs.CompletionRequest, skipCoT ...bool) error {
 	logger := structs.LoggerFromRequest(request)
 
 	switch w := request.Writer.(type) {
@@ -118,8 +118,22 @@ func Complete(request *structs.CompletionRequest) error {
 	}
 
 	// TODO: call CoT outside of this function
-	if err := processChainOfThought(request); err == nil {
-		return react.NotifyAndClose(request, request.Writer, err)
+	if len(skipCoT) == 0 || !skipCoT[0] {
+		if err := processChainOfThought(request); err == nil {
+			return react.NotifyError(request, err)
+		} else if errors.Is(err, react.ErrProceed) {
+			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
+			msg.Content = "summarize"
+			msg.ErrorCh = request.Message.ErrorCh
+			msg.Role = "user"
+			msg.User = request.Message.User
+			msg.Context = request.Message.Context
+			msg.Source = request.Message.Source
+			if err := msg.Save(request.GetContext()); err != nil {
+				return err
+			}
+			return Complete(request, true)
+		}
 	}
 
 	req := newChatCompletionRequest(request)

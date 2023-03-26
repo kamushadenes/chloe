@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
@@ -48,11 +47,11 @@ func (a *VariationAction) GetParams() string {
 func (a *VariationAction) SetUser(user *memory.User)          {}
 func (a *VariationAction) SetMessage(message *memory.Message) {}
 
-func (a *VariationAction) Execute(ctx context.Context) error {
+func (a *VariationAction) Execute(request *structs.ActionRequest) error {
 	errorCh := make(chan error)
 
 	req := structs.NewVariationRequest()
-	req.Context = ctx
+	req.Context = request.GetContext()
 	req.ImagePath = a.Params
 	req.ErrorChannel = errorCh
 

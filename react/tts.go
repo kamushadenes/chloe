@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/interfaces/discord"
@@ -50,11 +49,11 @@ func (a *TTSAction) GetParams() string {
 func (a *TTSAction) SetUser(user *memory.User)          {}
 func (a *TTSAction) SetMessage(message *memory.Message) {}
 
-func (a *TTSAction) Execute(ctx context.Context) error {
+func (a *TTSAction) Execute(request *structs.ActionRequest) error {
 	errorCh := make(chan error)
 
 	req := structs.NewTTSRequest()
-	req.Context = ctx
+	req.Context = request.GetContext()
 	req.Content = a.Params
 	req.ErrorChannel = errorCh
 

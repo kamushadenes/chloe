@@ -1,6 +1,7 @@
 package react
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
@@ -50,65 +51,16 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 	resp = respi.(openai.ChatCompletionResponse)
 
-	content := resp.Choices[0].Message.Content
+	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
-	var action, thought, observation, answer, params string
-
-	for ptnName := range ptns {
-		if ptnName == "answer" {
-			match := ptns[ptnName].FindStringSubmatch(content)
-			if match == nil {
-				continue
-			}
-			for i, name := range ptns[ptnName].SubexpNames() {
-				if i != 0 && name != "" {
-					switch name {
-					case "answer":
-						answer = match[i]
-					}
-				}
-			}
-		} else {
-			for _, line := range strings.Split(content, "\n") {
-				match := ptns[ptnName].FindStringSubmatch(line)
-				if match == nil {
-					continue
-				}
-				for i, name := range ptns[ptnName].SubexpNames() {
-					if i != 0 && name != "" {
-						switch ptnName {
-						case "action":
-							switch name {
-							case "action":
-								action = strings.ToLower(match[i])
-							case "params":
-								params = match[i]
-							}
-						case "thought":
-							switch name {
-							case "thought":
-								thought = match[i]
-							}
-						case "observation":
-							switch name {
-							case "observation":
-								observation = match[i]
-							}
-						}
-					}
-				}
-			}
-		}
+	var cotResp ChainOfThoughtResponse
+	if err := json.Unmarshal([]byte(content), &cotResp); err != nil {
+		return err
 	}
 
-	if answer == "" && (action == "" || action == "none" || params == "" || action == "Action") {
-		logger.Info().Str("action", action).Str("params", params).Str("thought", thought).Msg("chain of thought not found")
+	if cotResp.Action == "" || cotResp.Action == "none" {
+		logger.Info().Msg("chain of thought not found")
 		return fmt.Errorf("no action found in response: %s", content)
-	}
-
-	if len(answer) > 0 {
-		action = "answer"
-		params = answer
 	}
 
 	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Context, request.Message.User, request.Message.Interface, &resp)
@@ -120,19 +72,18 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 		}
 	}
 
-	logger.Info().Str("action", action).
-		Str("params", params).
-		Str("thought", thought).
-		Str("observation", observation).
-		Str("answer", answer).
+	logger.Info().Str("action", cotResp.Action).
+		Str("params", cotResp.Params).
+		Str("thought", cotResp.Thought).
 		Msg("chain of thought")
 
 	actReq := structs.NewActionRequest()
 	actReq.ID = request.ID
 	actReq.Message = request.Message
 	actReq.Context = request.Context
-	actReq.Action = action
-	actReq.Params = params
+	actReq.Action = cotResp.Action
+	actReq.Params = cotResp.Params
+	actReq.Thought = cotResp.Thought
 	actReq.Writers = []io.WriteCloser{request.Writer}
 
 	return HandleAction(actReq)
@@ -140,7 +91,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 func storeChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
-	nmsg.Role = "system"
+	nmsg.Role = "assistant"
 	nmsg.Content = content
 	nmsg.User = request.GetMessage().User
 

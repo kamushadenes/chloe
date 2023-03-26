@@ -23,6 +23,7 @@ var actions = map[string]Action{
 	"transcribe":    NewTranscribeAction(),
 	"transcription": NewTranscribeAction(),
 	"variation":     NewVariationAction(),
+	"wikipedia":     NewWikipediaAction(),
 }
 
 func getTokenCount(request *structs.ActionRequest) int {
@@ -58,7 +59,7 @@ func HandleAction(request *structs.ActionRequest) error {
 	}
 
 	logger.Info().Msg("executing action")
-	err := act.Execute(request.Context)
+	err := act.Execute(request)
 	if err != nil {
 		return err
 	}

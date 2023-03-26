@@ -1,7 +1,6 @@
 package react
 
 import (
-	"context"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
@@ -53,11 +52,11 @@ func (a *TranscribeAction) SetMessage(message *memory.Message) {
 	a.Message = message
 }
 
-func (a *TranscribeAction) Execute(ctx context.Context) error {
+func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
 	errorCh := make(chan error)
 
 	req := structs.NewTranscriptionRequest()
-	req.Context = ctx
+	req.Context = request.GetContext()
 	req.Message = a.Message
 	req.FilePath = a.Params
 	req.ErrorChannel = errorCh

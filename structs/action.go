@@ -15,8 +15,9 @@ type ActionRequest struct {
 	Writers   []io.WriteCloser
 	SkipClose bool
 
-	Action string
-	Params string
+	Action  string
+	Params  string
+	Thought string
 
 	Message *memory.Message `json:"message,omitempty"`
 }
