@@ -14,7 +14,7 @@ type VariationAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewVariationAction() *VariationAction {
+func NewVariationAction() Action {
 	return &VariationAction{
 		Name: "image",
 	}

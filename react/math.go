@@ -15,7 +15,7 @@ type CalculateAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewCalculateAction() *CalculateAction {
+func NewCalculateAction() Action {
 	return &CalculateAction{
 		Name: "calculate",
 	}

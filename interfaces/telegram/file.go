@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"io"
 	"net/http"
@@ -46,7 +47,7 @@ func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) stri
 		return ""
 	}
 
-	filePath := path.Join("telegram", "downloads", file.FilePath)
+	filePath := path.Join(config.Misc.TempDir, "telegram", "downloads", file.FilePath)
 
 	req, err := createRequest(file.Link(api.Token))
 	if err != nil {

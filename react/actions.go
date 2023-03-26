@@ -8,22 +8,23 @@ import (
 	"strings"
 )
 
-var actions = map[string]Action{
-	"google":        NewGoogleAction(),
-	"calculate":     NewCalculateAction(),
-	"math":          NewCalculateAction(),
-	"scrape":        NewScrapeAction(),
-	"web":           NewScrapeAction(),
-	"image":         NewImageAction(),
-	"dalle":         NewImageAction(),
-	"dall-e":        NewImageAction(),
-	"audio":         NewAudioAction(),
-	"tts":           NewAudioAction(),
-	"speak":         NewAudioAction(),
-	"transcribe":    NewTranscribeAction(),
-	"transcription": NewTranscribeAction(),
-	"variation":     NewVariationAction(),
-	"wikipedia":     NewWikipediaAction(),
+var actions = map[string]func() Action{
+	"google":            NewGoogleAction,
+	"calculate":         NewCalculateAction,
+	"math":              NewCalculateAction,
+	"scrape":            NewScrapeAction,
+	"web":               NewScrapeAction,
+	"image":             NewImageAction,
+	"dalle":             NewImageAction,
+	"dall-e":            NewImageAction,
+	"audio":             NewAudioAction,
+	"tts":               NewAudioAction,
+	"speak":             NewAudioAction,
+	"transcribe":        NewTranscribeAction,
+	"transcription":     NewTranscribeAction,
+	"variation":         NewVariationAction,
+	"wikipedia":         NewWikipediaAction,
+	"summarize_youtube": NewYoutubeSummarizerAction,
 }
 
 func getTokenCount(request *structs.ActionRequest) int {
@@ -41,10 +42,11 @@ func HandleAction(request *structs.ActionRequest) error {
 
 	request.Action = strings.ToLower(request.Action)
 
-	act, ok := actions[request.Action]
+	actI, ok := actions[request.Action]
 	if !ok {
 		return fmt.Errorf("unknown request.Action: %s", request.Action)
 	}
+	act := actI()
 
 	act.SetParams(request.Params)
 	act.SetMessage(request.Message)
@@ -61,6 +63,7 @@ func HandleAction(request *structs.ActionRequest) error {
 	logger.Info().Msg("executing action")
 	err := act.Execute(request)
 	if err != nil {
+		logger.Error().Err(err).Msg("error executing action")
 		return err
 	}
 

@@ -19,7 +19,7 @@ type MidjourneyPromptGeneratorAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewMidjourneyPromptGeneratorAction() *MidjourneyPromptGeneratorAction {
+func NewMidjourneyPromptGeneratorAction() Action {
 	return &MidjourneyPromptGeneratorAction{
 		Name: "image",
 	}

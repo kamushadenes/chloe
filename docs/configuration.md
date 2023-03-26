@@ -70,10 +70,24 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 |--------------------------------|---------------|---------------------------------------|---------|
 | CHLOE_TIMEOUT_COMPLETION       | 60s           | Timeout for completion requests       |         |
 | CHLOE_TIMEOUT_CHAIN_OF_THOUGHT | 60s           | Timeout for chain of thought analysis |         |
-| CHLOE_TIMEOUT_TRANSCRIPTION    | 60s           | Timeout for transcription requests    |         |
+| CHLOE_TIMEOUT_TRANSCRIPTION    | 120s          | Timeout for transcription requests    |         |
 | CHLOE_TIMEOUT_MODERATION       | 60s           | Timeout for moderation requests       |         |
 | CHLOE_TIMEOUT_IMAGE_GENERATION | 120s          | Timeout for image generation requests |         |
 | CHLOE_TIMEOUT_IMAGE_EDIT       | 120s          | Timeout for image edit requests       |         |
 | CHLOE_TIMEOUT_IMAGE_VARIATION  | 120s          | Timeout for image variation requests  |         |
 | CHLOE_TIMEOUT_TTS              | 10s           | Timeout for TTS requests              |         |
 | CHLOE_TIMEOUT_SLOWNESS_WARNING | 5s            | Timeout for slowness warning messages |         |
+
+## ReAct
+
+| Environment Variable              | Default Value | Description                                                                             | Options        |
+|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|----------------|
+| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false |
+| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 3             | Maximum number of Google results to analyze                                             |                |
+| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 2             | Maximum number of Wikipedia results to analyze                                          |                |
+
+## Miscellaneous
+
+| Environment Variable | Default Value | Description                           | Options |
+|----------------------|---------------|---------------------------------------|---------|
+| CHLOE_TEMP_DIR       | <generated>   | Temporary directory for storing files |         |

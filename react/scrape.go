@@ -14,7 +14,7 @@ type ScrapeAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewScrapeAction() *ScrapeAction {
+func NewScrapeAction() Action {
 	return &ScrapeAction{
 		Name: "scrape",
 	}

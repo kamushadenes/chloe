@@ -15,7 +15,7 @@ type GoogleAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewGoogleAction() *GoogleAction {
+func NewGoogleAction() Action {
 	return &GoogleAction{
 		Name: "google",
 	}

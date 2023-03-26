@@ -29,6 +29,7 @@ understand and respond to complex instructions.
 - Automatically summarizes messages in order to have a longer context
 - Automatically moderates message using
   OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
+- Many more, check [Actions](docs/actions.md)
 
 Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
 simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L136).
@@ -58,12 +59,20 @@ take quite some time.
 
 # Table of Contents
 
+- [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 - [References](#references)
 - [Acknowledgements](#acknowledgements)
+
+## Dependencies
+
+- aria2
+- ffmpeg
+- imagemagick
+- youtube-dl
 
 ## Installation
 

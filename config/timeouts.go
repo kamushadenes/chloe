@@ -17,7 +17,7 @@ type TimeoutsConfig struct {
 var Timeouts = &TimeoutsConfig{
 	Completion:      envOrDefaultDuration("CHLOE_TIMEOUT_COMPLETION", 60*time.Second),
 	ChainOfThought:  envOrDefaultDuration("CHLOE_TIMEOUT_CHAIN_OF_THOUGHT", 60*time.Second),
-	Transcription:   envOrDefaultDuration("CHLOE_TIMEOUT_TRANSCRIPTION", 60*time.Second),
+	Transcription:   envOrDefaultDuration("CHLOE_TIMEOUT_TRANSCRIPTION", 120*time.Second),
 	Moderation:      envOrDefaultDuration("CHLOE_TIMEOUT_MODERATION", 60*time.Second),
 	ImageGeneration: envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_GENERATION", 120*time.Second),
 	ImageEdit:       envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_EDIT", 120*time.Second),

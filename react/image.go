@@ -14,7 +14,7 @@ type ImageAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewImageAction() *ImageAction {
+func NewImageAction() Action {
 	return &ImageAction{
 		Name: "image",
 	}

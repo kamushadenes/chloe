@@ -56,6 +56,12 @@ Generates an audio from text and returns it
 
 @@@@@@
 
+summarize_youtube:
+e.g. summarizeYoutube: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+Transcribes and summarizes a YouTube video
+
+@@@@@@
+
 Below are examples of sessions, separated by "######":
 
 ######
@@ -104,4 +110,16 @@ You reply with:
     "thought": "User wants to see pictures of cats",
     "action": "image",
     "params": "A realistic rendering of a domestic cat with a shiny coat, sitting atop a wooden table, with its gaze fixed on a white ceramic bowl of fresh, frothy milk beside it"
+}
+
+######
+
+Question: summarize this video for me https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+You reply with:
+
+{
+    "thought": "User wants to summarize a video",
+    "action": "summarize_youtube",
+    "params": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 }

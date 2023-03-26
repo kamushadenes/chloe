@@ -14,7 +14,7 @@ type TranscribeAction struct {
 	Message *memory.Message
 }
 
-func NewTranscribeAction() *TranscribeAction {
+func NewTranscribeAction() Action {
 	return &TranscribeAction{
 		Name: "audio",
 	}

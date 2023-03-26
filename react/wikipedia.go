@@ -15,7 +15,7 @@ type WikipediaAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewWikipediaAction() *WikipediaAction {
+func NewWikipediaAction() Action {
 	return &WikipediaAction{
 		Name: "wikipedia",
 	}
