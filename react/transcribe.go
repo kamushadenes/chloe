@@ -11,7 +11,6 @@ type TranscribeAction struct {
 	Name    string
 	Params  string
 	Writers []io.WriteCloser
-	User    *memory.User
 	Message *memory.Message
 }
 
@@ -45,9 +44,6 @@ func (a *TranscribeAction) GetParams() string {
 	return a.Params
 }
 
-func (a *TranscribeAction) SetUser(user *memory.User) {
-	a.User = user
-}
 func (a *TranscribeAction) SetMessage(message *memory.Message) {
 	a.Message = message
 }

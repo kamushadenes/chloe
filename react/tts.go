@@ -46,7 +46,6 @@ func (a *TTSAction) GetParams() string {
 	return a.Params
 }
 
-func (a *TTSAction) SetUser(user *memory.User)          {}
 func (a *TTSAction) SetMessage(message *memory.Message) {}
 
 func (a *TTSAction) Execute(request *structs.ActionRequest) error {

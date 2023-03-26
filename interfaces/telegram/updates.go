@@ -40,7 +40,7 @@ func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	response2 := (<-ch2).(string)
 
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	_ = msg.SendText(response2)
+	_ = msg.SendText(response2, true)
 }
 
 func handleImageUpdate(ctx context.Context, msg *memory.Message) {

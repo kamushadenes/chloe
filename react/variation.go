@@ -44,7 +44,6 @@ func (a *VariationAction) GetParams() string {
 	return a.Params
 }
 
-func (a *VariationAction) SetUser(user *memory.User)          {}
 func (a *VariationAction) SetMessage(message *memory.Message) {}
 
 func (a *VariationAction) Execute(request *structs.ActionRequest) error {

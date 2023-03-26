@@ -2,6 +2,7 @@ package react
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rocketlaunchr/google-search"
@@ -20,7 +21,6 @@ func NewGoogleAction() *GoogleAction {
 	}
 }
 
-func (a *GoogleAction) SetUser(user *memory.User)          {}
 func (a *GoogleAction) SetMessage(message *memory.Message) {}
 
 func (a *GoogleAction) SetWriters(writers []io.WriteCloser) {
@@ -48,7 +48,7 @@ func (a *GoogleAction) GetParams() string {
 }
 
 func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
-	res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: 5})
+	res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: config.React.GoogleMaxResults})
 	if err != nil {
 		return err
 	}

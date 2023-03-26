@@ -43,7 +43,6 @@ func (a *ImageAction) GetParams() string {
 	return a.Params
 }
 
-func (a *ImageAction) SetUser(user *memory.User)          {}
 func (a *ImageAction) SetMessage(message *memory.Message) {}
 
 func (a *ImageAction) Execute(request *structs.ActionRequest) error {

@@ -44,7 +44,6 @@ func (a *ScrapeAction) GetParams() string {
 	return a.Params
 }
 
-func (a *ScrapeAction) SetUser(user *memory.User)          {}
 func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 
 func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {

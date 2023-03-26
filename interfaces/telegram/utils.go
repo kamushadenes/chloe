@@ -18,9 +18,9 @@ func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorT
 	}
 
 	if reply {
-		err = msg.SendText(text, msg.Source.Telegram.Update.Message.MessageID)
+		err = msg.SendText(text, true, msg.Source.Telegram.Update.Message.MessageID)
 	} else {
-		err = msg.SendText(text)
+		err = msg.SendText(text, true)
 	}
 
 	if err != nil {

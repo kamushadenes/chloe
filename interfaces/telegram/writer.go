@@ -29,7 +29,7 @@ func (t *TelegramWriter) Close() error {
 	case "text":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with text")
 
-		return t.Request.GetMessage().SendText(t.bufs[0].String(), t.ReplyID)
+		return t.Request.GetMessage().SendText(t.bufs[0].String(), true, t.ReplyID)
 	case "audio":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with audio")
 		tmsg := tgbotapi.NewVoice(t.ChatID, tgbotapi.FileReader{

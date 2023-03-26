@@ -45,7 +45,6 @@ func (a *CalculateAction) GetParams() string {
 	return a.Params
 }
 
-func (a *CalculateAction) SetUser(user *memory.User)          {}
 func (a *CalculateAction) SetMessage(message *memory.Message) {}
 
 func (a *CalculateAction) Execute(request *structs.ActionRequest) error {

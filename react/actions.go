@@ -49,12 +49,12 @@ func HandleAction(request *structs.ActionRequest) error {
 	act.SetParams(request.Params)
 	act.SetMessage(request.Message)
 
-	request.Message.NotifyAction(act.GetNotification())
-	if err := storeChainOfThoughtResult(request, act.GetNotification()); err != nil {
+	if err := act.RunPreActions(request); err != nil {
 		return err
 	}
 
-	if err := act.RunPreActions(request); err != nil {
+	request.Message.NotifyAction(act.GetNotification())
+	if err := storeChainOfThoughtResult(request, act.GetNotification()); err != nil {
 		return err
 	}
 

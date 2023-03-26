@@ -154,7 +154,7 @@ func (m *Message) GetContent() string {
 	return m.Content
 }
 
-func (m *Message) SendText(text string, replyTo ...interface{}) error {
+func (m *Message) SendText(text string, notify bool, replyTo ...interface{}) error {
 	if len(text) == 0 {
 		return nil
 	}
@@ -162,6 +162,12 @@ func (m *Message) SendText(text string, replyTo ...interface{}) error {
 	case "telegram":
 		msg := tgbotapi.NewMessage(m.Source.Telegram.Update.Message.Chat.ID, text)
 		msg.ParseMode = tgbotapi.ModeMarkdown
+
+		if !notify {
+			msg.DisableNotification = true
+			msg.DisableWebPagePreview = true
+		}
+
 		if len(replyTo) > 0 {
 			msg.ReplyToMessageID = replyTo[0].(int)
 		}
@@ -180,5 +186,5 @@ func (m *Message) SendText(text string, replyTo ...interface{}) error {
 }
 
 func (m *Message) NotifyAction(act string) {
-	_ = m.SendText(act)
+	_ = m.SendText(fmt.Sprintf("*%s*", act), false)
 }

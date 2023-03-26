@@ -25,7 +25,7 @@ type DiscordWriter struct {
 func (t *DiscordWriter) Close() error {
 	switch t.Type {
 	case "text":
-		return t.Request.GetMessage().SendText(t.bufs[0].String())
+		return t.Request.GetMessage().SendText(t.bufs[0].String(), true)
 	case "audio":
 		msg := &discordgo.MessageSend{
 			File: &discordgo.File{

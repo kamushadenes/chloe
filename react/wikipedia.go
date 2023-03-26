@@ -2,6 +2,7 @@ package react
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/trietmn/go-wiki"
@@ -20,7 +21,6 @@ func NewWikipediaAction() *WikipediaAction {
 	}
 }
 
-func (a *WikipediaAction) SetUser(user *memory.User)          {}
 func (a *WikipediaAction) SetMessage(message *memory.Message) {}
 
 func (a *WikipediaAction) SetWriters(writers []io.WriteCloser) {
@@ -50,7 +50,7 @@ func (a *WikipediaAction) GetParams() string {
 func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
 	truncateTokenCount := getTokenCount(request)
 
-	res, _, err := gowiki.Search(a.Params, 3, false)
+	res, _, err := gowiki.Search(a.Params, config.React.WikipediaMaxResults, false)
 	if err != nil {
 		return err
 	}
