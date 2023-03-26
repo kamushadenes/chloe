@@ -24,3 +24,17 @@ type ChainOfThoughtResponse struct {
 	Action  string `json:"action"`
 	Params  string `json:"params"`
 }
+
+type ExtractorAPIResponse struct {
+	Url           string        `json:"url"`
+	Status        string        `json:"status"`
+	StatusCode    int           `json:"status_code"`
+	Domain        string        `json:"domain"`
+	Title         string        `json:"title"`
+	Author        []interface{} `json:"author"`
+	DatePublished interface{}   `json:"date_published"`
+	Images        []string      `json:"images"`
+	Videos        []interface{} `json:"videos"`
+	Text          string        `json:"text"`
+	Html          string        `json:"html"`
+}

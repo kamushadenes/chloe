@@ -143,6 +143,9 @@ func (m *Message) SetSummary(ctx context.Context, summary string) error {
 }
 
 func (m *Message) Save(ctx context.Context) error {
+	if m.Content == "" {
+		return nil
+	}
 	return db.WithContext(ctx).Save(m).Error
 }
 

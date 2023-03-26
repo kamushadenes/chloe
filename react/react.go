@@ -65,7 +65,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Context, request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
-		msg.Content = content // params
+		msg.Content = fmt.Sprintf("Thought: %s\nAction: %s\n%Params: %s", cotResp.Thought, cotResp.Action, cotResp.Params) // params
 		// msg.ChainOfThought = content
 		if err := msg.Save(request.Context); err != nil {
 			return err
@@ -91,8 +91,20 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 func storeChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
-	nmsg.Role = "assistant"
-	nmsg.Content = content
+	nmsg.Role = "user"
+
+	params := struct {
+		Result string `json:"result"`
+	}{
+		Result: content,
+	}
+
+	b, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+
+	nmsg.Content = string(b)
 	nmsg.User = request.GetMessage().User
 
 	return nmsg.Save(request.GetContext())

@@ -2,8 +2,8 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/discord"
@@ -25,8 +25,19 @@ import (
 func processChainOfThought(request *structs.CompletionRequest) error {
 	ocontent := request.Message.Content
 
+	params := struct {
+		Question string `json:"question"`
+	}{
+		Question: ocontent,
+	}
+
+	b, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+
 	cotreq := request.Copy()
-	cotreq.Message.Content = fmt.Sprintf("Question: %s", ocontent)
+	cotreq.Message.Content = string(b)
 	return react.ChainOfThought(cotreq)
 }
 
@@ -107,7 +118,8 @@ func recordAssistantResponse(request *structs.CompletionRequest, responseMessage
 
 // Complete processes a completion request by interacting with the OpenAI API.
 // Returns an error if there's an issue during the process.
-func Complete(request *structs.CompletionRequest, skipCoT ...bool) error {
+func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
+	request := r.Copy()
 	logger := structs.LoggerFromRequest(request)
 
 	switch w := request.Writer.(type) {
@@ -123,7 +135,7 @@ func Complete(request *structs.CompletionRequest, skipCoT ...bool) error {
 			return react.NotifyError(request, err)
 		} else if errors.Is(err, react.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-			msg.Content = "summarize"
+			msg.Content = "great work, with this new information, provide me an explanation of my last question in a Wikipedia page style with whatever information you have available, don't worry if you don't have enough information, I'll ask you for more"
 			msg.ErrorCh = request.Message.ErrorCh
 			msg.Role = "user"
 			msg.User = request.Message.User
@@ -148,6 +160,10 @@ func Complete(request *structs.CompletionRequest, skipCoT ...bool) error {
 	responseMessage, err := processSuccessfulCompletionStream(request, stream)
 	if err != nil {
 		return react.NotifyAndClose(request, request.Writer, err)
+	}
+	if strings.TrimSpace(responseMessage) == "" {
+		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
+		return Complete(request, false)
 	}
 
 	err = recordAssistantResponse(request, responseMessage)

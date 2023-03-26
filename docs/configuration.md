@@ -83,8 +83,8 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 | Environment Variable              | Default Value | Description                                                                             | Options        |
 |-----------------------------------|---------------|-----------------------------------------------------------------------------------------|----------------|
 | CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false |
-| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 3             | Maximum number of Google results to analyze                                             |                |
-| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 2             | Maximum number of Wikipedia results to analyze                                          |                |
+| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                |
+| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                |
 
 ## Miscellaneous
 

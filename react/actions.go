@@ -1,6 +1,7 @@
 package react
 
 import (
+	"errors"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
@@ -63,7 +64,9 @@ func HandleAction(request *structs.ActionRequest) error {
 	logger.Info().Msg("executing action")
 	err := act.Execute(request)
 	if err != nil {
-		logger.Error().Err(err).Msg("error executing action")
+		if !errors.Is(err, ErrProceed) {
+			logger.Error().Err(err).Msg("error executing action")
+		}
 		return err
 	}
 

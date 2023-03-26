@@ -21,9 +21,11 @@ func NotifyError(req structs.Request, err error) error {
 	if err != nil {
 		logger.Error().Err(err).Msg("an error occurred")
 	}
-	if req.GetErrorChannel() != nil {
-		req.GetErrorChannel() <- err
-	}
+	go func() {
+		if req.GetErrorChannel() != nil {
+			req.GetErrorChannel() <- err
+		}
+	}()
 
 	return err
 }

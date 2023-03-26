@@ -79,3 +79,12 @@ func (u *User) LoadMessages(ctx context.Context) ([]*Message, error) {
 func (u *User) DeleteMessages(ctx context.Context) error {
 	return db.WithContext(ctx).Where("user_id = ?", u.ID).Delete(&Message{}).Error
 }
+
+func (u *User) DeleteOldestMessage(ctx context.Context) error {
+	var message Message
+	if err := db.WithContext(ctx).Where("user_id = ?", u.ID).Order("created_at").First(&message).Error; err != nil {
+		return err
+	}
+
+	return db.WithContext(ctx).Delete(&message).Error
+}

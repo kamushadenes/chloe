@@ -5,4 +5,12 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-var openAIClient = openai.NewClient(config.OpenAI.APIKey)
+var openAIClient *openai.Client
+
+func resetClient() {
+	openAIClient = openai.NewClient(config.OpenAI.APIKey)
+}
+
+func init() {
+	resetClient()
+}

@@ -2,10 +2,11 @@ package react
 
 import (
 	"fmt"
-	"github.com/anaskhan96/soup"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
+	"net/http"
 )
 
 type ScrapeAction struct {
@@ -49,14 +50,40 @@ func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
 	truncateTokenCount := getTokenCount(request)
 
-	resp, err := soup.Get(a.Params)
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", a.Params, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	doc := soup.HTMLParse(resp).Find("body")
+	doc.Find("script").Each(func(i int, el *goquery.Selection) {
+		el.Remove()
+	})
+	doc.Find("link").Each(func(i int, el *goquery.Selection) {
+		el.Remove()
+	})
+	doc.Find("style").Each(func(i int, el *goquery.Selection) {
+		el.Remove()
+	})
+	doc.Find("iframe").Each(func(i int, el *goquery.Selection) {
+		el.Remove()
+	})
 
-	if err := storeChainOfThoughtResult(request, Truncate(doc.FullText(), truncateTokenCount)); err != nil {
+	if err := storeChainOfThoughtResult(request, Truncate(fmt.Sprintf("Content: %s", doc.Text()), truncateTokenCount)); err != nil {
 		return err
 	}
 
