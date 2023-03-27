@@ -32,12 +32,14 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 
 ## Discord
 
-| Environment Variable                        | Default Value | Description                                                  | Options          |
-|---------------------------------------------|---------------|--------------------------------------------------------------|------------------|
-| CHLOE_DISCORD_TOKEN                         |               | Discord bot token                                            |                  |
-| CHLOE_DISCORD_IMAGE_COUNT                   | 4             | Number of images to generate when the user asks for an image | Between 1 and 10 |
-| CHLOE_DISCORD_ONLY_MENTION                  | true          | Whether the bot should only respond to mentions              | true<br/>false   |
-| CHLOE_DISCORD_RANDOM_STATUS_UPDATE_INTERVAL | 1m            | Interval between random status updates, set to 0 to disable  |                  |
+| Environment Variable                        | Default Value | Description                                                        | Options          |
+|---------------------------------------------|---------------|--------------------------------------------------------------------|------------------|
+| CHLOE_DISCORD_TOKEN                         |               | Discord bot token                                                  |                  |
+| CHLOE_DISCORD_IMAGE_COUNT                   | 4             | Number of images to generate when the user asks for an image       | Between 1 and 10 |
+| CHLOE_DISCORD_ONLY_MENTION                  | true          | Whether the bot should only respond to mentions                    | true<br/>false   |
+| CHLOE_DISCORD_RANDOM_STATUS_UPDATE_INTERVAL | 1m            | Interval between random status updates, set to 0 to disable        |                  |
+| CHLOE_DISCORD_STREAM_MESSAGES               | false         | Whether to stream messages as they are generated (not recommended) | true<br/>false   |
+| CHLOE_DISCORD_STREAM_FLUSH_INTERVAL         | 500ms         | Interval between flushing the stream buffer                        |                  |
 
 ## Google Cloud
 

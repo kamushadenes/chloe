@@ -8,11 +8,19 @@ var activies = []*discordgo.Activity{
 		Type: discordgo.ActivityTypeGame,
 	},
 	{
+		Name: "with fre",
+		Type: discordgo.ActivityTypeGame,
+	},
+	{
 		Name: "your steps",
 		Type: discordgo.ActivityTypeWatching,
 	},
 	{
 		Name: "to your commands",
+		Type: discordgo.ActivityTypeListening,
+	},
+	{
+		Name: "to my heart",
 		Type: discordgo.ActivityTypeListening,
 	},
 	{

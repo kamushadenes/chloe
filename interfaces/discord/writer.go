@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"time"
 )
 
 type DiscordWriter struct {
@@ -20,12 +22,45 @@ type DiscordWriter struct {
 	bufID      int
 	closedBufs int
 	mainWriter *DiscordWriter
+	externalID string
+	lastUpdate *time.Time
+}
+
+func (t *DiscordWriter) Flush() {
+	if t.Type != "text" {
+		return
+	}
+
+	if t.externalID == "" {
+		msg, err := t.Bot.ChannelMessageSend(t.ChatID, "↻ Processing...")
+		if err != nil {
+			return
+		}
+		t.externalID = msg.ID
+		tt := time.Now()
+		t.lastUpdate = &tt
+	}
+
+	if !config.Discord.StreamMessages {
+		return
+	}
+
+	if t.lastUpdate != nil && time.Now().Sub(*t.lastUpdate) > config.Discord.StreamFlushInterval {
+		_, _ = t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, t.bufs[0].String())
+		tt := time.Now()
+		t.lastUpdate = &tt
+	}
 }
 
 func (t *DiscordWriter) Close() error {
 	switch t.Type {
 	case "text":
-		return t.Request.GetMessage().SendText(t.bufs[0].String(), true)
+		if t.externalID == "" {
+			return t.Request.GetMessage().SendText(t.bufs[0].String(), true)
+		} else {
+			_, err := t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, t.bufs[0].String())
+			return err
+		}
 	case "audio":
 		msg := &discordgo.MessageSend{
 			File: &discordgo.File{
