@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/rs/zerolog"
+	"time"
 )
 
 func newBot(ctx context.Context, token string) (*discordgo.Session, error) {
@@ -62,12 +63,26 @@ func Start(ctx context.Context) {
 		return
 	}
 
+	var ticker *time.Ticker
+
+	if config.Discord.RandomStatusUpdateInterval > 0 {
+		ticker = time.NewTicker(config.Discord.RandomStatusUpdateInterval)
+	} else {
+		ticker = time.NewTicker(10 * time.Minute)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
 			logger.Warn().Err(ctx.Err()).Msg("closing discord interface")
 			_ = bot.Close()
 			return
+		case <-ticker.C:
+			if config.Discord.RandomStatusUpdateInterval > 0 {
+				if err := updateStatus(bot); err != nil {
+					logger.Error().Err(err).Msg("error updating status")
+				}
+			}
 		}
 	}
 }

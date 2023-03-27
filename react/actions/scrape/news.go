@@ -17,10 +17,11 @@ type News struct {
 	Paragraphs []string
 	CreatedAt  *time.Time
 	UpdatedAt  *time.Time
+	s          *ScrapeResult
 }
 
-func NewNews() *News {
-	return &News{}
+func NewNews(s *ScrapeResult) *News {
+	return &News{s: s}
 }
 
 func (n *News) SetTitle(title string) {
@@ -58,8 +59,14 @@ func (n *News) SetAuthor(author string) {
 }
 
 func (n *News) GetStorableContent() string {
-	msg := fmt.Sprintf("Title: %s", n.Title)
-	msg += fmt.Sprintf("\nURL: %s", n.URL)
+	var msg string
+
+	if len(n.Title) > 0 {
+		msg += fmt.Sprintf("Title: %s", n.Title)
+	} else {
+		msg += fmt.Sprintf("Title: %s", n.s.Title)
+	}
+	msg += fmt.Sprintf("\nURL: %s", n.s.URL)
 	if len(n.Author) > 0 {
 		msg += fmt.Sprintf("\nAuthor: %s", n.Author)
 	}
@@ -68,8 +75,10 @@ func (n *News) GetStorableContent() string {
 	}
 	if len(n.Paragraphs) > 0 {
 		msg += fmt.Sprintf("\nContent: %s", strings.Join(n.Paragraphs, "\n"))
-	} else {
+	} else if len(n.Content) > 0 {
 		msg += fmt.Sprintf("\nContent: %s", n.Content)
+	} else {
+		msg += fmt.Sprintf("\nContent: %s", n.s.Content)
 	}
 
 	return msg
@@ -77,7 +86,7 @@ func (n *News) GetStorableContent() string {
 
 func parseNews(c *colly.Collector, scrapeResult *ScrapeResult, u *url2.URL) {
 	if source := GetNewsSource(u.Hostname()); source != nil {
-		scrapeResult.News = NewNews()
+		scrapeResult.News = NewNews(scrapeResult)
 
 		c.OnHTML(source.TitleSelector, func(e *colly.HTMLElement) {
 			scrapeResult.News.SetTitle(e.Text)
