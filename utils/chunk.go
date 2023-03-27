@@ -11,35 +11,25 @@ func StringToChunks(s string, chunkSize int) []string {
 		return []string{s}
 	}
 
-	lines := strings.Split(s, "\n")
-
-	var strs [][]string
-	var idx = 0
-
-	for k := range lines {
-		if len(strs) <= idx {
-			strs = append(strs, make([]string, 0))
+	var chunks []string
+	start := 0
+	for start < len(s) {
+		end := start + chunkSize
+		if end > len(s) {
+			end = len(s)
 		}
 
-		line := lines[k]
-
-		if len(strings.Join(strs[idx], ""))+len(line) <= chunkSize {
-			strs[idx] = append(strs[idx], line)
-			continue
-		} else {
-			idx++
-			if len(strs) <= idx {
-				strs = append(strs, make([]string, 0))
+		// Move the end index back to the previous newline, if possible
+		if end < len(s) && s[end-1] != '\n' {
+			newEnd := strings.LastIndex(s[start:end], "\n")
+			if newEnd != -1 {
+				end = start + newEnd + 1
 			}
-			strs[idx] = append(strs[idx], line)
 		}
+
+		chunks = append(chunks, s[start:end])
+		start = end
 	}
 
-	var respStrs []string
-
-	for _, str := range strs {
-		respStrs = append(respStrs, strings.Join(str, "\n"))
-	}
-
-	return respStrs
+	return chunks
 }
