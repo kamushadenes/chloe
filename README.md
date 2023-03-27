@@ -21,13 +21,14 @@ understand and respond to complex instructions.
 
 ## Features
 
-- Use Chain of Thought to determine actions, falling back to standard completion if no action is
+- Uses Chain of Thought to determine actions, falling back to standard completion if no action is
   found
-- Scrape websites to have them on its context
-- Search Google for information
-- Perform calculations
-- Use Google's Text-to-Speech engine to speak
-- Use OpenAI's DALL-E to generate images
+- Scrapes websites to have them on its context
+- Searches Google for information
+- Searches and summarizes news articles
+- Performs calculations
+- Uses Google's Text-to-Speech engine to speak
+- Uses OpenAI's DALL-E to generate images
 - Automatically summarizes messages in order to have a longer context
 - Automatically moderates message using
   OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
