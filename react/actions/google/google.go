@@ -60,6 +60,9 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 		na := scrape.NewScrapeAction()
 		na.SetParams(r.URL)
 		na.SetMessage(request.Message)
+		if err := na.RunPreActions(request); err != nil {
+			continue
+		}
 		request.Message.NotifyAction(na.GetNotification())
 		if err := na.Execute(request); err != nil {
 			continue

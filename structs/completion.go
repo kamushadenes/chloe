@@ -118,20 +118,23 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 	args["Date"] = time.Now().Format("2006-01-02")
 	args["Time"] = time.Now().Format("15:04:05")
 
+	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{Args: args, Mode: creq.Mode})
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load bootstrap prompt")
+	}
+	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: bootstrap})
+
 	prompt, err := resources.GetPrompt(creq.Mode, &resources.PromptArgs{Args: args, Mode: creq.Mode})
 	if err != nil {
 		panic(err)
 	}
 
-	// messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: prompt})
-	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: prompt})
+	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: prompt})
 
-	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{Args: args, Mode: creq.Mode})
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to load bootstrap prompt")
+	examples, err := resources.GetExamples(prompt, &resources.PromptArgs{Args: args, Mode: creq.Mode})
+	if err == nil {
+		messages = append(messages, examples...)
 	}
-	// messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: bootstrap})
-	messages = append(messages, openai.ChatCompletionMessage{Role: "user", Content: bootstrap})
 
 	var userMessages []openai.ChatCompletionMessage
 

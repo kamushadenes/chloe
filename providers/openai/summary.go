@@ -7,7 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/resources"
-	"github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"strings"
@@ -56,7 +56,7 @@ func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.C
 func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error summarizing message")

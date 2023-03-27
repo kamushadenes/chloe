@@ -3,17 +3,20 @@ package react
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
 )
+
+var CheckpointMarker = "###CHECKPOINT###"
 
 func ChainOfThought(request *structs.CompletionRequest) error {
 	logger := zerolog.Ctx(request.Context)
@@ -28,7 +31,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 	var resp openai.ChatCompletionResponse
 
-	respi, err := utils.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeout.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
 		resp, err := reactOpenAI.OpenAIClient.CreateChatCompletion(request.Context, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting chain of thought")
@@ -61,6 +64,15 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 		if err := msg.Save(request.Context); err != nil {
 			return err
 		}
+	}
+
+	msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
+	msg.User = request.Message.User
+	msg.Context = request.Message.Context
+	msg.Content = CheckpointMarker
+	msg.Role = "user"
+	if err := msg.Save(request.Context); err != nil {
+		return err
 	}
 
 	logger.Info().Str("action", cotResp.Action).

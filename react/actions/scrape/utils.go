@@ -1,10 +1,12 @@
 package scrape
 
 import (
+	"encoding/base64"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
 	"github.com/kamushadenes/chloe/logging"
+	"mvdan.cc/xurls/v2"
 	url2 "net/url"
 	"strings"
 )
@@ -36,9 +38,15 @@ func cleanText(text string) (string, error) {
 func scrape(url string) (*ScrapeResult, error) {
 	logger := logging.GetLogger().With().Str("action", "scrape").Str("url", url).Logger()
 
+	u, err := url2.Parse(url)
+	if err != nil {
+		return nil, err
+	}
+
 	scrapeResult := NewScrapeResult()
 
 	c := colly.NewCollector()
+
 	extensions.RandomUserAgent(c)
 	extensions.Referer(c)
 
@@ -55,6 +63,13 @@ func scrape(url string) (*ScrapeResult, error) {
 	c.OnScraped(func(r *colly.Response) {
 		logger.Info().Msg("finished scraping")
 	})
+
+	// Try to cleanup scripts and other stuff
+	for _, s := range []string{"script", "link", "style", "iframe"} {
+		c.OnHTML(s, func(e *colly.HTMLElement) {
+			e.DOM.ReplaceWithHtml("")
+		})
+	}
 
 	c.OnHTML("html", func(e *colly.HTMLElement) {
 		html, err := e.DOM.Html()
@@ -75,11 +90,6 @@ func scrape(url string) (*ScrapeResult, error) {
 		scrapeResult.AddImage(e.Attr("src"), e.Attr("alt"))
 	})
 
-	u, err := url2.Parse(url)
-	if err != nil {
-		return nil, err
-	}
-
 	parseContent(c, scrapeResult, u)
 
 	parseNews(c, scrapeResult, u)
@@ -87,4 +97,27 @@ func scrape(url string) (*ScrapeResult, error) {
 	err = c.Visit(url)
 
 	return scrapeResult, err
+}
+
+func resolveSpecialUrl(url string) (string, error) {
+	u, err := url2.Parse(url)
+	if err != nil {
+		return "", err
+	}
+
+	// Handle special cases
+	if strings.HasSuffix(u.Hostname(), "news.google.com") && strings.HasPrefix(u.Path, "/rss/articles") {
+		fields := strings.Split(u.Path, "/")
+		encodedUrl := fields[len(fields)-1]
+		decodedUrl, err := base64.StdEncoding.DecodeString(encodedUrl)
+		if err != nil {
+			return "", err
+		}
+
+		rxRelaxed := xurls.Relaxed()
+		nurl := rxRelaxed.FindString(string(decodedUrl))
+		return nurl, nil
+	}
+
+	return url, nil
 }

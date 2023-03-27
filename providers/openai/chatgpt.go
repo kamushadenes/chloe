@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/discord"
@@ -14,7 +15,7 @@ import (
 	errors2 "github.com/kamushadenes/chloe/react/errors"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -57,7 +58,7 @@ func newChatCompletionRequest(request *structs.CompletionRequest) openai.ChatCom
 func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (*openai.ChatCompletionStream, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting completion")
@@ -137,7 +138,8 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 			return utils2.NotifyError(request, err)
 		} else if errors.Is(err, errors2.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-			msg.Content = "great work, with this new information, provide me an explanation of my last question in a Wikipedia page style with whatever information you have available, don't worry if you don't have enough information, I'll ask you for more"
+			//msg.Content = "great work, with this new information, provide me an explanation of my last question in a Wikipedia page style with whatever information you have available, don't worry if you don't have enough information, I'll ask you for more"
+			msg.Content = fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker)
 			msg.ErrorCh = request.Message.ErrorCh
 			msg.Role = "user"
 			msg.User = request.Message.User

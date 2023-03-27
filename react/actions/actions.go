@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/image"
 	"github.com/kamushadenes/chloe/react/actions/math"
+	"github.com/kamushadenes/chloe/react/actions/news"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
@@ -21,7 +22,8 @@ import (
 
 var actions = map[string]func() structs2.Action{
 	"google":            google.NewGoogleAction,
-	"news":              google.NewGoogleAction,
+	"news":              news.NewNewsAction,
+	"news_by_country":   news.NewNewsByCountryAction,
 	"calculate":         math.NewCalculateAction,
 	"math":              math.NewCalculateAction,
 	"scrape":            scrape.NewScrapeAction,

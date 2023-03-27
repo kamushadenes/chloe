@@ -6,7 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 )
@@ -57,7 +57,7 @@ func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error)
 func createModerationWithTimeout(ctx context.Context, req openai.ModerationRequest) (openai.ModerationResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := utils.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.Moderations(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error moderating message")

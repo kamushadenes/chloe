@@ -6,10 +6,9 @@ require (
 	cloud.google.com/go/texttospeech v1.6.0
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/PuerkitoBio/goquery v1.5.1
-	github.com/anaskhan96/soup v1.2.5
+	github.com/biter777/countries v1.6.4
 	github.com/briandowns/spinner v1.23.0
 	github.com/bwmarrin/discordgo v0.27.1
-	github.com/chromedp/chromedp v0.9.1
 	github.com/fatih/color v1.7.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
@@ -27,6 +26,7 @@ require (
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/driver/sqlserver v1.4.2
 	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
+	mvdan.cc/xurls/v2 v2.4.0
 )
 
 require (
@@ -35,18 +35,14 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/longrunning v0.3.0 // indirect
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/anaskhan96/soup v1.2.5 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/antchfx/htmlquery v1.2.3 // indirect
 	github.com/antchfx/xmlquery v1.3.1 // indirect
 	github.com/antchfx/xpath v1.1.10 // indirect
-	github.com/chromedp/cdproto v0.0.0-20230220211738-2b1ec77315c9 // indirect
-	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/gobwas/httphead v0.1.0 // indirect
-	github.com/gobwas/pool v0.2.1 // indirect
-	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/gocolly/colly/v2 v2.1.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
@@ -63,9 +59,7 @@ require (
 	github.com/jackc/pgx/v5 v5.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect

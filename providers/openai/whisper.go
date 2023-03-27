@@ -8,7 +8,7 @@ import (
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"net/http"
@@ -27,7 +27,7 @@ func newTranscriptionRequest(request *structs.TranscriptionRequest) openai.Audio
 func createTranscriptionRequestWithTimeout(request *structs.TranscriptionRequest, req openai.AudioRequest) (openai.AudioResponse, error) {
 	logger := zerolog.Ctx(request.GetContext()).With().Str("file", request.FilePath).Logger()
 
-	respi, err := utils.WaitTimeout(request.GetContext(), config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeout.WaitTimeout(request.GetContext(), config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateTranscription(request.GetContext(), req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error transcribing audio")

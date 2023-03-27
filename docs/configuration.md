@@ -81,13 +81,15 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 
 ## ReAct
 
-| Environment Variable              | Default Value | Description                                                                             | Options            |
-|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|--------------------|
-| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false     |
-| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                    |
-| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                    |
-| CHLOE_REACT_NEWS_SOURCE           | google        | News source to use for news prompts                                                     | google<br/>newsapi |
-| CHLOE_REACT_NEWSAPI_TOKEN         |               | NewsAPI token                                                                           |                    |
+| Environment Variable              | Default Value | Description                                                                             | Options                                  |
+|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|------------------------------------------|
+| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false                           |
+| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                                          |
+| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                                          |
+| CHLOE_REACT_NEWSAPI_MAX_RESULTS   | 5             | Maximum number of NewsAPI results to analyze                                            |                                          |
+| CHLOE_REACT_NEWS_SOURCE           | google        | News source to use for news prompts                                                     | google<br/>newsapi                       |
+| CHLOE_REACT_NEWSAPI_TOKEN         |               | NewsAPI token                                                                           |                                          |
+| CHLOE_REACT_NEWSAPI_SORT_STRATEGY | relevancy     | NewsAPI sort strategy                                                                   | publishedAt<br/>relevancy<br/>popularity |
 
 ## Miscellaneous
 

@@ -64,6 +64,13 @@ func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
 }
 
 func (a *ScrapeAction) RunPreActions(request *structs.ActionRequest) error {
+	nurl, err := resolveSpecialUrl(a.Params)
+	if err != nil {
+		return err
+	}
+
+	a.SetParams(nurl)
+
 	return nil
 }
 

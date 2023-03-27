@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"github.com/sashabaranov/go-openai"
 	"strings"
 	"text/template"
 )
@@ -32,6 +33,45 @@ func GetPrompt(prompt string, args *PromptArgs) (string, error) {
 	}
 
 	return buf.String(), nil
+}
+
+func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessage, error) {
+	tmpl, err := template.ParseFS(
+		prompts,
+		fmt.Sprintf("prompts/chatgpt/%s.prompt.examples", prompt),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	if err := tmpl.Execute(&buf, args); err != nil {
+		return nil, err
+	}
+
+	var examples []openai.ChatCompletionMessage
+
+	for _, line := range strings.Split(buf.String(), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) >= 2 {
+			name := fields[0]
+			example := strings.Join(fields[1:], " ")
+
+			examples = append(examples, openai.ChatCompletionMessage{
+				Content: example,
+				Role:    "system",
+				Name:    name,
+			})
+		}
+	}
+
+	return examples, nil
 }
 
 func GetPromptSize(prompt string) (int, error) {
