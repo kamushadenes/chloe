@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"time"
 )
@@ -46,7 +47,7 @@ func (t *TelegramWriter) Flush() {
 	}
 
 	if t.lastUpdate != nil && time.Now().Sub(*t.lastUpdate) > config.Telegram.StreamFlushInterval {
-		_, _ = t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()))
+		_, _ = t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()[:config.Telegram.MaxMessageLength]))
 		tt := time.Now()
 		t.lastUpdate = &tt
 	}
@@ -59,11 +60,24 @@ func (t *TelegramWriter) Close() error {
 	case "text":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with text")
 
+		msgs := utils.StringToChunks(t.bufs[0].String(), config.Discord.MaxMessageLength)
+
 		if t.externalID == 0 {
-			return t.Request.GetMessage().SendText(t.bufs[0].String(), true, t.ReplyID)
+			for k := range msgs {
+				if err := t.Request.GetMessage().SendText(t.bufs[k].String(), true, t.ReplyID); err != nil {
+					return err
+				}
+			}
 		} else {
-			_, err := t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()))
-			return err
+			if _, err := t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String())); err != nil {
+				return err
+			}
+
+			for k := range msgs[1:] {
+				if err := t.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					return err
+				}
+			}
 		}
 	case "audio":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with audio")

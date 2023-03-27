@@ -10,7 +10,7 @@ import (
 
 func MonitorModeration(ctx context.Context) {
 	logger := logging.GetLogger()
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 
 	for {
 		select {
@@ -37,7 +37,7 @@ func MonitorModeration(ctx context.Context) {
 
 func MonitorSummary(ctx context.Context) {
 	logger := logging.GetLogger()
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 
 	for {
 		select {

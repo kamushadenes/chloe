@@ -16,11 +16,11 @@ var activies = []*discordgo.Activity{
 		Type: discordgo.ActivityTypeWatching,
 	},
 	{
-		Name: "to your commands",
+		Name: "your commands",
 		Type: discordgo.ActivityTypeListening,
 	},
 	{
-		Name: "to my heart",
+		Name: "my heart",
 		Type: discordgo.ActivityTypeListening,
 	},
 	{

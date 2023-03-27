@@ -11,6 +11,7 @@ type DiscordConfig struct {
 	StreamFlushInterval        time.Duration
 	SendProcessingMessage      bool
 	ProcessingMessage          string
+	MaxMessageLength           int
 }
 
 var Discord = &DiscordConfig{
@@ -22,4 +23,5 @@ var Discord = &DiscordConfig{
 	StreamFlushInterval:        envOrDefaultDuration("CHLOE_DISCORD_STREAM_FLUSH_INTERVAL", 500*time.Millisecond),
 	SendProcessingMessage:      envOrDefaultBool("CHLOE_DISCORD_SEND_PROCESSING_MESSAGE", false),
 	ProcessingMessage:          envOrDefault("CHLOE_DISCORD_PROCESSING_MESSAGE", "↻ Processing..."),
+	MaxMessageLength:           envOrDefaultIntInRange("CHLOE_DISCORD_MAX_MESSAGE_LENGTH", 2000, 1, 2000),
 }

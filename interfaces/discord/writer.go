@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"time"
 )
@@ -47,7 +48,7 @@ func (t *DiscordWriter) Flush() {
 	}
 
 	if t.lastUpdate != nil && time.Now().Sub(*t.lastUpdate) > config.Discord.StreamFlushInterval {
-		_, _ = t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, t.bufs[0].String())
+		_, _ = t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, t.bufs[0].String()[:config.Discord.MaxMessageLength])
 		tt := time.Now()
 		t.lastUpdate = &tt
 	}
@@ -60,11 +61,24 @@ func (t *DiscordWriter) Close() error {
 	case "text":
 		logger.Debug().Str("chatID", t.ChatID).Msg("replying with text")
 
+		msgs := utils.StringToChunks(t.bufs[0].String(), config.Discord.MaxMessageLength)
+
 		if t.externalID == "" {
-			return t.Request.GetMessage().SendText(t.bufs[0].String(), true)
+			for k := range msgs {
+				if err := t.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					return err
+				}
+			}
 		} else {
-			_, err := t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, t.bufs[0].String())
-			return err
+			if _, err := t.Bot.ChannelMessageEdit(t.ChatID, t.externalID, msgs[0]); err != nil {
+				return err
+			}
+
+			for k := range msgs[1:] {
+				if err := t.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					return err
+				}
+			}
 		}
 	case "audio":
 		logger.Debug().Str("chatID", t.ChatID).Msg("replying with audio")
