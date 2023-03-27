@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
+	"time"
 )
 
 type TelegramWriter struct {
@@ -20,6 +22,34 @@ type TelegramWriter struct {
 	bufID      int
 	closedBufs int
 	mainWriter *TelegramWriter
+	externalID int
+	lastUpdate *time.Time
+}
+
+func (t *TelegramWriter) Flush() {
+	if t.Type != "text" {
+		return
+	}
+
+	if t.externalID == 0 && (config.Telegram.SendProcessingMessage || config.Telegram.StreamMessages) {
+		msg, err := t.Bot.Send(tgbotapi.NewMessage(t.ChatID, "↻ Processing..."))
+		if err != nil {
+			return
+		}
+		t.externalID = msg.MessageID
+		tt := time.Now()
+		t.lastUpdate = &tt
+	}
+
+	if !config.Telegram.StreamMessages {
+		return
+	}
+
+	if t.lastUpdate != nil && time.Now().Sub(*t.lastUpdate) > config.Telegram.StreamFlushInterval {
+		_, _ = t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()))
+		tt := time.Now()
+		t.lastUpdate = &tt
+	}
 }
 
 func (t *TelegramWriter) Close() error {
@@ -29,7 +59,12 @@ func (t *TelegramWriter) Close() error {
 	case "text":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with text")
 
-		return t.Request.GetMessage().SendText(t.bufs[0].String(), true, t.ReplyID)
+		if t.externalID == 0 {
+			return t.Request.GetMessage().SendText(t.bufs[0].String(), true, t.ReplyID)
+		} else {
+			_, err := t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()))
+			return err
+		}
 	case "audio":
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with audio")
 		tmsg := tgbotapi.NewVoice(t.ChatID, tgbotapi.FileReader{
@@ -39,15 +74,9 @@ func (t *TelegramWriter) Close() error {
 		_, err := t.Bot.Send(tmsg)
 		return err
 	case "image":
-		if t.mainWriter == nil {
-			msg := tgbotapi.NewPhoto(t.ChatID, tgbotapi.FileReader{
-				Name:   "generated.png",
-				Reader: bytes.NewReader(t.bufs[0].Bytes()),
-			})
-			msg.ReplyToMessageID = t.ReplyID
-			_, err := t.Bot.Send(msg)
-			return err
-		} else {
+		bufs := t.bufs
+		if t.mainWriter != nil {
+			bufs = t.mainWriter.bufs
 			t.mainWriter.closedBufs++
 			if t.mainWriter.closedBufs != len(t.mainWriter.bufs) {
 				return nil
@@ -56,15 +85,26 @@ func (t *TelegramWriter) Close() error {
 
 		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with image")
 
+		if t.mainWriter == nil {
+			msg := tgbotapi.NewPhoto(t.ChatID, tgbotapi.FileReader{
+				Name:   "generated.png",
+				Reader: bytes.NewReader(bufs[0].Bytes()),
+			})
+			msg.ReplyToMessageID = t.ReplyID
+			_, err := t.Bot.Send(msg)
+			return err
+		}
+
 		var files []interface{}
-		for _, buf := range t.mainWriter.bufs {
+		for k := range bufs {
 			files = append(files, tgbotapi.NewInputMediaPhoto(
 				tgbotapi.FileReader{
 					Name:   "generated.png",
-					Reader: bytes.NewReader(buf.Bytes()),
+					Reader: bytes.NewReader(bufs[k].Bytes()),
 				},
 			))
 		}
+
 		msg := tgbotapi.NewMediaGroup(t.ChatID, files)
 		msg.ReplyToMessageID = t.ReplyID
 		_, err := t.Bot.SendMediaGroup(msg)

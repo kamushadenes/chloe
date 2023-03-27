@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/rs/zerolog"
 	"time"
 )
 
@@ -31,7 +32,7 @@ func (t *DiscordWriter) Flush() {
 		return
 	}
 
-	if t.externalID == "" {
+	if t.externalID == "" && (config.Discord.SendProcessingMessage || config.Discord.StreamMessages) {
 		msg, err := t.Bot.ChannelMessageSend(t.ChatID, "↻ Processing...")
 		if err != nil {
 			return
@@ -53,8 +54,12 @@ func (t *DiscordWriter) Flush() {
 }
 
 func (t *DiscordWriter) Close() error {
+	logger := zerolog.Ctx(t.Context).With().Str("requestID", t.Request.GetID()).Logger()
+
 	switch t.Type {
 	case "text":
+		logger.Debug().Str("chatID", t.ChatID).Msg("replying with text")
+
 		if t.externalID == "" {
 			return t.Request.GetMessage().SendText(t.bufs[0].String(), true)
 		} else {
@@ -62,29 +67,11 @@ func (t *DiscordWriter) Close() error {
 			return err
 		}
 	case "audio":
-		msg := &discordgo.MessageSend{
-			File: &discordgo.File{
-				Name:        "generated.mp3",
-				ContentType: "audio/mpeg",
-				Reader:      bytes.NewReader(t.bufs[0].Bytes()),
-			},
-			Content: fmt.Sprintf("Prompt: %s", t.Prompt),
-		}
-		_, err := t.Bot.ChannelMessageSendComplex(t.ChatID, msg)
-		return err
-	case "image":
-		if t.mainWriter == nil {
-			msg := &discordgo.MessageSend{
-				File: &discordgo.File{
-					Name:        "generated.png",
-					ContentType: "image/png",
-					Reader:      bytes.NewReader(t.bufs[0].Bytes()),
-				},
-				Content: fmt.Sprintf("Prompt: %s", t.Prompt),
-			}
-			_, err := t.Bot.ChannelMessageSendComplex(t.ChatID, msg)
-			return err
-		} else {
+		logger.Debug().Str("chatID", t.ChatID).Msg("replying with audio")
+		bufs := t.bufs
+
+		if t.mainWriter != nil {
+			bufs = t.mainWriter.bufs
 			t.mainWriter.closedBufs++
 			if t.mainWriter.closedBufs != len(t.mainWriter.bufs) {
 				return nil
@@ -92,18 +79,47 @@ func (t *DiscordWriter) Close() error {
 		}
 
 		var files []*discordgo.File
-		for _, buf := range t.mainWriter.bufs {
+		for k := range bufs {
+			files = append(files, &discordgo.File{
+				Name:        "generated.mp3",
+				ContentType: "audio/mpeg",
+				Reader:      bytes.NewReader(bufs[k].Bytes()),
+			})
+		}
+
+		_, err := t.Bot.ChannelMessageSendComplex(t.ChatID, &discordgo.MessageSend{
+			Files:   files,
+			Content: fmt.Sprintf("Prompt: %s", t.Prompt),
+		})
+		return err
+	case "image":
+		bufs := t.bufs
+
+		if t.mainWriter != nil {
+			bufs = t.mainWriter.bufs
+			t.mainWriter.closedBufs++
+			if t.mainWriter.closedBufs != len(t.mainWriter.bufs) {
+				return nil
+			}
+		}
+
+		logger.Debug().Str("chatID", t.ChatID).Msg("replying with image")
+
+		var files []*discordgo.File
+		for k := range bufs {
 			files = append(files, &discordgo.File{
 				Name:        "generated.png",
 				ContentType: "image/png",
-				Reader:      bytes.NewReader(buf.Bytes()),
+				Reader:      bytes.NewReader(bufs[k].Bytes()),
 			})
 		}
-		msg := &discordgo.MessageSend{
+
+		content := fmt.Sprintf("Prompt: %s", t.Prompt)
+
+		_, err := t.Bot.ChannelMessageSendComplex(t.ChatID, &discordgo.MessageSend{
 			Files:   files,
-			Content: fmt.Sprintf("Prompt: %s", t.Prompt),
-		}
-		_, err := t.Bot.ChannelMessageSendComplex(t.ChatID, msg)
+			Content: content,
+		})
 		return err
 	}
 

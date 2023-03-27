@@ -9,6 +9,8 @@ type DiscordConfig struct {
 	RandomStatusUpdateInterval time.Duration
 	StreamMessages             bool
 	StreamFlushInterval        time.Duration
+	SendProcessingMessage      bool
+	ProcessingMessage          string
 }
 
 var Discord = &DiscordConfig{
@@ -18,4 +20,6 @@ var Discord = &DiscordConfig{
 	RandomStatusUpdateInterval: envOrDefaultDuration("CHLOE_DISCORD_RANDOM_STATUS_UPDATE_INTERVAL", 20*time.Second),
 	StreamMessages:             envOrDefaultBool("CHLOE_DISCORD_STREAM_MESSAGES", false),
 	StreamFlushInterval:        envOrDefaultDuration("CHLOE_DISCORD_STREAM_FLUSH_INTERVAL", 500*time.Millisecond),
+	SendProcessingMessage:      envOrDefaultBool("CHLOE_DISCORD_SEND_PROCESSING_MESSAGE", false),
+	ProcessingMessage:          envOrDefault("CHLOE_DISCORD_PROCESSING_MESSAGE", "↻ Processing..."),
 }
