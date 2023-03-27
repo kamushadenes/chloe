@@ -8,7 +8,7 @@ var activies = []*discordgo.Activity{
 		Type: discordgo.ActivityTypeGame,
 	},
 	{
-		Name: "with fre",
+		Name: "with fire",
 		Type: discordgo.ActivityTypeGame,
 	},
 	{
