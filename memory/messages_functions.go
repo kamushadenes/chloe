@@ -9,7 +9,8 @@ import (
 func LoadNonSummarizedMessages(ctx context.Context) ([]*Message, error) {
 	var messages []*Message
 
-	if err := db.WithContext(ctx).Where("summary IS NULL AND content IS NOT NULL").Find(&messages).Error; err != nil {
+	if err := db.WithContext(ctx).Where("(summary IS NULL OR summary == '') AND " +
+		"(content IS NOT NULL AND content != '')").Find(&messages).Error; err != nil {
 		return nil, err
 	}
 
