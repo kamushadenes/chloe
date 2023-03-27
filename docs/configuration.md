@@ -7,6 +7,18 @@ relevant environment variables.
 Of those, the only required one is the `OPENAI_API_KEY` environment variable. You can get one by
 signing up for an account at [OpenAI](https://platform.openai.com/).
 
+# Table of Contents
+
+- [Database](#database)
+- [HTTP](#http)
+- [Telegram](#telegram)
+- [Discord](#discord)
+- [Google Cloud](#google-cloud)
+- [OpenAI](#openai)
+- [Timeouts](#timeouts)
+- [ReAct](#react)
+- [Miscellaneous](#miscellaneous)
+
 ## Database
 
 | Environment Variable | Default Value | Description                                                                                           | Options                                     |
