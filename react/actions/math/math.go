@@ -1,9 +1,11 @@
-package react
+package math
 
 import (
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/kamushadenes/chloe/memory"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
+	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"strings"
@@ -15,7 +17,7 @@ type CalculateAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewCalculateAction() Action {
+func NewCalculateAction() structs2.Action {
 	return &CalculateAction{
 		Name: "calculate",
 	}
@@ -71,9 +73,9 @@ func (a *CalculateAction) Execute(request *structs.ActionRequest) error {
 }
 
 func (a *CalculateAction) RunPreActions(request *structs.ActionRequest) error {
-	return defaultPreActions(a, request)
+	return errors2.ErrNotImplemented
 }
 
 func (a *CalculateAction) RunPostActions(request *structs.ActionRequest) error {
-	return defaultPostActions(a, request)
+	return errors2.ErrNotImplemented
 }

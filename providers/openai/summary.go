@@ -5,7 +5,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react"
+	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
@@ -23,7 +23,7 @@ func getSummarizationPrompt(ctx context.Context, msg *memory.Message) (string, e
 
 	return resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
-			"text": react.Truncate(msg.Content,
+			"text": utils2.Truncate(msg.Content,
 				int(float64(config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Summarization])-
 					(float64(promptSize)*0.75)-
 					(float64(len(strings.Fields(msg.Content)))*0.75))),

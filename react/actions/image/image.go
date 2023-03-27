@@ -1,9 +1,10 @@
-package react
+package image
 
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -14,7 +15,7 @@ type ImageAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewImageAction() Action {
+func NewImageAction() structs2.Action {
 	return &ImageAction{
 		Name: "image",
 	}

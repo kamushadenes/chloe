@@ -5,6 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/texttospeech v1.6.0
 	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/anaskhan96/soup v1.2.5
 	github.com/briandowns/spinner v1.23.0
 	github.com/bwmarrin/discordgo v0.27.1
@@ -13,6 +14,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
+	github.com/gocolly/colly v1.2.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/rocketlaunchr/google-search v1.1.5
@@ -32,7 +34,6 @@ require (
 	cloud.google.com/go/compute v1.12.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/longrunning v0.3.0 // indirect
-	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/antchfx/htmlquery v1.2.3 // indirect

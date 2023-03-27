@@ -1,4 +1,4 @@
-package react
+package tts
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/memory"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -16,7 +17,7 @@ type TTSAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewAudioAction() Action {
+func NewAudioAction() structs2.Action {
 	return &TTSAction{
 		Name: "tts",
 	}

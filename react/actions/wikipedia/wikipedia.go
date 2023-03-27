@@ -1,9 +1,12 @@
-package react
+package wikipedia
 
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
+	"github.com/kamushadenes/chloe/react/errors"
+	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/trietmn/go-wiki"
 	"io"
@@ -15,7 +18,7 @@ type WikipediaAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewWikipediaAction() Action {
+func NewWikipediaAction() structs2.Action {
 	return &WikipediaAction{
 		Name: "wikipedia",
 	}
@@ -48,7 +51,7 @@ func (a *WikipediaAction) GetParams() string {
 }
 
 func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
-	truncateTokenCount := getTokenCount(request)
+	truncateTokenCount := utils.GetTokenCount(request)
 
 	res, _, err := gowiki.Search(a.Params, config.React.WikipediaMaxResults, false)
 	if err != nil {
@@ -65,12 +68,12 @@ func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
 			continue
 		}
 		msg := fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s", page.URL, page.Title, content)
-		if err := storeChainOfThoughtResult(request, Truncate(msg, truncateTokenCount)); err != nil {
+		if err := utils.StoreChainOfThoughtResult(request, utils.Truncate(msg, truncateTokenCount)); err != nil {
 			return err
 		}
 	}
 
-	return ErrProceed
+	return errors.ErrProceed
 }
 
 func (a *WikipediaAction) RunPreActions(request *structs.ActionRequest) error {
@@ -78,5 +81,5 @@ func (a *WikipediaAction) RunPreActions(request *structs.ActionRequest) error {
 }
 
 func (a *WikipediaAction) RunPostActions(request *structs.ActionRequest) error {
-	return ErrProceed
+	return errors.ErrProceed
 }

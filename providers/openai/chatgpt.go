@@ -11,6 +11,8 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
+	errors2 "github.com/kamushadenes/chloe/react/errors"
+	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
@@ -73,7 +75,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 // processSuccessfulCompletionStream processes a ChatCompletionStream and writes the response to the request.Writer.
 // Returns the response message as a string, or an error if there's an issue while processing the stream.
 func processSuccessfulCompletionStream(request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
-	react.StartAndWait(request)
+	utils2.StartAndWait(request)
 
 	putils.WriteStatusCode(request.Writer, http.StatusOK)
 
@@ -100,7 +102,7 @@ func processSuccessfulCompletionStream(request *structs.CompletionRequest, strea
 		putils.Flush(request.Writer)
 	}
 
-	react.WriteResult(request, responseMessage)
+	utils2.WriteResult(request, responseMessage)
 
 	return strings.TrimSpace(responseMessage), nil
 }
@@ -132,8 +134,8 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 	// TODO: call CoT outside of this function
 	if len(skipCoT) == 0 || !skipCoT[0] {
 		if err := processChainOfThought(request); err == nil {
-			return react.NotifyError(request, err)
-		} else if errors.Is(err, react.ErrProceed) {
+			return utils2.NotifyError(request, err)
+		} else if errors.Is(err, errors2.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
 			msg.Content = "great work, with this new information, provide me an explanation of my last question in a Wikipedia page style with whatever information you have available, don't worry if you don't have enough information, I'll ask you for more"
 			msg.ErrorCh = request.Message.ErrorCh
@@ -154,12 +156,12 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	stream, err := createChatCompletionWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
 	responseMessage, err := processSuccessfulCompletionStream(request, stream)
 	if err != nil {
-		return react.NotifyAndClose(request, request.Writer, err)
+		return utils2.NotifyAndClose(request, request.Writer, err)
 	}
 	if strings.TrimSpace(responseMessage) == "" {
 		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
@@ -168,5 +170,5 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	err = recordAssistantResponse(request, responseMessage)
 
-	return react.NotifyAndClose(request, request.Writer, err)
+	return utils2.NotifyAndClose(request, request.Writer, err)
 }

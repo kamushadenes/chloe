@@ -1,9 +1,12 @@
-package react
+package google
 
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/react/actions/scrape"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
+	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rocketlaunchr/google-search"
 	"io"
@@ -15,7 +18,7 @@ type GoogleAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewGoogleAction() Action {
+func NewGoogleAction() structs2.Action {
 	return &GoogleAction{
 		Name: "google",
 	}
@@ -54,7 +57,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 	}
 
 	for _, r := range res {
-		na := NewScrapeAction()
+		na := scrape.NewScrapeAction()
 		na.SetParams(r.URL)
 		na.SetMessage(request.Message)
 		request.Message.NotifyAction(na.GetNotification())
@@ -63,7 +66,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 		}
 	}
 
-	return ErrProceed
+	return errors.ErrProceed
 }
 
 func (a *GoogleAction) RunPreActions(request *structs.ActionRequest) error {
@@ -71,5 +74,5 @@ func (a *GoogleAction) RunPreActions(request *structs.ActionRequest) error {
 }
 
 func (a *GoogleAction) RunPostActions(request *structs.ActionRequest) error {
-	return ErrProceed
+	return errors.ErrProceed
 }

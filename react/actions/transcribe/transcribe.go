@@ -1,8 +1,10 @@
-package react
+package transcribe
 
 import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
+	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -14,7 +16,7 @@ type TranscribeAction struct {
 	Message *memory.Message
 }
 
-func NewTranscribeAction() Action {
+func NewTranscribeAction() structs2.Action {
 	return &TranscribeAction{
 		Name: "audio",
 	}
@@ -69,9 +71,9 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
 }
 
 func (a *TranscribeAction) RunPreActions(request *structs.ActionRequest) error {
-	return defaultPreActions(a, request)
+	return errors.ErrNotImplemented
 }
 
 func (a *TranscribeAction) RunPostActions(request *structs.ActionRequest) error {
-	return ErrProceed
+	return errors.ErrProceed
 }

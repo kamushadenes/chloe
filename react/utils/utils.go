@@ -1,7 +1,11 @@
-package react
+package utils
 
 import (
+	"encoding/json"
+	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"strings"
@@ -52,4 +56,35 @@ func Truncate(s string, n int) string {
 		return s[:n]
 	}
 	return s
+}
+
+func StoreChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
+	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
+	nmsg.Role = "user"
+
+	params := struct {
+		Result string `json:"result"`
+	}{
+		Result: content,
+	}
+
+	b, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+
+	nmsg.Content = string(b)
+	nmsg.User = request.GetMessage().User
+
+	return nmsg.Save(request.GetContext())
+}
+
+func GetTokenCount(request *structs.ActionRequest) int {
+	tokenCount := request.CountTokens()
+	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.ChainOfThought] - tokenCount
+	if truncateTokenCount < config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought] {
+		truncateTokenCount = config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought]
+	}
+
+	return truncateTokenCount
 }

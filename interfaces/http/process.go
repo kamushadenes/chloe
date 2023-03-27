@@ -8,7 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react"
+	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"net/http"
@@ -87,7 +87,7 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 
 	request.Args = params.Args
 
-	request.Writer = react.NewHTTPResponseWriteCloser(w)
+	request.Writer = utils.NewHTTPResponseWriteCloser(w)
 
 	channels.CompletionRequestsCh <- request
 
@@ -95,7 +95,7 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-request.Writer.(*react.HTTPResponseWriteCloser).CloseCh:
+		case <-request.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}
@@ -131,7 +131,7 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 	req.Action = "image"
 	req.Params = params.Prompt
 	req.Message = msg
-	req.Writers = []io.WriteCloser{react.NewHTTPResponseWriteCloser(w)}
+	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
 	channels.ActionRequestsCh <- req
 
@@ -139,7 +139,7 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writers[0].(*react.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}
@@ -175,7 +175,7 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 	req.Action = "tts"
 	req.Params = params.Content
 	req.Message = msg
-	req.Writers = []io.WriteCloser{react.NewHTTPResponseWriteCloser(w)}
+	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
 	channels.ActionRequestsCh <- req
 
@@ -183,7 +183,7 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writers[0].(*react.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}

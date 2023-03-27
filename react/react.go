@@ -3,26 +3,17 @@ package react
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/react/actions"
+	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
-	"regexp"
 	"strings"
 )
-
-var openAIClient = openai.NewClient(config.OpenAI.APIKey)
-
-var ptns = map[string]*regexp.Regexp{
-	"action":      regexp.MustCompile(`^[Aa]ction:\s*(?P<action>\w+): (?P<params>.*)$`),
-	"thought":     regexp.MustCompile(`^[Tt]hought:\s*(?P<thought>.*)$`),
-	"observation": regexp.MustCompile(`^[Oo]bservation:\s*(?P<observation>.*)$`),
-	"answer":      regexp.MustCompile(`^[Aa]nswer:\s*(?P<answer>.*)`),
-}
 
 func ChainOfThought(request *structs.CompletionRequest) error {
 	logger := zerolog.Ctx(request.Context)
@@ -38,7 +29,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	var resp openai.ChatCompletionResponse
 
 	respi, err := utils.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
-		resp, err := openAIClient.CreateChatCompletion(request.Context, req)
+		resp, err := reactOpenAI.OpenAIClient.CreateChatCompletion(request.Context, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting chain of thought")
 			errCh <- err
@@ -86,26 +77,5 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	actReq.Thought = cotResp.Thought
 	actReq.Writers = []io.WriteCloser{request.Writer}
 
-	return HandleAction(actReq)
-}
-
-func storeChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
-	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
-	nmsg.Role = "user"
-
-	params := struct {
-		Result string `json:"result"`
-	}{
-		Result: content,
-	}
-
-	b, err := json.Marshal(params)
-	if err != nil {
-		return err
-	}
-
-	nmsg.Content = string(b)
-	nmsg.User = request.GetMessage().User
-
-	return nmsg.Save(request.GetContext())
+	return actions.HandleAction(actReq)
 }

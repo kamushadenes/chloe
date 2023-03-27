@@ -6,7 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
 	putils "github.com/kamushadenes/chloe/providers/utils"
-	"github.com/kamushadenes/chloe/react"
+	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
@@ -99,7 +99,7 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 
 // processSuccessfulImageRequest processes a successful image generation request.
 func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
-	react.StartAndWait(request)
+	utils2.StartAndWait(request)
 
 	for k := range request.GetWriters() {
 		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
@@ -115,7 +115,7 @@ func Generate(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
-		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
+		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
 	}
 
 	logger.Info().Msg("generating image")
@@ -124,10 +124,10 @@ func Generate(request *structs.GenerationRequest) error {
 
 	response, err := createImageWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
-	return react.NotifyError(request, processSuccessfulImageRequest(request, response))
+	return utils2.NotifyError(request, processSuccessfulImageRequest(request, response))
 }
 
 // newImageEditRequest creates a new openai.ImageEditRequest for image editing.
@@ -171,22 +171,22 @@ func Edits(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
-		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
+		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
 	}
 
 	logger.Info().Msg("generating image edits")
 
 	req, err := newImageEditRequest(request)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
 	response, err := createImageEditWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
-	return react.NotifyError(request, processSuccessfulImageRequest(request, response))
+	return utils2.NotifyError(request, processSuccessfulImageRequest(request, response))
 }
 
 // newImageVariationRequest creates a new openai.ImageVariRequest for image variations.
@@ -226,7 +226,7 @@ func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRe
 
 // processSuccessfulImageVariationRequest processes a successful image variation request.
 func processSuccessfulImageVariationRequest(request *structs.VariationRequest, response openai.ImageResponse) error {
-	react.StartAndWait(request)
+	utils2.StartAndWait(request)
 
 	for k := range request.Writers {
 		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
@@ -242,20 +242,20 @@ func Variations(request *structs.VariationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
 	if flags.InteractiveCLI {
-		return react.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
+		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
 	}
 
 	logger.Info().Msg("generating image variations")
 
 	req, err := newImageVariationRequest(request)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
 	response, err := createImageVariationWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
-	return react.NotifyError(request, processSuccessfulImageVariationRequest(request, response))
+	return utils2.NotifyError(request, processSuccessfulImageVariationRequest(request, response))
 }

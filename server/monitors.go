@@ -7,7 +7,8 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/providers/google"
 	"github.com/kamushadenes/chloe/providers/openai"
-	"github.com/kamushadenes/chloe/react"
+	"github.com/kamushadenes/chloe/react/actions"
+	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 )
 
@@ -30,9 +31,9 @@ func MonitorRequests(ctx context.Context) {
 		case req := <-channels.ActionRequestsCh:
 			logger := structs.LoggerFromRequest(req)
 			go func() {
-				err := react.HandleAction(req)
+				err := actions.HandleAction(req)
 				if err != nil {
-					if errors.Is(err, react.ErrProceed) {
+					if errors.Is(err, errors2.ErrProceed) {
 						channels.CompletionRequestsCh <- req.ToCompletionRequest()
 					} else {
 						logger.Err(err).Msg("failed to handle action")

@@ -39,6 +39,12 @@ Searchs Wikipedia for the given term and returns the first result
 
 @@@@@@
 
+news:
+e.g. news: Latest Brazilian news
+Search news for the given term
+
+@@@@@@
+
 image:
 e.g. image: A picture of a cat sitting on a table with a bowl of milk
 Generates an image from text and returns it, using an extremelly detailed, realistic and creative DALL-E model prompt

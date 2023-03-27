@@ -6,7 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
-	"github.com/kamushadenes/chloe/react"
+	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
@@ -46,7 +46,7 @@ func createTranscriptionRequestWithTimeout(request *structs.TranscriptionRequest
 // to the given request.Writer and, if present, sending the result to request.ResultChannel.
 // Returns an error if there's an issue during the process.
 func processSuccessfulTranscriptionRequest(request *structs.TranscriptionRequest, response openai.AudioResponse) error {
-	react.StartAndWait(request)
+	utils2.StartAndWait(request)
 
 	putils.WriteStatusCode(request.Writer, http.StatusOK)
 
@@ -84,13 +84,13 @@ func Transcribe(request *structs.TranscriptionRequest) error {
 
 	response, err := createTranscriptionRequestWithTimeout(request, req)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
 	err = processSuccessfulTranscriptionRequest(request, response)
 	if err != nil {
-		return react.NotifyError(request, err)
+		return utils2.NotifyError(request, err)
 	}
 
-	return react.NotifyError(request, recordTranscriptionResponse(request, response))
+	return utils2.NotifyError(request, recordTranscriptionResponse(request, response))
 }

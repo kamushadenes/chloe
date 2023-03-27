@@ -1,14 +1,16 @@
-package react
+package youtube_summarizer
 
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/resources"
+	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
+	"github.com/kamushadenes/chloe/react/actions/transcribe"
+	errors2 "github.com/kamushadenes/chloe/react/errors"
+	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
+	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/utils"
-	"github.com/sashabaranov/go-openai"
 	"io"
 	"os"
 	"os/exec"
@@ -22,7 +24,7 @@ type YoutubeSummarizerAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewYoutubeSummarizerAction() Action {
+func NewYoutubeSummarizerAction() structs2.Action {
 	return &YoutubeSummarizerAction{
 		Name: "youtube_summarizer",
 	}
@@ -73,9 +75,9 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 		return err
 	}
 
-	b := &BytesWriter{}
+	b := &utils2.BytesWriter{}
 
-	na := NewTranscribeAction()
+	na := transcribe.NewTranscribeAction()
 	na.SetParams(path.Join(tmpDir, "audio.mp3"))
 	na.SetMessage(request.Message)
 	na.SetWriters([]io.WriteCloser{b})
@@ -84,40 +86,10 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 		return err
 	}
 
-	prompt, err := resources.GetPrompt("video_summarizer", &resources.PromptArgs{
-		Args: map[string]interface{}{},
-		Mode: "video_summarizer",
-	})
-
-	req := openai.ChatCompletionRequest{
-		Model: config.OpenAI.DefaultModel.ChainOfThought,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    "system",
-				Content: prompt,
-			},
-			{
-				Role:    "user",
-				Content: string(b.Bytes),
-			},
-		},
-	}
-
-	var resp openai.ChatCompletionResponse
-
-	respi, err := utils.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
-		resp, err := openAIClient.CreateChatCompletion(request.Context, req)
-		if err != nil {
-			logger.Error().Err(err).Msg("error requesting prompt improvement")
-			errCh <- err
-		}
-		ch <- resp
-	})
+	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarizer", string(b.Bytes))
 	if err != nil {
 		return err
 	}
-
-	resp = respi.(openai.ChatCompletionResponse)
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
@@ -132,9 +104,9 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 }
 
 func (a *YoutubeSummarizerAction) RunPreActions(request *structs.ActionRequest) error {
-	return defaultPreActions(a, request)
+	return errors2.ErrNotImplemented
 }
 
 func (a *YoutubeSummarizerAction) RunPostActions(request *structs.ActionRequest) error {
-	return defaultPostActions(a, request)
+	return errors2.ErrNotImplemented
 }
