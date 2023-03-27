@@ -3,6 +3,7 @@ package scrape
 import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/extensions"
 	"github.com/kamushadenes/chloe/logging"
 	url2 "net/url"
 	"strings"
@@ -33,11 +34,13 @@ func cleanText(text string) (string, error) {
 }
 
 func scrape(url string) (*ScrapeResult, error) {
+	logger := logging.GetLogger().With().Str("action", "scrape").Str("url", url).Logger()
+
 	scrapeResult := NewScrapeResult()
 
 	c := colly.NewCollector()
-
-	logger := logging.GetLogger().With().Str("action", "scrape").Str("url", url).Logger()
+	extensions.RandomUserAgent(c)
+	extensions.Referer(c)
 
 	c.OnRequest(func(r *colly.Request) {
 		scrapeResult.SetURL(r.URL.String())
