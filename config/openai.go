@@ -29,7 +29,7 @@ type OpenAIConfig struct {
 }
 
 var OpenAI = &OpenAIConfig{
-	ModerateMessages: true,
+	ModerateMessages: envOrDefaultBool("CHLOE_ENABLE_MESSAGE_MODERATION", true),
 	MaxTokens: map[string]int{
 		openai.GPT3Dot5Turbo: envOrDefaultInt("CHLOE_MAX_TOKENS_GPT3Dot5Turbo", 4096),
 	},
@@ -39,14 +39,14 @@ var OpenAI = &OpenAIConfig{
 	DefaultModel: OpenAIConfigModel{
 		Completion:     envOrDefault("CHLOE_MODEL_COMPLETION", openai.GPT3Dot5Turbo),
 		ChainOfThought: envOrDefault("CHLOE_MODEL_CHAIN_OF_THOUGHT", openai.GPT3Dot5Turbo),
-		Transcription:  envOrDefault("CHLOE_MODEL_TRANSCRIPTION", openai.Whisper1),
-		Moderation:     envOrDefault("CHLOE_MODEL_MODERATION", "text-moderation-latest"),
+		Transcription:  envOrDefaultWithOptions("CHLOE_MODEL_TRANSCRIPTION", openai.Whisper1, []string{openai.Whisper1}),
+		Moderation:     envOrDefaultWithOptions("CHLOE_MODEL_MODERATION", "text-moderation-latest", []string{"text-moderation-latest", "text-moderation-stable"}),
 		Summarization:  envOrDefault("CHLOE_MODEL_SUMMARIZATION", openai.GPT3Dot5Turbo),
 	},
 	DefaultSize: OpenAIConfigImageSize{
-		ImageGeneration: envOrDefault("CHLOE_IMAGE_GENERATION_SIZE", "1024x1024"),
-		ImageEdit:       envOrDefault("CHLOE_IMAGE_EDIT_SIZE", "1024x1024"),
-		ImageVariation:  envOrDefault("CHLOE_IMAGE_VARIATION_SIZE", "1024x1024"),
+		ImageGeneration: envOrDefaultWithOptions("CHLOE_IMAGE_GENERATION_SIZE", "1024x1024", []string{"1024x1024", "512x512", "256x256"}),
+		ImageEdit:       envOrDefaultWithOptions("CHLOE_IMAGE_EDIT_SIZE", "1024x1024", []string{"1024x1024", "512x512", "256x256"}),
+		ImageVariation:  envOrDefaultWithOptions("CHLOE_IMAGE_VARIATION_SIZE", "1024x1024", []string{"1024x1024", "512x512", "256x256"}),
 	},
 	APIKey:                    mustEnv("OPENAI_API_KEY"),
 	MessagesToKeepFullContent: envOrDefaultInt("CHLOE_MESSAGES_TO_KEEP_FULL_CONTENT", 4),

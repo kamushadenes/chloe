@@ -59,6 +59,7 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 | CHLOE_MODEL_SUMMARIZATION            | gpt-3.5-turbo          | Model to use for summarization                                                                                                                                                                                                     | Refer to the [docs](https://platform.openai.com/docs/api-reference/completions/create#completions/create-model) |                              
 | CHLOE_MODEL_TRANSCRIPTION            | whisper-1              | Model to use for audio transcription requests                                                                                                                                                                                      | Refer to the [docs](https://platform.openai.com/docs/api-reference/audio/create#audio/create-model)             |
 | CHLOE_MODEL_MODERATION               | text-moderation-latest | Model to use for message content moderation requests                                                                                                                                                                               | Refer to the [docs](https://platform.openai.com/docs/api-reference/moderations/create#moderations/create-model) |
+| CHLOE_ENABLE_MESSAGE_MODERATION      | true                   | Whether to moderate messages                                                                                                                                                                                                       | true<br/>false                                                                                                  | 
 | CHLOE_IMAGE_GENERATION_SIZE          | 1024x1024              | Size of generated images                                                                                                                                                                                                           | 256x256<br/>512x512<br/>1024x1024                                                                               |
 | CHLOE_IMAGE_EDIT_SIZE                | 1024x1024              | Size of generated image edits                                                                                                                                                                                                      | 256x256<br/>512x512<br/>1024x1024                                                                               |
 | CHLOE_IMAGE_VARIATION_SIZE           | 1024x1024              | Size of generated image variations                                                                                                                                                                                                 | 256x256<br/>512x512<br/>1024x1024                                                                               |
@@ -80,11 +81,13 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 
 ## ReAct
 
-| Environment Variable              | Default Value | Description                                                                             | Options        |
-|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|----------------|
-| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false |
-| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                |
-| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                |
+| Environment Variable              | Default Value | Description                                                                             | Options            |
+|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|--------------------|
+| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false     |
+| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                    |
+| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                    |
+| CHLOE_REACT_NEWS_SOURCE           | google        | News source to use for news prompts                                                     | google<br/>newsapi |
+| CHLOE_REACT_NEWSAPI_TOKEN         |               | NewsAPI token                                                                           |                    |
 
 ## Miscellaneous
 
