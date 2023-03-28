@@ -2,7 +2,6 @@ package scrape
 
 import (
 	"encoding/base64"
-	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
 	"github.com/kamushadenes/chloe/logging"
@@ -11,28 +10,13 @@ import (
 	"strings"
 )
 
-func cleanText(text string) (string, error) {
-	reader := strings.NewReader(text)
-
-	doc, err := goquery.NewDocumentFromReader(reader)
-	if err != nil {
-		return text, err
+func clean(c *colly.Collector) {
+	// Try to cleanup scripts and other stuff
+	for _, s := range []string{"script", "link", "style", "iframe"} {
+		c.OnHTML(s, func(e *colly.HTMLElement) {
+			e.DOM.ReplaceWithHtml("")
+		})
 	}
-
-	doc.Find("script").Each(func(i int, el *goquery.Selection) {
-		el.Remove()
-	})
-	doc.Find("link").Each(func(i int, el *goquery.Selection) {
-		el.Remove()
-	})
-	doc.Find("style").Each(func(i int, el *goquery.Selection) {
-		el.Remove()
-	})
-	doc.Find("iframe").Each(func(i int, el *goquery.Selection) {
-		el.Remove()
-	})
-
-	return doc.Text(), nil
 }
 
 func scrape(url string) (*ScrapeResult, error) {
@@ -50,6 +34,8 @@ func scrape(url string) (*ScrapeResult, error) {
 	extensions.RandomUserAgent(c)
 	extensions.Referer(c)
 
+	clean(c)
+
 	c.OnRequest(func(r *colly.Request) {
 		scrapeResult.SetURL(r.URL.String())
 
@@ -63,13 +49,6 @@ func scrape(url string) (*ScrapeResult, error) {
 	c.OnScraped(func(r *colly.Response) {
 		logger.Info().Msg("finished scraping")
 	})
-
-	// Try to cleanup scripts and other stuff
-	for _, s := range []string{"script", "link", "style", "iframe"} {
-		c.OnHTML(s, func(e *colly.HTMLElement) {
-			e.DOM.ReplaceWithHtml("")
-		})
-	}
 
 	c.OnHTML("html", func(e *colly.HTMLElement) {
 		html, err := e.DOM.Html()

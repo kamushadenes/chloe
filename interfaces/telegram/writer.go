@@ -6,8 +6,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/utils"
-	"github.com/rs/zerolog"
 	"time"
 )
 
@@ -27,209 +25,72 @@ type TelegramWriter struct {
 	lastUpdate *time.Time
 }
 
-func (t *TelegramWriter) Flush() {
-	if t.Type != "text" {
+func (w *TelegramWriter) Flush() {
+	if w.Type != "text" {
 		return
 	}
 
-	if t.externalID == 0 && (config.Telegram.SendProcessingMessage || config.Telegram.StreamMessages) {
-		msg, err := t.Bot.Send(tgbotapi.NewMessage(t.ChatID, "↻ Processing..."))
+	if w.externalID == 0 && (config.Telegram.SendProcessingMessage || config.Telegram.StreamMessages) {
+		msg, err := w.Bot.Send(tgbotapi.NewMessage(w.ChatID, "↻ Processing..."))
 		if err != nil {
 			return
 		}
-		t.externalID = msg.MessageID
+		w.externalID = msg.MessageID
 		tt := time.Now()
-		t.lastUpdate = &tt
+		w.lastUpdate = &tt
 	}
 
 	if !config.Telegram.StreamMessages {
 		return
 	}
 
-	if t.lastUpdate != nil && time.Now().Sub(*t.lastUpdate) > config.Telegram.StreamFlushInterval {
-		_, _ = t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String()[:config.Telegram.MaxMessageLength]))
+	if w.lastUpdate != nil && time.Now().Sub(*w.lastUpdate) > config.Telegram.StreamFlushInterval {
+		_, _ = w.Bot.Send(tgbotapi.NewEditMessageText(w.ChatID, w.externalID, w.bufs[0].String()[:config.Telegram.MaxMessageLength]))
 		tt := time.Now()
-		t.lastUpdate = &tt
+		w.lastUpdate = &tt
 	}
 }
 
-func (t *TelegramWriter) Close() error {
-	logger := zerolog.Ctx(t.Context).With().Str("requestID", t.Request.GetID()).Logger()
-
-	switch t.Type {
-	case "text":
-		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with text")
-
-		msgs := utils.StringToChunks(t.bufs[0].String(), config.Discord.MaxMessageLength)
-
-		if t.externalID == 0 {
-			for k := range msgs {
-				if err := t.Request.GetMessage().SendText(t.bufs[k].String(), true, t.ReplyID); err != nil {
-					return err
-				}
-			}
-		} else {
-			if _, err := t.Bot.Send(tgbotapi.NewEditMessageText(t.ChatID, t.externalID, t.bufs[0].String())); err != nil {
-				return err
-			}
-
-			for k := range msgs[1:] {
-				if err := t.Request.GetMessage().SendText(msgs[k], true); err != nil {
-					return err
-				}
-			}
+func (w *TelegramWriter) Close() error {
+	if len(w.bufs) > 0 && w.bufs[0].Len() > 0 {
+		switch w.Type {
+		case "text":
+			return w.closeText()
+		case "audio":
+			return w.closeAudio()
+		case "image":
+			return w.closeImage()
 		}
-	case "audio":
-		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with audio")
-		tmsg := tgbotapi.NewVoice(t.ChatID, tgbotapi.FileReader{
-			Reader: bytes.NewReader(t.bufs[0].Bytes()),
-		})
-		tmsg.ReplyToMessageID = t.ReplyID
-		_, err := t.Bot.Send(tmsg)
-		return err
-	case "image":
-		bufs := t.bufs
-		if t.mainWriter != nil {
-			bufs = t.mainWriter.bufs
-			t.mainWriter.closedBufs++
-			if t.mainWriter.closedBufs != len(t.mainWriter.bufs) {
-				return nil
-			}
-		}
-
-		logger.Debug().Int64("chatID", t.ChatID).Msg("replying with image")
-
-		if t.mainWriter == nil {
-			msg := tgbotapi.NewPhoto(t.ChatID, tgbotapi.FileReader{
-				Name:   "generated.png",
-				Reader: bytes.NewReader(bufs[0].Bytes()),
-			})
-			msg.ReplyToMessageID = t.ReplyID
-			_, err := t.Bot.Send(msg)
-			return err
-		}
-
-		var files []interface{}
-		for k := range bufs {
-			files = append(files, tgbotapi.NewInputMediaPhoto(
-				tgbotapi.FileReader{
-					Name:   "generated.png",
-					Reader: bytes.NewReader(bufs[k].Bytes()),
-				},
-			))
-		}
-
-		msg := tgbotapi.NewMediaGroup(t.ChatID, files)
-		msg.ReplyToMessageID = t.ReplyID
-		_, err := t.Bot.SendMediaGroup(msg)
-		return err
 	}
+
 	return nil
 }
 
-func (t *TelegramWriter) Write(p []byte) (n int, err error) {
-	if t.mainWriter != nil {
-		return t.mainWriter.bufs[t.bufID].Write(p)
+func (w *TelegramWriter) Write(p []byte) (n int, err error) {
+	if w.mainWriter != nil {
+		return w.mainWriter.bufs[w.bufID].Write(p)
 	}
 
-	return t.bufs[0].Write(p)
+	return w.bufs[0].Write(p)
 }
 
-func (t *TelegramWriter) SetPrompt(prompt string) {
-	t.Prompt = prompt
+func (w *TelegramWriter) SetPrompt(prompt string) {
+	w.Prompt = prompt
 }
 
-func (t *TelegramWriter) Subwriter() *TelegramWriter {
-	t.bufs = append(t.bufs, bytes.Buffer{})
+func (w *TelegramWriter) Subwriter() *TelegramWriter {
+	w.bufs = append(w.bufs, bytes.Buffer{})
 
 	return &TelegramWriter{
-		Context:    t.Context,
-		Prompt:     t.Prompt,
-		Bot:        t.Bot,
-		ChatID:     t.ChatID,
-		Type:       t.Type,
-		ReplyID:    t.ReplyID,
-		Request:    t.Request,
+		Context:    w.Context,
+		Prompt:     w.Prompt,
+		Bot:        w.Bot,
+		ChatID:     w.ChatID,
+		Type:       w.Type,
+		ReplyID:    w.ReplyID,
+		Request:    w.Request,
 		bufs:       []bytes.Buffer{{}},
-		bufID:      len(t.bufs) - 1,
-		mainWriter: t,
+		bufID:      len(w.bufs) - 1,
+		mainWriter: w,
 	}
-}
-
-func (t *TelegramWriter) ToImageWriter() *TelegramWriter {
-	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatUploadPhoto))
-	return NewImageWriter(t.Context, t.Request, t.ReplyID != 0)
-}
-
-func (t *TelegramWriter) ToTextWriter() *TelegramWriter {
-	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatTyping))
-	return NewTextWriter(t.Context, t.Request, t.ReplyID != 0)
-}
-
-func (t *TelegramWriter) ToAudioWriter() *TelegramWriter {
-	_, _ = t.Bot.Send(tgbotapi.NewChatAction(t.ChatID, tgbotapi.ChatRecordVoice))
-	return NewAudioWriter(t.Context, t.Request, t.ReplyID != 0)
-}
-
-func NewTextWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
-	w := &TelegramWriter{
-		Context: ctx,
-		Bot:     request.GetMessage().Source.Telegram.API,
-		ChatID:  request.GetMessage().Source.Telegram.Update.Message.Chat.ID,
-		Type:    "text",
-		Request: request,
-		bufs:    []bytes.Buffer{{}},
-		bufID:   0,
-	}
-
-	if reply {
-		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
-	}
-	if len(prompt) > 0 {
-		w.Prompt = prompt[0]
-	}
-
-	return w
-}
-
-func NewImageWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
-	w := &TelegramWriter{
-		Context: ctx,
-		Bot:     request.GetMessage().Source.Telegram.API,
-		ChatID:  request.GetMessage().Source.Telegram.Update.Message.Chat.ID,
-		Type:    "image",
-		Request: request,
-		bufs:    []bytes.Buffer{},
-		bufID:   0,
-	}
-
-	if reply {
-		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
-	}
-	if len(prompt) > 0 {
-		w.Prompt = prompt[0]
-	}
-
-	return w
-}
-
-func NewAudioWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
-	w := &TelegramWriter{
-		Context: ctx,
-		Bot:     request.GetMessage().Source.Telegram.API,
-		ChatID:  request.GetMessage().Source.Telegram.Update.Message.Chat.ID,
-		Type:    "audio",
-		Request: request,
-		bufs:    []bytes.Buffer{{}},
-		bufID:   0,
-	}
-
-	if reply {
-		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
-	}
-	if len(prompt) > 0 {
-		w.Prompt = prompt[0]
-	}
-
-	return w
 }

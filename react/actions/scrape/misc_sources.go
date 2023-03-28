@@ -15,8 +15,7 @@ func parseContent(c *colly.Collector, scrapeResult *ScrapeResult, u *url2.URL) *
 		})
 	} else {
 		c.OnHTML("body", func(e *colly.HTMLElement) {
-			text, _ := cleanText(e.Text)
-			scrapeResult.SetContent(text)
+			scrapeResult.SetContent(e.Text)
 		})
 	}
 
