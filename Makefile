@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: all build clean
+.PHONY: all tokenizer build clean
 
 all: tokenizer build
 
