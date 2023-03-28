@@ -9,15 +9,15 @@ signing up for an account at [OpenAI](https://platform.openai.com/).
 
 Configuration documentation is separated in several files, listed below.
 
-- [Database](#database)
-- [HTTP](#http)
-- [Telegram](#telegram)
-- [Discord](#discord)
-- [Google Cloud](#google-cloud)
-- [OpenAI](#openai)
-- [Timeouts](#timeouts)
-- [ReAct](#react)
-- [Miscellaneous](#miscellaneous)
+- [Database](https://github.com/kamushadenes/chloe/blob/main/docs/database.md)
+- [HTTP](https://github.com/kamushadenes/chloe/blob/main/docs/http.md)
+- [Telegram](https://github.com/kamushadenes/chloe/blob/main/docs/telegram.md)
+- [Discord](https://github.com/kamushadenes/chloe/blob/main/docs/discord.md)
+- [Google Cloud](https://github.com/kamushadenes/chloe/blob/main/docs/gcp.md)
+- [OpenAI](https://github.com/kamushadenes/chloe/blob/main/docs/openai.md)
+- [Timeouts](https://github.com/kamushadenes/chloe/blob/main/docs/timeouts.md)
+- [ReAct](https://github.com/kamushadenes/chloe/blob/main/docs/react.md)
+- [Miscellaneous](https://github.com/kamushadenes/chloe/blob/main/docs/miscellaneous.md)
 
 
 
