@@ -15,9 +15,7 @@ chain-of-thought prompting) and acting (e.g. action plan generation) have primar
 separate topics. 
 
 In this paper, we explore the use of LLMs to generate both reasoning traces and
-task-specific actions in an interleaved manner, allowing for greater synergy between the two:
-
-reasoning traces help the model induce, track, and update action plans as well as handle exceptions,
+task-specific actions in an interleaved manner, allowing for greater synergy between the two: reasoning traces help the model induce, track, and update action plans as well as handle exceptions,
 while actions allow it to interface with external sources, such as knowledge bases or environments,
 to gather additional information. 
 
@@ -39,15 +37,3 @@ in-context examples.
 
 This package also includes all the actions, such as `google`, `wikipedia`, `news`, etc. that Chloe
 supports. The documentation for these actions can be found in the [actions](https://github.com/kamushadenes/chloe/blob/main/docs/actions.md) page.
-
-## Configuration
-
-| Environment Variable              | Default Value | Description                                                                             | Options                                  |
-|-----------------------------------|---------------|-----------------------------------------------------------------------------------------|------------------------------------------|
-| CHLOE_REACT_IMPROVE_IMAGE_PROMPTS | false         | Whether to improve image prompts, basically doing a second pass on the prompt generator | true<br/>false                           |
-| CHLOE_REACT_GOOGLE_MAX_RESULTS    | 4             | Maximum number of Google results to analyze                                             |                                          |
-| CHLOE_REACT_WIKIPEDIA_MAX_RESULTS | 3             | Maximum number of Wikipedia results to analyze                                          |                                          |
-| CHLOE_REACT_NEWSAPI_MAX_RESULTS   | 5             | Maximum number of NewsAPI results to analyze                                            |                                          |
-| CHLOE_REACT_NEWS_SOURCE           | google        | News source to use for news prompts                                                     | google<br/>newsapi                       |
-| CHLOE_REACT_NEWSAPI_TOKEN         |               | NewsAPI token                                                                           |                                          |
-| CHLOE_REACT_NEWSAPI_SORT_STRATEGY | relevancy     | NewsAPI sort strategy                                                                   | publishedAt<br/>relevancy<br/>popularity |

@@ -65,12 +65,17 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 
 	logger.Info().Msg("downloading audio")
 
-	cmd := exec.Command("youtube-dl",
-		"--external-downloader", "aria2c",
+	var args []string
+	if config.React.UseAria2 {
+		args = append(args, "--external-downloader", "aria2c")
+	}
+	args = append(args,
 		"-x", "--audio-format", "mp3",
 		"-f", "worstaudio/bestaudio/worst",
 		"-o", path.Join(tmpDir, "audio.mp3"),
 		a.Params)
+
+	cmd := exec.Command("youtube-dl", args...)
 	if err := cmd.Run(); err != nil {
 		return err
 	}

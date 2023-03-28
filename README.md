@@ -56,6 +56,8 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [ ] Take action when content is flagged by the moderation
 - [x] Add GPT-4 support
 - [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
+- [ ] Add Wolfram Alpha integration
+- [ ] Add LaTeX rendering support
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
 
