@@ -81,7 +81,11 @@ func StoreChainOfThoughtResult(request structs.ActionOrCompletionRequest, conten
 
 func GetAvailableTokenCount(request *structs.ActionRequest) int {
 	tokenCount := request.CountTokens()
-	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.ChainOfThought] - tokenCount
+
+	maxTokens := config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.ChainOfThought))
+
+	truncateTokenCount := maxTokens - tokenCount - config.OpenAI.GetMinReplyTokens()
+
 	if truncateTokenCount < config.OpenAI.GetMinReplyTokens() {
 		truncateTokenCount = config.OpenAI.GetMinReplyTokens()
 	}

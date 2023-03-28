@@ -10,7 +10,6 @@ import (
 	"github.com/kamushadenes/chloe/timeout"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
-	"strings"
 )
 
 // getSummarizationPrompt retrieves a summarization prompt for the given message.
@@ -21,12 +20,11 @@ func getSummarizationPrompt(ctx context.Context, msg *memory.Message) (string, e
 		return "", err
 	}
 
+	maxTokens := config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Summarization))
+
 	return resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
-			"text": utils2.Truncate(msg.Content,
-				int(float64(config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Summarization])-
-					(float64(promptSize)*0.75)-
-					(float64(len(strings.Fields(msg.Content)))*0.75))),
+			"text": utils2.Truncate(msg.Content, maxTokens-promptSize),
 		},
 		Mode: "summarize",
 	})

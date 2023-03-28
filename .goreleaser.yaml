@@ -2,7 +2,7 @@
 # Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
-    - make build_tokenizer
+    - make tokenizer
     - go mod tidy
     - go generate ./...
 builds:

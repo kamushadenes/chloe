@@ -19,6 +19,14 @@ jobs:
         with:
           go-version: 1.19
 
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build tokenizer
+        run: make tokenizer
+
       - name: Test
         run: go test -v ./...
         env:

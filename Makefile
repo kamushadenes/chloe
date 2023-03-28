@@ -2,9 +2,9 @@
 
 .PHONY: all build clean
 
-all: build_tokenizer build
+all: tokenizer build
 
-build_tokenizer:
+tokenizer:
 	cd tokenizer && cargo -C tiktoken-cffi build --release -Z unstable-options --out-dir .
 
 build:

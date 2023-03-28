@@ -55,7 +55,7 @@ func TTS(request *structs.TTSRequest) error {
 		return err
 	}
 
-	var contentType string
+	var contentType = "application/octet-stream"
 
 	switch config.GCP.TTSEncoding {
 	case texttospeechpb.AudioEncoding_MP3:
