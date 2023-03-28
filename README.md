@@ -103,10 +103,11 @@ go build -o chloe cmd/chloe/main.go
 Setup the required environment variables
 
 ```bash
-export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"
-export CHLOE_DISCORD_TOKEN="your_discord_bot_token"
-export OPENAI_API_KEY="your_openai_api_key"
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/google/application/credentials.json"
+export OPENAI_API_KEY="your_openai_api_key"                       # This is the only mandatory one
+
+export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"             # Only necessary if you want to use the Telegram interface
+export CHLOE_DISCORD_TOKEN="your_discord_bot_token"               # Only necessary if you want to use the Discord interface
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json" # Only necessary if you want to use the Text-to-Speech engine
 ```
 
 Running the `chloe` binary will start the bot.

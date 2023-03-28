@@ -108,7 +108,7 @@ func envOrDefaultFloat64(key string, defaultValue float64) float64 {
 func envOrDefaultFloat64InRange(key string, defaultValue, min, max float64) float64 {
 	value := envOrDefaultFloat64(key, defaultValue)
 	if value < min || value > max {
-		panic(fmt.Sprintf("invalid value for %s: %d\nvalid values are between %d and %d", key, value, min, max))
+		panic(fmt.Sprintf("invalid value for %s: %f\nvalid values are between %f and %f", key, value, min, max))
 	}
 
 	return value
