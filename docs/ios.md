@@ -12,6 +12,6 @@ Just click the link below from your iOS device.
 
 When you first add it, it's going to ask you about your name, the default greeting phrase, your [OpenAI API key](https://platform.openai.com/), and your [Google Cloud API key](https://cloud.google.com/docs/authentication/api-keys).
 
-To invoke the shortcut, you can either say "Hey Siri, Hey Chloe" or create a shortcut on your home screen.
+To invoke the shortcut, you can either say `Hey Siri, Hey Chloe` or create a shortcut on your home screen.
 
 You can also change the shortcut name to whatever you want, and that will change the invocation phrase as well.
