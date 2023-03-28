@@ -29,6 +29,7 @@ understand and respond to complex instructions.
 - Performs calculations
 - Uses Google's Text-to-Speech engine to speak
 - Uses OpenAI's DALL-E to generate images
+- Uses the official OpenAI tokenizer (via Rust bindings) to properly handle token counts
 - Automatically summarizes messages in order to have a longer context
 - Automatically moderates message using
   OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
@@ -53,7 +54,7 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [x] Add Discord interface
 - [ ] Add Slack interface
 - [ ] Take action when content is flagged by the moderation
-- [ ] Add GPT-4 support (waiting for the API to be released)
+- [x] Add GPT-4 support
 - [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
@@ -83,11 +84,13 @@ Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bind
 
 ### FFMPEG
 
-Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert audio received from Telegram to an appropriate format for Whisper.
+Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert
+audio received from Telegram to an appropriate format for Whisper.
 
 ### ImageMagick
 
-Chloe uses [ImageMagick](https://imagemagick.org/index.php) to convert images to the appropriate format for DALL-E.
+Chloe uses [ImageMagick](https://imagemagick.org/index.php) to convert images to the appropriate
+format for DALL-E.
 
 ### YouTube-DL
 
