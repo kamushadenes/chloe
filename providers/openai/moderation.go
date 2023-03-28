@@ -37,7 +37,7 @@ func newMessageModeration(result openai.ModerationResponse) *memory.MessageModer
 // newModerationRequest creates a new openai.ModerationRequest from the provided memory.Message.
 // Returns an error if the message has no content to moderate.
 func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error) {
-	model := string(config.OpenAI.DefaultModel.Moderation)
+	model := config.OpenAI.DefaultModel.Moderation.String()
 	content := msg.Content
 
 	if content == "" {

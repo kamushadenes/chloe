@@ -161,7 +161,7 @@ func (m *Message) GetContent() string {
 func (m *Message) SetContent(content string) {
 	m.Content = content
 
-	m.TokenCount = tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion, content)
+	m.TokenCount = tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion.String(), content)
 }
 
 func (m *Message) SendText(text string, notify bool, replyTo ...interface{}) error {

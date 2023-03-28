@@ -51,7 +51,7 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.Disabled)
 
 		if os.Args[1] == "countTokens" {
-			fmt.Println(tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion, strings.Join(os.Args[2:], " ")))
+			fmt.Println(tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion.String(), strings.Join(os.Args[2:], " ")))
 		}
 
 		go server.InitServer(ctx, true, readyCh)

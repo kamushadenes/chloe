@@ -40,7 +40,7 @@ func (creq *ActionRequest) ToCompletionRequest() *CompletionRequest {
 }
 
 func (creq *ActionRequest) CountTokens() int {
-	return creq.ToCompletionRequest().CountTokens(creq.ToChatCompletionMessages())
+	return creq.ToCompletionRequest().CountTokens()
 }
 
 func (creq *ActionRequest) ToChatCompletionMessages() []openai.ChatCompletionMessage {

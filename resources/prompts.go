@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
 	"strings"
 	"text/template"
@@ -93,7 +92,7 @@ func GetPromptSize(prompt string) (int, error) {
 
 	model := config.OpenAI.GetTokenizerModel(config.OpenAI.GetModel(config.Completion))
 
-	return tokenizer.CountTokens(model, buf.String()), nil
+	return model.CountTokens(buf.String()), nil
 }
 
 func ListPrompts() ([]string, error) {

@@ -4,24 +4,11 @@ import (
 	"github.com/kamushadenes/chloe/models"
 )
 
-func (c *OpenAIConfig) GetMaxTokens(model models.Model) int {
-	switch model {
-	case models.GPT35Turbo, models.GPT35Turbo0301:
-		model = models.GPT35Turbo
-	case models.GPT4, models.GPT40314:
-		model = models.GPT4
-	case models.GPT432K, models.GPT432K0314:
-		model = models.GPT432K
-	}
-
-	return c.MaxTokens[model]
-}
-
 func (c *OpenAIConfig) GetMinReplyTokens() int {
 	return c.MinReplyTokens
 }
 
-func (c *OpenAIConfig) GetTokenizerModel(model models.Model) models.Model {
+func (c *OpenAIConfig) GetTokenizerModel(model *models.Model) *models.Model {
 	switch model {
 	case models.GPT35Turbo, models.GPT35Turbo0301:
 		return models.GPT35Turbo0301
@@ -34,7 +21,7 @@ func (c *OpenAIConfig) GetTokenizerModel(model models.Model) models.Model {
 	}
 }
 
-func (c *OpenAIConfig) GetModel(purpose ModelPurpose) models.Model {
+func (c *OpenAIConfig) GetModel(purpose ModelPurpose) *models.Model {
 	switch purpose {
 	case Completion:
 		return c.DefaultModel.Completion

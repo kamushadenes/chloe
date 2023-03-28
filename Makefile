@@ -7,8 +7,11 @@ all: tokenizer build
 tokenizer:
 	cd tokenizer && cargo -C tiktoken-cffi build --release -Z unstable-options --out-dir .
 
-build:
+build: tokenizer
 	go build -o ./cmd/chloe/chloe ./cmd/chloe/main.go
 
 clean:
 	rm ./cmd/chloe/chloe
+
+run: build
+	cd cmd/chloe && ./chloe

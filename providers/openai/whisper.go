@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeout"
-	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"net/http"
 )
@@ -17,7 +17,7 @@ import (
 // newTranscriptionRequest creates a new openai.AudioRequest for transcription.
 func newTranscriptionRequest(request *structs.TranscriptionRequest) openai.AudioRequest {
 	return openai.AudioRequest{
-		Model:    string(config.OpenAI.DefaultModel.Transcription),
+		Model:    config.OpenAI.DefaultModel.Transcription.String(),
 		FilePath: request.FilePath,
 	}
 }
@@ -25,7 +25,7 @@ func newTranscriptionRequest(request *structs.TranscriptionRequest) openai.Audio
 // createTranscriptionRequestWithTimeout attempts to create an AudioResponse with a timeout.
 // Returns the created AudioResponse or an error if the request times out or encounters an issue.
 func createTranscriptionRequestWithTimeout(request *structs.TranscriptionRequest, req openai.AudioRequest) (openai.AudioResponse, error) {
-	logger := zerolog.Ctx(request.GetContext()).With().Str("file", request.FilePath).Logger()
+	logger := logging.GetLogger().With().Str("file", request.FilePath).Logger()
 
 	respi, err := timeout.WaitTimeout(request.GetContext(), config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateTranscription(request.GetContext(), req)

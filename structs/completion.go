@@ -5,9 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/models"
 	"github.com/kamushadenes/chloe/resources"
-	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -90,37 +88,21 @@ func (creq *CompletionRequest) GetResultChannel() chan interface{} {
 	return creq.ResultChannel
 }
 
-// CountTokens based on https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
-func (creq *CompletionRequest) CountTokens(messages []openai.ChatCompletionMessage) int {
-	var tokens int
-	var tokensPerMessage int
-	var tokensPerName int
+func (creq *CompletionRequest) GetCost() float64 {
+	return config.OpenAI.GetModel(config.Completion).GetCostForTokens(creq.CountTokens())
+}
 
+// CountTokens based on https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
+func (creq *CompletionRequest) CountTokens() int {
+	messages := creq.ToChatCompletionMessages()
+
+	return creq.CountChatCompletionTokens(messages)
+}
+
+func (creq *CompletionRequest) CountChatCompletionTokens(messages []openai.ChatCompletionMessage) int {
 	model := config.OpenAI.GetModel(config.Completion)
 
-	switch model {
-	case models.GPT35Turbo, models.GPT35Turbo0301:
-		tokensPerMessage = 4
-		tokensPerName = -1
-	case models.GPT4, models.GPT40314, models.GPT432K, models.GPT432K0314:
-		tokensPerMessage = 3
-		tokensPerName = 1
-	}
-
-	for k := range messages {
-		tokens += tokensPerMessage
-
-		tokens += tokenizer.CountTokens(model, messages[k].Role)
-		tokens += tokenizer.CountTokens(model, messages[k].Content)
-		tokens += tokenizer.CountTokens(model, messages[k].Name)
-		if messages[k].Name != "" && messages[k].Role == "" {
-			tokens -= tokensPerName // if there's a name, the role can be ommited, so we need to remove one token if it's empty
-		}
-	}
-
-	tokens += 3 // every reply is primed with <im_start>assistant
-
-	return tokens
+	return model.CountChatCompletionTokens(messages)
 }
 
 func (creq *CompletionRequest) getArgs() map[string]interface{} {
@@ -214,13 +196,13 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 	systemMessages := creq.getSystemMessages()
 	userMessages := creq.getUserMessages()
 
-	systemCount := creq.CountTokens(systemMessages)
-	userCount := creq.CountTokens(userMessages)
+	systemCount := creq.CountChatCompletionTokens(systemMessages)
+	userCount := creq.CountChatCompletionTokens(userMessages)
 
 	for {
-		if (systemCount + userCount) > config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Completion)) {
+		if (systemCount + userCount) > config.OpenAI.GetModel(config.Completion).GetContextSize() {
 			userMessages = userMessages[1:]
-			userCount = creq.CountTokens(userMessages)
+			userCount = creq.CountChatCompletionTokens(userMessages)
 		} else {
 			break
 		}

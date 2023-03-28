@@ -25,9 +25,8 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 	request.Mode = "chain_of_thought"
 	req := openai.ChatCompletionRequest{
-		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.ChainOfThought)),
-		Model:     string(config.OpenAI.DefaultModel.ChainOfThought),
-		Messages:  request.ToChatCompletionMessages(),
+		Model:    config.OpenAI.DefaultModel.ChainOfThought.String(),
+		Messages: request.ToChatCompletionMessages(),
 	}
 
 	var resp openai.ChatCompletionResponse
@@ -88,6 +87,16 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	actReq.Params = cotResp.Params
 	actReq.Thought = cotResp.Thought
 	actReq.Writers = []io.WriteCloser{request.Writer}
+
+	logger.Info().
+		Str("action", cotResp.Action).
+		Str("params", cotResp.Params).
+		Str("thought", cotResp.Thought).
+		Float64("estimatedPromptCost",
+			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
+		Float64("estimatedResponseCost",
+			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(nil, content)).
+		Msg("chain of thought analysis finished")
 
 	return actions.HandleAction(actReq)
 }

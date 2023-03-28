@@ -8,19 +8,18 @@ import (
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/timeout"
-	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 )
 
 // getSummarizationPrompt retrieves a summarization prompt for the given message.
 // Returns an error if there's an issue during the process.
-func getSummarizationPrompt(ctx context.Context, msg *memory.Message) (string, error) {
+func getSummarizationPrompt(msg *memory.Message) (string, error) {
 	promptSize, err := resources.GetPromptSize("summarize")
 	if err != nil {
 		return "", err
 	}
 
-	maxTokens := config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Summarization))
+	maxTokens := config.OpenAI.GetModel(config.Summarization).GetContextSize()
 
 	return resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
@@ -32,15 +31,14 @@ func getSummarizationPrompt(ctx context.Context, msg *memory.Message) (string, e
 
 // newSummarizationRequest creates a new openai.ChatCompletionRequest for summarization.
 // Returns an error if there's an issue during the process.
-func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.ChatCompletionRequest, error) {
-	prompt, err := getSummarizationPrompt(ctx, msg)
+func newSummarizationRequest(msg *memory.Message) (openai.ChatCompletionRequest, error) {
+	prompt, err := getSummarizationPrompt(msg)
 	if err != nil {
 		return openai.ChatCompletionRequest{}, err
 	}
 
 	return openai.ChatCompletionRequest{
-		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Summarization)),
-		Model:     string(config.OpenAI.DefaultModel.Summarization),
+		Model: config.OpenAI.DefaultModel.Summarization.String(),
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    "system",
@@ -53,7 +51,7 @@ func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.C
 // createSummarizationWithTimeout attempts to create a ChatCompletionResponse with a timeout.
 // Returns the created ChatCompletionResponse or an error if the request times out or encounters an issue.
 func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.GetLogger()
 
 	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
@@ -71,11 +69,12 @@ func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompleti
 // Returns an error if there's an issue during the process.
 func Summarize(ctx context.Context, msg *memory.Message) error {
 	logger := logging.GetLogger().With().Uint("messageId", msg.ID).Logger()
+
 	ctx = logger.WithContext(ctx)
 
 	logger.Info().Msg("summarizing text")
 
-	req, err := newSummarizationRequest(ctx, msg)
+	req, err := newSummarizationRequest(msg)
 	if err != nil {
 		return err
 	}

@@ -11,12 +11,11 @@ extern unsigned int get_context_size(const char*);
 */
 import "C"
 import (
-	"github.com/kamushadenes/chloe/models"
 	"unsafe"
 )
 
-func CountTokens(model models.Model, prompt string) int {
-	m := C.CString(string(model))
+func CountTokens(model string, prompt string) int {
+	m := C.CString(model)
 	p := C.CString(prompt)
 	count := C.count_tokens(m, p)
 	C.free(unsafe.Pointer(m))
@@ -24,8 +23,8 @@ func CountTokens(model models.Model, prompt string) int {
 	return int(count)
 }
 
-func GetContextSize(model models.Model) int {
-	m := C.CString(string(model))
+func GetContextSize(model string) int {
+	m := C.CString(model)
 	count := C.get_context_size(m)
 	C.free(unsafe.Pointer(m))
 	return int(count)
