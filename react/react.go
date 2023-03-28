@@ -25,8 +25,9 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 
 	request.Mode = "chain_of_thought"
 	req := openai.ChatCompletionRequest{
-		Model:    config.OpenAI.DefaultModel.ChainOfThought,
-		Messages: request.ToChatCompletionMessages(),
+		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.ChainOfThought)),
+		Model:     config.OpenAI.DefaultModel.ChainOfThought,
+		Messages:  request.ToChatCompletionMessages(),
 	}
 
 	var resp openai.ChatCompletionResponse
@@ -57,10 +58,9 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 		return fmt.Errorf("no action found in response: %s", content)
 	}
 
-	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Context, request.Message.User, request.Message.Interface, &resp)
+	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
-		msg.Content = fmt.Sprintf("Thought: %s\nAction: %s\nParams: %s", cotResp.Thought, cotResp.Action, cotResp.Params) // params
-		// msg.ChainOfThought = content
+		msg.SetContent(fmt.Sprintf("Thought: %s\nAction: %s\nParams: %s", cotResp.Thought, cotResp.Action, cotResp.Params))
 		if err := msg.Save(request.Context); err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
 	msg.User = request.Message.User
 	msg.Context = request.Message.Context
-	msg.Content = CheckpointMarker
+	msg.SetContent(CheckpointMarker)
 	msg.Role = "user"
 	if err := msg.Save(request.Context); err != nil {
 		return err

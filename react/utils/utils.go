@@ -73,17 +73,17 @@ func StoreChainOfThoughtResult(request structs.ActionOrCompletionRequest, conten
 		return err
 	}
 
-	nmsg.Content = string(b)
+	nmsg.SetContent(string(b))
 	nmsg.User = request.GetMessage().User
 
 	return nmsg.Save(request.GetContext())
 }
 
-func GetTokenCount(request *structs.ActionRequest) int {
+func GetAvailableTokenCount(request *structs.ActionRequest) int {
 	tokenCount := request.CountTokens()
 	truncateTokenCount := config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.ChainOfThought] - tokenCount
-	if truncateTokenCount < config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought] {
-		truncateTokenCount = config.OpenAI.MinReplyTokens[config.OpenAI.DefaultModel.ChainOfThought]
+	if truncateTokenCount < config.OpenAI.GetMinReplyTokens() {
+		truncateTokenCount = config.OpenAI.GetMinReplyTokens()
 	}
 
 	return truncateTokenCount

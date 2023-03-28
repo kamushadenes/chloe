@@ -69,7 +69,7 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg.Content = params.Content
+	msg.SetContent(params.Content)
 	channels.IncomingMessagesCh <- msg
 	if err := <-msg.ErrorCh; err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
@@ -118,7 +118,7 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg.Content = params.Prompt
+	msg.SetContent(params.Prompt)
 	channels.IncomingMessagesCh <- msg
 	if err := <-msg.ErrorCh; err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
@@ -162,7 +162,7 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg.Content = params.Content
+	msg.SetContent(params.Content)
 	channels.IncomingMessagesCh <- msg
 	if err := <-msg.ErrorCh; err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))

@@ -73,10 +73,25 @@ take quite some time.
 
 ## Dependencies
 
-- aria2
-- ffmpeg
-- imagemagick
-- youtube-dl
+### Aria2
+
+Chloe uses [aria2](https://aria2.github.io/) to download YouTube videos for transcription.
+
+### Cargo
+
+Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bindings.
+
+### FFMPEG
+
+Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert audio received from Telegram to an appropriate format for Whisper.
+
+### ImageMagick
+
+Chloe uses [ImageMagick](https://imagemagick.org/index.php) to convert images to the appropriate format for DALL-E.
+
+### YouTube-DL
+
+Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.
 
 ## Installation
 
@@ -95,7 +110,7 @@ cd chloe
 3. Compile
 
 ```bash
-go build -o chloe cmd/chloe/main.go
+make
 ```
 
 ## Usage
@@ -113,6 +128,8 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json" # Only necessa
 Running the `chloe` binary will start the bot.
 
 ```bash
+cd cmd/chloe/
+
 ./chloe
 ```
 
@@ -136,5 +153,6 @@ Chloe is licensed under the [MIT License](LICENSE.md).
 
 ## Acknowledgements
 
+- [j178](https://github.com/j178/tiktoken-go) for the tokenizer bindings
 - [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
 - [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts) for the personalities

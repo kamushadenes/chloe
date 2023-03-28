@@ -65,7 +65,7 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 
 	msg := memory.NewMessage(fmt.Sprintf("%d", update.Message.MessageID), "telegram")
 	msg.Role = "user"
-	msg.Content = update.Message.Text
+	msg.SetContent(update.Message.Text)
 	msg.Source.Telegram = &memory.TelegramMessageSource{
 		API:    bot,
 		Update: update,

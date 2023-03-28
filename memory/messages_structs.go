@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/tokenizer"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -62,6 +64,7 @@ type Message struct {
 	Content    string             `json:"content"`
 	Summary    string             `json:"summary"`
 	Moderated  bool               `json:"moderated"`
+	TokenCount int                `json:"tokenCount"`
 	Moderation *MessageModeration `json:"moderation" gorm:"embedded;embeddedPrefix:moderation_"`
 	ErrorCh    chan error         `json:"-" gorm:"-"`
 	audioPaths []string
@@ -82,6 +85,7 @@ func (m *Message) Copy() *Message {
 	msg.User = m.User
 	msg.Role = m.Role
 	msg.Content = m.Content
+	msg.TokenCount = m.TokenCount
 	msg.Summary = m.Summary
 	msg.Moderated = m.Moderated
 	msg.Moderation = m.Moderation
@@ -104,12 +108,6 @@ func (m *Message) GetExternalMessageID() string {
 
 func (m *Message) GetTexts() []string {
 	var txts []string
-
-	/*
-		if m.Source.HTTP != nil {
-			//return m.Source.HTTP.Request.GetBody()
-		}
-	*/
 
 	if m.Source.Telegram != nil {
 		txts = append(txts, m.Source.Telegram.Update.Message.Text)
@@ -139,14 +137,17 @@ func (m *Message) GetAudios() []string {
 }
 
 func (m *Message) SetSummary(ctx context.Context, summary string) error {
-	return db.WithContext(ctx).Model(m).Update("summary", summary).Error
+	return db.WithContext(ctx).
+		Model(m).
+		Update("summary", summary).Error
 }
 
 func (m *Message) Save(ctx context.Context) error {
 	if m.Content == "" {
 		return nil
 	}
-	return db.WithContext(ctx).Save(m).Error
+	return db.WithContext(ctx).
+		Save(m).Error
 }
 
 func (m *Message) GetContent() string {
@@ -155,6 +156,12 @@ func (m *Message) GetContent() string {
 	}
 
 	return m.Content
+}
+
+func (m *Message) SetContent(content string) {
+	m.Content = content
+
+	m.TokenCount = tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion, content)
 }
 
 func (m *Message) SendText(text string, notify bool, replyTo ...interface{}) error {

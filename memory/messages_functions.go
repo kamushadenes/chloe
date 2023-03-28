@@ -30,13 +30,13 @@ func LoadNonModeratedMessages(ctx context.Context) ([]*Message, error) {
 	return messages, nil
 }
 
-func MessagesFromOpenAIChatCompletionResponse(ctx context.Context, user *User, interf string, resp *openai.ChatCompletionResponse) []*Message {
+func MessagesFromOpenAIChatCompletionResponse(user *User, interf string, resp *openai.ChatCompletionResponse) []*Message {
 	var messages []*Message
 
 	for k := range resp.Choices {
 		msg := NewMessage(uuid.Must(uuid.NewV4()).String(), interf)
 
-		msg.Content = resp.Choices[k].Message.Content
+		msg.SetContent(resp.Choices[k].Message.Content)
 		msg.Role = resp.Choices[k].Message.Role
 		msg.User = user
 

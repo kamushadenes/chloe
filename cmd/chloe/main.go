@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/cli"
 	"github.com/kamushadenes/chloe/server"
+	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/rs/zerolog"
 	"math/rand"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -46,6 +49,10 @@ func main() {
 
 	if len(os.Args) > 1 {
 		zerolog.SetGlobalLevel(zerolog.Disabled)
+
+		if os.Args[1] == "countTokens" {
+			fmt.Println(tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion, strings.Join(os.Args[2:], " ")))
+		}
 
 		go server.InitServer(ctx, true, readyCh)
 

@@ -51,7 +51,7 @@ func (a *WikipediaAction) GetParams() string {
 }
 
 func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
-	truncateTokenCount := utils.GetTokenCount(request)
+	truncateTokenCount := utils.GetAvailableTokenCount(request)
 
 	res, _, err := gowiki.Search(a.Params, config.React.WikipediaMaxResults, false)
 	if err != nil {

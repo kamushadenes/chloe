@@ -68,7 +68,7 @@ func recordTranscriptionResponse(request *structs.TranscriptionRequest, response
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
 	nmsg.Role = "user"
 	nmsg.User = request.GetMessage().User
-	nmsg.Content = response.Text
+	nmsg.SetContent(response.Text)
 
 	return nmsg.Save(request.GetContext())
 }

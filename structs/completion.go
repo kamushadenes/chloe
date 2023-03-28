@@ -6,10 +6,10 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/resources"
+	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
-	"strings"
 	"time"
 )
 
@@ -89,25 +89,40 @@ func (creq *CompletionRequest) GetResultChannel() chan interface{} {
 	return creq.ResultChannel
 }
 
+// CountTokens based on https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
 func (creq *CompletionRequest) CountTokens(messages []openai.ChatCompletionMessage) int {
 	var tokens int
-	tokens += 2 // every reply is primed with <im_start>assistant
-	for k := range messages {
-		tokens += 4 // every message follows <im_start>{role/name}\n{content}<im_end>\n
-		if messages[k].Name != "" && messages[k].Role == "" {
-			tokens -= 1 // if there's a name, the role can be ommited, so we need to remove one token if it's empty
-		}
-		tokens += int(float64(len(strings.Fields(messages[k].Content))) * 0.75) // count words
+	var tokensPerMessage int
+	var tokensPerName int
+
+	model := config.OpenAI.GetModel(config.Completion)
+
+	switch model {
+	case openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301:
+		tokensPerMessage = 4
+		tokensPerName = -1
+	case openai.GPT4, openai.GPT40314, openai.GPT432K, openai.GPT432K0314:
+		tokensPerMessage = 3
+		tokensPerName = 1
 	}
+
+	for k := range messages {
+		tokens += tokensPerMessage
+
+		tokens += tokenizer.CountTokens(model, messages[k].Role)
+		tokens += tokenizer.CountTokens(model, messages[k].Content)
+		tokens += tokenizer.CountTokens(model, messages[k].Name)
+		if messages[k].Name != "" && messages[k].Role == "" {
+			tokens -= tokensPerName // if there's a name, the role can be ommited, so we need to remove one token if it's empty
+		}
+	}
+
+	tokens += 3 // every reply is primed with <im_start>assistant
 
 	return tokens
 }
 
-func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletionMessage {
-	logger := zerolog.Ctx(creq.GetContext())
-
-	var messages []openai.ChatCompletionMessage
-
+func (creq *CompletionRequest) getArgs() map[string]interface{} {
 	args := creq.Args
 	if args == nil {
 		args = make(map[string]interface{})
@@ -118,25 +133,55 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 	args["Date"] = time.Now().Format("2006-01-02")
 	args["Time"] = time.Now().Format("15:04:05")
 
-	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{Args: args, Mode: creq.Mode})
+	return args
+}
+
+func (creq *CompletionRequest) getSystemMessages() []openai.ChatCompletionMessage {
+	logger := zerolog.Ctx(creq.GetContext())
+
+	var messages []openai.ChatCompletionMessage
+
+	args := creq.getArgs()
+
+	// Load bootstrap values
+	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{
+		Args: args,
+		Mode: creq.Mode,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load bootstrap prompt")
 	}
-	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: bootstrap})
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    "system",
+		Content: bootstrap,
+	})
 
+	// Load system prompt
 	prompt, err := resources.GetPrompt(creq.Mode, &resources.PromptArgs{Args: args, Mode: creq.Mode})
 	if err != nil {
 		panic(err)
 	}
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    "system",
+		Content: prompt,
+	})
 
-	messages = append(messages, openai.ChatCompletionMessage{Role: "system", Content: prompt})
-
-	examples, err := resources.GetExamples(prompt, &resources.PromptArgs{Args: args, Mode: creq.Mode})
+	// Feed few-shot examples, if any
+	examples, err := resources.GetExamples(prompt, &resources.PromptArgs{
+		Args: args,
+		Mode: creq.Mode,
+	})
 	if err == nil {
 		messages = append(messages, examples...)
 	}
 
-	var userMessages []openai.ChatCompletionMessage
+	return messages
+}
+
+func (creq *CompletionRequest) getUserMessages() []openai.ChatCompletionMessage {
+	logger := zerolog.Ctx(creq.GetContext())
+
+	var messages []openai.ChatCompletionMessage
 
 	savedMessages, err := creq.Message.User.LoadMessages(creq.GetContext())
 	if err != nil {
@@ -154,15 +199,25 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 		}
 
 		if len(content) > 0 {
-			userMessages = append(userMessages, openai.ChatCompletionMessage{Role: m.Role, Content: content})
+			messages = append(messages, openai.ChatCompletionMessage{
+				Role:    m.Role,
+				Content: content,
+			})
 		}
 	}
 
-	systemCount := creq.CountTokens(messages)
+	return messages
+}
+
+func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletionMessage {
+	systemMessages := creq.getSystemMessages()
+	userMessages := creq.getUserMessages()
+
+	systemCount := creq.CountTokens(systemMessages)
 	userCount := creq.CountTokens(userMessages)
 
 	for {
-		if (systemCount + userCount) > config.OpenAI.MaxTokens[config.OpenAI.DefaultModel.Completion] {
+		if (systemCount + userCount) > config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Completion)) {
 			userMessages = userMessages[1:]
 			userCount = creq.CountTokens(userMessages)
 		} else {
@@ -170,7 +225,5 @@ func (creq *CompletionRequest) ToChatCompletionMessages() []openai.ChatCompletio
 		}
 	}
 
-	messages = append(messages, userMessages...)
-
-	return messages
+	return append(systemMessages, userMessages...)
 }

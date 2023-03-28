@@ -20,7 +20,7 @@ func defaultPreActions(a structs2.Action, request *structs.ActionRequest) error 
 }
 
 func defaultPostActions(a structs2.Action, request *structs.ActionRequest) error {
-	truncateTokenCount := utils.GetTokenCount(request)
+	truncateTokenCount := utils.GetAvailableTokenCount(request)
 
 	for _, w := range a.GetWriters() {
 		switch b := w.(type) {

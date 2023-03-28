@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"fmt"
 	"github.com/kamushadenes/chloe/utils"
+	"github.com/sashabaranov/go-openai"
 	"os"
 	"strconv"
 	"strings"
@@ -25,6 +26,26 @@ func envOrDefaultWithOptions(key, defaultValue string, options []string) string 
 	}
 
 	return value
+}
+
+func envOrDefaultImageSize(key, defaultValue string) string {
+	return envOrDefaultWithOptions(key, defaultValue,
+		[]string{"256x256", "512x512", "1024x1024"})
+}
+
+func envOrDefaultCompletionModel(key, defaultValue string) string {
+	return envOrDefaultWithOptions(key, defaultValue,
+		[]string{openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301, openai.GPT4, openai.GPT40314, openai.GPT432K, openai.GPT432K0314})
+}
+
+func envOrDefaultTranscriptionModel(key, defaultValue string) string {
+	return envOrDefaultWithOptions(key, defaultValue,
+		[]string{openai.Whisper1})
+}
+
+func envOrDefaultModerationModel(key, defaultValue string) string {
+	return envOrDefaultWithOptions(key, defaultValue,
+		[]string{"text-moderation-stable", "text-moderation-latest"})
 }
 
 func envOrDefaultGCPTTSEncoding(key string, defaultValue texttospeechpb.AudioEncoding) texttospeechpb.AudioEncoding {

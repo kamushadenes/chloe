@@ -40,7 +40,7 @@ func processChainOfThought(request *structs.CompletionRequest) error {
 	}
 
 	cotreq := request.Copy()
-	cotreq.Message.Content = string(b)
+	cotreq.Message.SetContent(string(b))
 	return react.ChainOfThought(cotreq)
 }
 
@@ -48,8 +48,9 @@ func processChainOfThought(request *structs.CompletionRequest) error {
 // from the provided CompletionRequest.
 func newChatCompletionRequest(request *structs.CompletionRequest) openai.ChatCompletionRequest {
 	return openai.ChatCompletionRequest{
-		Model:    config.OpenAI.DefaultModel.Completion,
-		Messages: request.ToChatCompletionMessages(),
+		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Completion)),
+		Model:     config.OpenAI.DefaultModel.Completion,
+		Messages:  request.ToChatCompletionMessages(),
 	}
 }
 
@@ -112,7 +113,7 @@ func processSuccessfulCompletionStream(request *structs.CompletionRequest, strea
 // Returns an error if there's an issue while saving the message.
 func recordAssistantResponse(request *structs.CompletionRequest, responseMessage string) error {
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-	nmsg.Content = responseMessage
+	nmsg.SetContent(responseMessage)
 	nmsg.Role = "assistant"
 	nmsg.User = request.GetMessage().User
 
@@ -138,8 +139,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 			return utils2.NotifyError(request, err)
 		} else if errors.Is(err, errors2.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
-			//msg.Content = "great work, with this new information, provide me an explanation of my last question in a Wikipedia page style with whatever information you have available, don't worry if you don't have enough information, I'll ask you for more"
-			msg.Content = fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker)
+			msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
 			msg.ErrorCh = request.Message.ErrorCh
 			msg.Role = "user"
 			msg.User = request.Message.User

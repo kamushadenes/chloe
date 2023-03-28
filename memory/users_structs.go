@@ -23,12 +23,16 @@ type User struct {
 func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID {
 	var eid ExternalID
 
-	if tx := db.WithContext(ctx).First(&eid, "user_id = ? AND interface = ?", u.ID, interf); tx.Error == gorm.ErrRecordNotFound {
+	if tx := db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Where("interface = ?", interf).
+		First(&eid); tx.Error == gorm.ErrRecordNotFound {
 		eid = ExternalID{
 			UserID:    u.ID,
 			Interface: interf,
 		}
-		if err := db.WithContext(ctx).Create(&eid).Error; err != nil {
+		if err := db.WithContext(ctx).
+			Create(&eid).Error; err != nil {
 			panic(err)
 		}
 	} else if tx.Error != nil {
@@ -41,13 +45,17 @@ func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID
 func (u *User) AddExternalID(ctx context.Context, externalID, interf string) error {
 	var eid ExternalID
 
-	if tx := db.WithContext(ctx).First(&eid, "user_id = ? AND interface = ?", u.ID, interf); tx.Error == gorm.ErrRecordNotFound {
+	if tx := db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Where("interface = ?", interf).
+		First(&eid); tx.Error == gorm.ErrRecordNotFound {
 		eid = ExternalID{
 			ExternalID: externalID,
 			UserID:     u.ID,
 			Interface:  interf,
 		}
-		if err := db.WithContext(ctx).Create(&eid).Error; err != nil {
+		if err := db.WithContext(ctx).
+			Create(&eid).Error; err != nil {
 			return err
 		}
 	} else if tx.Error != nil {
@@ -56,20 +64,27 @@ func (u *User) AddExternalID(ctx context.Context, externalID, interf string) err
 
 	eid.ExternalID = externalID
 
-	return db.WithContext(ctx).Save(&eid).Error
+	return db.WithContext(ctx).
+		Save(&eid).Error
 }
 
 func (u *User) SetMode(ctx context.Context, mode string) error {
-	return db.WithContext(ctx).Model(u).Update("mode", mode).Error
+	return db.WithContext(ctx).
+		Model(u).
+		Update("mode", mode).Error
 }
 
 func (u *User) Save(ctx context.Context) error {
-	return db.WithContext(ctx).Save(u).Error
+	return db.WithContext(ctx).
+		Save(u).Error
 }
 
 func (u *User) LoadMessages(ctx context.Context) ([]*Message, error) {
 	var messages []*Message
-	if err := db.WithContext(ctx).Where("user_id = ?", u.ID).Find(&messages).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Order("created_at ASC").
+		Find(&messages).Error; err != nil {
 		return nil, err
 	}
 
@@ -77,14 +92,20 @@ func (u *User) LoadMessages(ctx context.Context) ([]*Message, error) {
 }
 
 func (u *User) DeleteMessages(ctx context.Context) error {
-	return db.WithContext(ctx).Where("user_id = ?", u.ID).Delete(&Message{}).Error
+	return db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Delete(&Message{}).Error
 }
 
 func (u *User) DeleteOldestMessage(ctx context.Context) error {
 	var message Message
-	if err := db.WithContext(ctx).Where("user_id = ?", u.ID).Order("created_at").First(&message).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Order("created_at").
+		First(&message).Error; err != nil {
 		return err
 	}
 
-	return db.WithContext(ctx).Delete(&message).Error
+	return db.WithContext(ctx).
+		Delete(&message).Error
 }

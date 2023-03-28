@@ -13,7 +13,8 @@ func NewUser(ctx context.Context, firstName, lastName, username string) (*User, 
 	}
 	u.ID = 0
 
-	if err := db.WithContext(ctx).Save(&u).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Save(&u).Error; err != nil {
 		return nil, err
 	}
 
@@ -23,7 +24,8 @@ func NewUser(ctx context.Context, firstName, lastName, username string) (*User, 
 func GetUser(ctx context.Context, id string) (*User, error) {
 	var u User
 
-	err := db.WithContext(ctx).First(&u, id).Error
+	err := db.WithContext(ctx).
+		First(&u, id).Error
 
 	return &u, err
 }
@@ -31,13 +33,17 @@ func GetUser(ctx context.Context, id string) (*User, error) {
 func GetUserByExternalID(ctx context.Context, externalID, interf string) (*User, error) {
 	var eid ExternalID
 
-	if err := db.WithContext(ctx).First(&eid, "external_id = ? AND interface = ?", externalID, interf).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("external_id = ?", externalID).
+		Where("interface = ?", interf).
+		First(&eid).Error; err != nil {
 		return nil, err
 	}
 
 	var u User
 
-	if err := db.WithContext(ctx).First(&u, eid.UserID).Error; err != nil {
+	if err := db.WithContext(ctx).
+		First(&u, eid.UserID).Error; err != nil {
 		return nil, err
 	}
 

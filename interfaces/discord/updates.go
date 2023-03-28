@@ -49,7 +49,7 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Message:     m.Message,
 		Interaction: false,
 	}
-	msg.Content = strings.TrimSpace(strings.TrimLeft(m.Content, fmt.Sprintf("<@!%s>", s.State.User.ID)))
+	msg.SetContent(strings.TrimSpace(strings.TrimLeft(m.Content, fmt.Sprintf("<@!%s>", s.State.User.ID))))
 	msg.Role = "user"
 
 	user, err := userFromMessage(ctx, msg)
@@ -111,7 +111,7 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		prompt := optionMap["prompt"].StringValue()
 
-		msg.Content = prompt
+		msg.SetContent(prompt)
 
 		channels.IncomingMessagesCh <- msg
 		if err := <-msg.ErrorCh; err != nil {
@@ -129,7 +129,7 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		text := optionMap["text"].StringValue()
 
-		msg.Content = text
+		msg.SetContent(text)
 
 		channels.IncomingMessagesCh <- msg
 		if err := <-msg.ErrorCh; err != nil {

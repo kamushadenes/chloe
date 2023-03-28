@@ -39,7 +39,7 @@ func Complete(ctx context.Context, text string) error {
 	msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
 	msg.Role = "user"
 	msg.User = user
-	msg.Content = text
+	msg.SetContent(text)
 
 	channels.IncomingMessagesCh <- msg
 	if err := <-msg.ErrorCh; err != nil {

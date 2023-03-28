@@ -49,7 +49,7 @@ func (a *ScrapeAction) GetParams() string {
 func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 
 func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
-	truncateTokenCount := utils.GetTokenCount(request)
+	truncateTokenCount := utils.GetAvailableTokenCount(request)
 
 	res, err := scrape(a.Params)
 	if err != nil {
