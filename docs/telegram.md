@@ -12,10 +12,6 @@ Chloe should automatically detect what you want to do and respond accordingly, i
 images and voice messages. You can also send voice messages and it will convert them to text and
 respond accordingly.
 
-See
-the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#telegram)
-for more details.
-
 ## Commands
 
 The following commands are available:
@@ -25,6 +21,18 @@ The following commands are available:
 - **/mode** - Instruct the bot to switch to a different mode or personality
 - **/generate** - Generate an image using DALL-E
 - **/tts** - Converts text to speech
+
+## Configuration
+
+| Environment Variable                   | Default Value   | Description                                                                                                                                            | Options            |
+|----------------------------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| CHLOE_TELEGRAM_TOKEN                   |                 | Telegram bot token                                                                                                                                     |                    |
+| CHLOE_TELEGRAM_IMAGE_COUNT             | 4               | Number of images to generate when the user asks for an image                                                                                           | Between 1 and 10   |
+| CHLOE_TELEGRAM_STREAM_MESSAGES         | false           | Whether to stream messages as they are generated (not recommended)                                                                                     | true<br/>false     |
+| CHLOE_TELEGRAM_STREAM_FLUSH_INTERVAL   | 500ms           | Interval between flushing the stream buffer                                                                                                            |                    |
+| CHLOE_TELEGRAM_SEND_PROCESSING_MESSAGE | false           | Whether to send a processing message placeholder while the bot is generating it's response, defaults to true if CHLOE_TELEGRAM_STREAM_MESSAGES is true | true<br/>false     |
+| CHLOE_TELEGRAM_PROCESSING_MESSAGE      | ↻ Processing... | Message to send as a placeholder while the bot is generating it's response                                                                             |                    |
+| CHLOE_TELEGRAM_MAX_MESSAGE_LENGTH      | 4096            | Maximum length of a message                                                                                                                            | Between 1 and 4096 |
 
 ## Examples
 

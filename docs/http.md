@@ -1,15 +1,13 @@
 # HTTP
 
-Chloe can also be used as an HTTP server. By default, it will listen on port `8080`. You can change
+Chloe can be used as an HTTP server. By default, it will listen on port `8080`. You can change
 this by setting the `PORT` environment variable.
 
-See
-the [Configuration](https://github.com/kamushadenes/chloe/blob/main/docs/configuration.md#http)
-for more details.
+## Endpoints
 
 The following endpoints are available:
 
-#### POST /api/complete
+### POST /api/complete
 
 This endpoint will complete the given text using OpenAI's ChatGPT.
 
@@ -57,3 +55,10 @@ curl -N -X POST -H "Content-Type: application/json" -d '{"content": "Say out lou
 ```
 
 https://user-images.githubusercontent.com/242529/226274960-9086191d-4267-476e-8c0f-f3a449bfac53.mp4
+
+## HTTP Configuration
+
+| Environment Variable | Default Value | Description      | Options |
+|----------------------|---------------|------------------|---------|
+| CHLOE_HTTP_HOST      | 0.0.0.0       | HTTP server host |         |
+| CHLOE_HTTP_PORT      | 8080          | HTTP server port |         |
