@@ -44,6 +44,9 @@ func TTS(request *structs.TTSRequest) error {
 		// Select the type of audio file you want returned.
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding: config.GCP.TTSEncoding,
+			SpeakingRate:  config.GCP.TTSSpeakingRate,
+			Pitch:         config.GCP.TTSPitch,
+			VolumeGainDb:  config.GCP.TTSVolumeGain,
 		},
 	}
 

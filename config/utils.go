@@ -93,6 +93,27 @@ func envOrDefaultIntInRange(key string, defaultValue, min, max int) int {
 	return value
 }
 
+func envOrDefaultFloat64(key string, defaultValue float64) float64 {
+	if value := os.Getenv(key); value != "" {
+		f, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			panic(err)
+		}
+		return f
+	}
+
+	return defaultValue
+}
+
+func envOrDefaultFloat64InRange(key string, defaultValue, min, max float64) float64 {
+	value := envOrDefaultFloat64(key, defaultValue)
+	if value < min || value > max {
+		panic(fmt.Sprintf("invalid value for %s: %d\nvalid values are between %d and %d", key, value, min, max))
+	}
+
+	return value
+}
+
 func mustEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
