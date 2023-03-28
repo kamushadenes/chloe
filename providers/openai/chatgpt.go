@@ -49,7 +49,7 @@ func processChainOfThought(request *structs.CompletionRequest) error {
 func newChatCompletionRequest(request *structs.CompletionRequest) openai.ChatCompletionRequest {
 	return openai.ChatCompletionRequest{
 		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Completion)),
-		Model:     config.OpenAI.DefaultModel.Completion,
+		Model:     string(config.OpenAI.DefaultModel.Completion),
 		Messages:  request.ToChatCompletionMessages(),
 	}
 }

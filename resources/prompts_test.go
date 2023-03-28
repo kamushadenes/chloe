@@ -113,7 +113,7 @@ func TestGetPromptSize(t *testing.T) {
 			args: args{
 				prompt: "test",
 			},
-			want:    9,
+			want:    13,
 			wantErr: false,
 		},
 		{

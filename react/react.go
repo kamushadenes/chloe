@@ -26,7 +26,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	request.Mode = "chain_of_thought"
 	req := openai.ChatCompletionRequest{
 		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.ChainOfThought)),
-		Model:     config.OpenAI.DefaultModel.ChainOfThought,
+		Model:     string(config.OpenAI.DefaultModel.ChainOfThought),
 		Messages:  request.ToChatCompletionMessages(),
 	}
 

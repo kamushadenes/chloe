@@ -1,18 +1,21 @@
 package tokenizer
 
-import "testing"
+import (
+	"github.com/kamushadenes/chloe/models"
+	"testing"
+)
 
 // https://platform.openai.com/tokenizer
 
 func TestGetCompletionMaxTokens(t *testing.T) {
-	count := CountTokens("gpt-3.5-turbo", "hello world")
+	count := CountTokens(models.GPT35Turbo, "hello world")
 	if count != 2 {
 		t.Errorf("GetCompletionMaxTokens() = %v, want %v", count, 2)
 	}
 }
 
 func TestGetContextSize(t *testing.T) {
-	count := GetContextSize("gpt-3.5-turbo")
+	count := GetContextSize(models.GPT35Turbo)
 	if count != 4096 {
 		t.Errorf("GetContextSize() = %v, want %v", count, 4096)
 	}

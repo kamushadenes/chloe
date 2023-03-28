@@ -17,7 +17,7 @@ import (
 // newTranscriptionRequest creates a new openai.AudioRequest for transcription.
 func newTranscriptionRequest(request *structs.TranscriptionRequest) openai.AudioRequest {
 	return openai.AudioRequest{
-		Model:    config.OpenAI.DefaultModel.Transcription,
+		Model:    string(config.OpenAI.DefaultModel.Transcription),
 		FilePath: request.FilePath,
 	}
 }

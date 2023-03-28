@@ -3,8 +3,8 @@ package config
 import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"fmt"
+	"github.com/kamushadenes/chloe/models"
 	"github.com/kamushadenes/chloe/utils"
-	"github.com/sashabaranov/go-openai"
 	"os"
 	"strconv"
 	"strings"
@@ -33,19 +33,19 @@ func envOrDefaultImageSize(key, defaultValue string) string {
 		[]string{"256x256", "512x512", "1024x1024"})
 }
 
-func envOrDefaultCompletionModel(key, defaultValue string) string {
-	return envOrDefaultWithOptions(key, defaultValue,
-		[]string{openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301, openai.GPT4, openai.GPT40314, openai.GPT432K, openai.GPT432K0314})
+func envOrDefaultCompletionModel(key string, defaultValue models.Model) models.Model {
+	return models.Model(envOrDefaultWithOptions(key, string(defaultValue),
+		models.ModelsToString(models.GPT35Turbo, models.GPT35Turbo0301, models.GPT4, models.GPT40314, models.GPT432K, models.GPT432K0314)))
 }
 
-func envOrDefaultTranscriptionModel(key, defaultValue string) string {
-	return envOrDefaultWithOptions(key, defaultValue,
-		[]string{openai.Whisper1})
+func envOrDefaultTranscriptionModel(key string, defaultValue models.Model) models.Model {
+	return models.Model(envOrDefaultWithOptions(key, string(defaultValue),
+		models.ModelsToString(models.Whisper1)))
 }
 
-func envOrDefaultModerationModel(key, defaultValue string) string {
-	return envOrDefaultWithOptions(key, defaultValue,
-		[]string{"text-moderation-stable", "text-moderation-latest"})
+func envOrDefaultModerationModel(key string, defaultValue models.Model) models.Model {
+	return models.Model(envOrDefaultWithOptions(key, string(defaultValue),
+		models.ModelsToString(models.TextModerationStable, models.TextModerationLatest)))
 }
 
 func envOrDefaultGCPTTSEncoding(key string, defaultValue texttospeechpb.AudioEncoding) texttospeechpb.AudioEncoding {

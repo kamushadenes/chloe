@@ -18,7 +18,7 @@ func SimpleCompletionRequest(ctx context.Context, prompt string, message string)
 
 	req := openai.ChatCompletionRequest{
 		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Completion)),
-		Model:     config.OpenAI.DefaultModel.ChainOfThought,
+		Model:     string(config.OpenAI.DefaultModel.ChainOfThought),
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    "system",

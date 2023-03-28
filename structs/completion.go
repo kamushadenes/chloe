@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/models"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/rs/zerolog"
@@ -98,10 +99,10 @@ func (creq *CompletionRequest) CountTokens(messages []openai.ChatCompletionMessa
 	model := config.OpenAI.GetModel(config.Completion)
 
 	switch model {
-	case openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301:
+	case models.GPT35Turbo, models.GPT35Turbo0301:
 		tokensPerMessage = 4
 		tokensPerName = -1
-	case openai.GPT4, openai.GPT40314, openai.GPT432K, openai.GPT432K0314:
+	case models.GPT4, models.GPT40314, models.GPT432K, models.GPT432K0314:
 		tokensPerMessage = 3
 		tokensPerName = 1
 	}

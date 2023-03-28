@@ -40,7 +40,7 @@ func newSummarizationRequest(ctx context.Context, msg *memory.Message) (openai.C
 
 	return openai.ChatCompletionRequest{
 		MaxTokens: config.OpenAI.GetMaxTokens(config.OpenAI.GetModel(config.Summarization)),
-		Model:     config.OpenAI.DefaultModel.Summarization,
+		Model:     string(config.OpenAI.DefaultModel.Summarization),
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    "system",
