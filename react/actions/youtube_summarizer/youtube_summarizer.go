@@ -67,7 +67,11 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 
 	var args []string
 	if config.React.UseAria2 {
-		args = append(args, "--external-downloader", "aria2c")
+		if _, err := exec.LookPath("aria2c"); err == nil {
+			args = append(args, "--external-downloader", "aria2c")
+		} else {
+			logger.Warn().Err(err).Msg("aria2c not found, falling back to default downloader")
+		}
 	}
 	args = append(args,
 		"-x", "--audio-format", "mp3",
