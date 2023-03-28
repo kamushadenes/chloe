@@ -45,6 +45,7 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [Discord](docs/discord.md)
 - [HTTP REST](docs/http.md)
 - [Command Line (CLI)](docs/cli.md)
+- [iOS Shortcut](docs/ios.md) (kinda)
 
 ## Roadmap
 
