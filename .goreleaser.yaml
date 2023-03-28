@@ -13,6 +13,7 @@ builds:
       - linux
       - windows
       - darwin
+    main: './cmd/chloe/main.go'
 
 archives:
   - format: tar.gz
