@@ -30,10 +30,11 @@ jobs:
       - name: Setup GCC multilib
         run: sudo apt-get install gcc-multilib g++-multilib
 
-      - name: OSXCross setup
-        run: |
-          mkdir ../../osxcross
-          git clone https://github.com/plentico/osxcross-target.git ../../osxcross/target
+      - name: Setup OSX cross compiler
+        uses: mbround18/setup-osxcross@v2
+        # This builds executables & sets env variables for rust to consume.
+        with:
+          osx-version: "12.3"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
