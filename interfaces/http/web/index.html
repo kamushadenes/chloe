@@ -170,6 +170,11 @@
           const base64 = await blobToBase64(blob);
           addMessage(`<img src="data:image/png;base64,${base64}"/>`);
           endMessage();
+        } else if (contentType === "audio/mpeg") {
+          const blob = await response.blob();
+          const base64 = await blobToBase64(blob);
+          addMessage(`<audio controls><source="data:audio/mpeg;base64,${base64}"></audio>`);
+          endMessage();
         } else {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();

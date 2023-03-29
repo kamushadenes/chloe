@@ -80,18 +80,24 @@ take quite some time.
 
 Chloe uses [aria2](https://aria2.github.io/) to download YouTube videos for transcription.
 
+Although highly recommended, this is not a mandatory dependency. If you don't have it installed,
+Chloe will fallback to using the `youtube-dl` default downloader.
+
 ### Cargo
 
 Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bindings.
 
-### FFMPEG
+This is only necessary during the build process, so if you're using the pre-built binaries you can
+skip this dependency.
+
+### FFmpeg
 
 Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert
 audio received from Telegram to an appropriate format for Whisper.
 
 ### ImageMagick
 
-Chloe uses [ImageMagick](https://imagemagick.org/index.php) to convert images to the appropriate
+Chloe uses [imagemagick](https://imagemagick.org/index.php) to convert images to the appropriate
 format for DALL-E.
 
 ### YouTube-DL
@@ -99,6 +105,14 @@ format for DALL-E.
 Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.
 
 ## Installation
+
+### Pre-built binaries
+
+Pre-built binaries are available for Linux, macOS, and Windows.
+
+You can download them from the [releases page](https://github.com/kamushadenes/chloe/releases).
+
+### From source
 
 1. Clone the repository
 
@@ -159,7 +173,6 @@ Commands:
 
 Run "chloe <command> --help" for more information on a command.
 ```
-
 
 ## Configuration
 
