@@ -12,6 +12,8 @@ builds:
       - darwin
     main: './cmd/chloe/main.go'
     id: chloe_darwin
+    ignore:
+      goarch: amd64
 
 archives:
   - format: tar.gz
