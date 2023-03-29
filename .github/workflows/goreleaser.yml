@@ -41,6 +41,7 @@ jobs:
           OPENAI_API_KEY: mock
 
   darwin-amd64:
+    needs: [ linux-amd64 ] # wait for the release to be created
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -70,6 +71,7 @@ jobs:
           OPENAI_API_KEY: mock
 
   darwin-arm64:
+    needs: [ linux-amd64 ] # wait for the release to be created
     runs-on: macos-latest
     steps:
       - name: Checkout
