@@ -11,6 +11,7 @@ builds:
     goos:
       - linux
     main: './cmd/chloe/main.go'
+    id: chloe_linux
 
   - env:
       - CGO_ENABLED=1
@@ -19,12 +20,14 @@ builds:
     goos:
       - darwin
     main: './cmd/chloe/main.go'
+    id: chloe_darwin
 
   - env:
       - CGO_ENABLED=1
     goos:
       - windows
     main: './cmd/chloe/main.go'
+    id: chloe_windows
 
 archives:
   - format: tar.gz

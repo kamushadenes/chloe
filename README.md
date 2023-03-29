@@ -2,7 +2,7 @@
 
 <p align="center">A powerful AI assistant</p>
 
-![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml)
+![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml?label=tests)
 ![license](https://img.shields.io/github/license/kamushadenes/chloe)
 
 <img src=".github/resources/images/chloe_avatar.png" />
