@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"context"
+	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
@@ -10,6 +11,10 @@ import (
 )
 
 func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		return "", fmt.Errorf("unable to locate `ffmpeg`: %w", err)
+	}
+
 	logger := zerolog.Ctx(ctx).With().Str("filePath", filePath).Logger()
 
 	logger.Info().Msg("converting audio to mp3")

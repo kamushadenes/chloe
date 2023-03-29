@@ -56,6 +56,10 @@ func (a *YoutubeSummarizerAction) GetParams() string {
 func (a *YoutubeSummarizerAction) SetMessage(message *memory.Message) {}
 
 func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error {
+	if _, err := exec.LookPath("youtube-dl"); err != nil {
+		return fmt.Errorf("unable to locate `youtube-dl`: %w", err)
+	}
+
 	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("url", a.Params).Logger()
 
 	tmpDir, err := os.MkdirTemp(config.Misc.TempDir, "youtube")

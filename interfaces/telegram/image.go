@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"context"
+	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
@@ -9,6 +10,10 @@ import (
 )
 
 func convertImageToPng(filePath string) (string, error) {
+	if _, err := exec.LookPath("convert"); err != nil {
+		return "", fmt.Errorf("unable to locate `convert`: %w", err)
+	}
+
 	npath := filePath + ".png"
 
 	cmd := exec.Command("convert",

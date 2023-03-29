@@ -12,7 +12,8 @@ builds:
       - linux
     main: './cmd/chloe/main.go'
     id: chloe_linux
-
+    ignore:
+      - goarch: arm64
   - env:
       - CGO_ENABLED=1
       - CC=/home/runner/work/osxcross/target/bin/o64-clang
