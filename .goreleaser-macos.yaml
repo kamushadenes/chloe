@@ -9,21 +9,9 @@ builds:
   - env:
       - CGO_ENABLED=1
     goos:
-      - linux
+      - darwin
     main: './cmd/chloe/main.go'
-    id: chloe_linux
-    ignore:
-      - goarch: arm64
-      - goarch: 386
-
-  - env:
-      - CGO_ENABLED=1
-    goos:
-      - windows
-    main: './cmd/chloe/main.go'
-    id: chloe_windows
-    ignore:
-      - goarch: 386
+    id: chloe_darwin
 
 archives:
   - format: tar.gz
