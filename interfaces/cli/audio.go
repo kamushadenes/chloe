@@ -10,12 +10,16 @@ import (
 	"os"
 )
 
-func TTS(ctx context.Context, text string) error {
+func TTS(ctx context.Context, text string, writers ...io.WriteCloser) error {
 	req := structs.NewTTSRequest()
 	req.Context = ctx
 	req.Message = memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
 	req.Message.User = user
-	req.Writers = []io.WriteCloser{os.Stdout}
+	if len(writers) > 0 {
+		req.Writers = writers
+	} else {
+		req.Writers = []io.WriteCloser{os.Stdout}
+	}
 	req.Content = text
 
 	return google.TTS(req)

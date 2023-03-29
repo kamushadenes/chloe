@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/interfaces/cli"
 	"github.com/kamushadenes/chloe/server"
-	"github.com/kamushadenes/chloe/tokenizer"
+	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog"
 	"math/rand"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -27,8 +26,10 @@ func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) 
 			cancel()
 			os.Exit(0)
 		case err := <-errorCh:
-			fmt.Println(err)
-			fmt.Println("Shutting down...")
+			if err != nil {
+				fmt.Println()
+				fmt.Println(err)
+			}
 			cancel()
 			os.Exit(1)
 		}
@@ -48,11 +49,9 @@ func main() {
 	readyCh := make(chan bool)
 
 	if len(os.Args) > 1 {
-		zerolog.SetGlobalLevel(zerolog.Disabled)
+		flags.InteractiveCLI = isatty.IsTerminal(os.Stdout.Fd())
 
-		if os.Args[1] == "countTokens" {
-			fmt.Println(tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion.String(), strings.Join(os.Args[2:], " ")))
-		}
+		zerolog.SetGlobalLevel(zerolog.Disabled)
 
 		go server.InitServer(ctx, true, readyCh)
 

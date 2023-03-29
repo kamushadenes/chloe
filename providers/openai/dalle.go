@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/flags"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -114,10 +113,6 @@ func processSuccessfulImageRequest(request *structs.GenerationRequest, response 
 func Generate(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
-	if flags.InteractiveCLI {
-		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
-	}
-
 	logger.Info().Msg("generating image")
 
 	req := newImageRequest(request)
@@ -169,10 +164,6 @@ func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest
 // Edits creates a new version of an image based on a text prompt using the OpenAI API.
 func Edits(request *structs.GenerationRequest) error {
 	logger := structs.LoggerFromRequest(request)
-
-	if flags.InteractiveCLI {
-		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
-	}
 
 	logger.Info().Msg("generating image edits")
 
@@ -240,10 +231,6 @@ func processSuccessfulImageVariationRequest(request *structs.VariationRequest, r
 // Variations generates variations of an input image using the OpenAI API.
 func Variations(request *structs.VariationRequest) error {
 	logger := structs.LoggerFromRequest(request)
-
-	if flags.InteractiveCLI {
-		return utils2.NotifyError(request, fmt.Errorf("can't generate images in CLI mode"))
-	}
 
 	logger.Info().Msg("generating image variations")
 

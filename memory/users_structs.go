@@ -97,6 +97,11 @@ func (u *User) DeleteMessages(ctx context.Context) error {
 		Delete(&Message{}).Error
 }
 
+func (u *User) DeleteAllMessages(ctx context.Context) error {
+	return db.WithContext(ctx).
+		Delete(&Message{}).Error
+}
+
 func (u *User) DeleteOldestMessage(ctx context.Context) error {
 	var message Message
 	if err := db.WithContext(ctx).

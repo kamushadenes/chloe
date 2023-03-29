@@ -5,6 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/texttospeech v1.6.0
 	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/alecthomas/kong v0.7.1
 	github.com/biter777/countries v1.6.4
 	github.com/briandowns/spinner v1.23.0
 	github.com/bwmarrin/discordgo v0.27.1
@@ -15,7 +16,6 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.2
-	github.com/j178/tiktoken-go v0.0.0-20230322145746-990c6de71777
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2

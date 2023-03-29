@@ -6,7 +6,6 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -15,10 +14,6 @@ import (
 
 func TTS(request *structs.TTSRequest) error {
 	logger := logging.GetLogger().With().Str("provider", "google").Str("action", "tts").Logger()
-
-	if flags.InteractiveCLI {
-		return fmt.Errorf("can't generate audio in CLI mode")
-	}
 
 	logger.Info().Msg("converting text to speech")
 
