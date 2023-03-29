@@ -1,9 +1,10 @@
-//go:build linux
+//go:build !darwin && !windows
 
 package tokenizer
 
 /*
 #cgo LDFLAGS: ${SRCDIR}/tiktoken-cffi/libtiktoken.a -ldl
+#define _GNU_SOURCE
 #include <stdlib.h>
 
 extern unsigned int count_tokens(const char*, const char*);
