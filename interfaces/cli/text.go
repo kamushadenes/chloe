@@ -18,7 +18,7 @@ import (
 func Complete(ctx context.Context, text string) error {
 	s := spinner.New(spinner.CharSets[40], 100*time.Millisecond)
 	if flags.InteractiveCLI {
-		s.Prefix = colors.BoldCyan("Assistant: ")
+		s.Prefix = colors.BoldCyan("Chloe: ")
 		s.Start()
 	}
 

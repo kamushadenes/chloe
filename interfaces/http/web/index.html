@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chloe AI Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .message-prefix {
+      font-weight: bold;
+    }
+
+    .chloe {
+      color: cyan;
+    }
+
+    #spinner {
+      visibility: hidden;
+    }
+
+    #spinner.busy {
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">Chloe AI Assistant</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <form id="user-input-form" class="mb-3">
+        <div class="mb-3">
+          <label for="user-input" class="form-label">Enter your command:</label>
+          <input type="text" class="form-control" id="user-input"
+                 placeholder="e.g. 'Hello, Chloe!'">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" id="clear-session">Clear Session</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12" id="response-container">
+      <!-- AI response will be displayed here -->
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 d-flex justify-content-center" id="spinner" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  async function sendEmptyPost(url = '') {
+    await fetch(url, {
+      method: 'POST'
+    });
+  }
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return response;
+  }
+
+  function showSpinner() {
+    $('#spinner').addClass('busy');
+  }
+
+  function hideSpinner() {
+    $('#spinner').removeClass('busy');
+  }
+
+  function addPrefix(prefix, className = '') {
+    $('#response-container')
+    .append(`<p><span class="message-prefix ${className}">${prefix}</span> `);
+  }
+
+  function addMessage(content) {
+    $('#response-container')
+    .append(content.replace(/\n/g, '<br>'));
+  }
+
+  function endMessage(content) {
+    $('#response-container')
+    .append(`</p><hr>`);
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => resolve(reader.result.replace(/^data:.+;base64,/, ''));
+      reader.onerror = reject;
+    });
+  }
+
+  $(document).ready(function () {
+    $('#clear-session').on('click', async function () {
+      const schema = window.location.protocol;
+      const url = window.location.hostname;
+      const port = window.location.port;
+
+      const forgetApiUrl = `${schema}//${url}:${port}/api/forget`;
+      await sendEmptyPost(forgetApiUrl);
+      $('#response-container').html('');
+    });
+
+    $('#user-input-form').on('submit', async function (e) {
+      e.preventDefault();
+      const userInput = $('#user-input').val();
+
+      // Clear the input field
+      $('#user-input').val('');
+
+      addPrefix('User: ');
+      addMessage(userInput);
+      endMessage();
+
+      // Get the schema, URL, and port from the current open page
+      const schema = window.location.protocol;
+      const url = window.location.hostname;
+      const port = window.location.port;
+
+      const apiUrl = `${schema}//${url}:${port}/api/complete`;
+
+      showSpinner();
+
+      addPrefix('Chloe: ', 'chloe');
+
+      try {
+        const response = await postData(apiUrl, { content: userInput });
+
+        const contentType = response.headers.get('Content-Type');
+
+        if (contentType === 'image/png') {
+          const blob = await response.blob();
+          const base64 = await blobToBase64(blob);
+          addMessage(`<img src="data:image/png;base64,${base64}"/>`);
+          endMessage();
+        } else {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            // Append the AI response
+            addMessage(decoder.decode(value));
+          }
+
+          endMessage();
+        }
+      }
+      catch (error) {
+        // Handle any errors that may occur
+        addPrefix('Error: ', 'text-danger');
+        addMessage(error);
+        endMessage();
+      } finally {
+        hideSpinner();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

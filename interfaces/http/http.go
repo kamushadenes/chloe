@@ -9,6 +9,7 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
+	"io/fs"
 	"net/http"
 	"sync"
 	"time"
@@ -35,6 +36,18 @@ func setMiddlewares(ctx context.Context, r *chi.Mux) {
 func setRoutes(ctx context.Context, r *chi.Mux) {
 	logger := zerolog.Ctx(ctx)
 	logger.Debug().Msg("adding routes")
+
+	// Create a subdirectory filesystem that only contains the contents of the "web" folder
+	webContentsFS, err := fs.Sub(WebFS, "web")
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to create subdirectory filesystem for 'web'")
+		return
+	}
+
+	// Custom file server that serves files from the embedded "web" folder contents
+	fileServer := http.FileServer(http.FS(webContentsFS))
+
+	r.Handle("/web/*", http.StripPrefix("/web", fileServer))
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(aiContext)
