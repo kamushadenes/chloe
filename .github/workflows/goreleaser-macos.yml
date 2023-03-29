@@ -1,4 +1,4 @@
-name: goreleaser
+name: goreleaser-macos
 
 on:
   push:
