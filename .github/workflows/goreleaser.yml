@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  linux:
+  linux-amd64:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,12 +35,12 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --config .goreleaser/linux.yaml --clean
+          args: release --config .goreleaser/linux-amd64.yaml --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock
 
-  macos:
+  darwin-amd64:
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -64,12 +64,12 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --config .goreleaser/macos.yaml --clean
+          args: release --config .goreleaser/darwin-amd64.yaml --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock
 
-  macos-m1:
+  darwin-arm64:
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -94,7 +94,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --config .goreleaser/macos-m1.yaml --clean
+          args: release --config .goreleaser/darwin-arm64.yaml --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock

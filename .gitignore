@@ -9,3 +9,4 @@ cmd/chloe/chloe
 logging.iml
 
 dist/
+flags/version.txt

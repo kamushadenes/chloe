@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"github.com/alecthomas/kong"
+	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/memory"
 )
 
@@ -29,7 +30,10 @@ func Handle(ctx context.Context) error {
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact: true,
-		}))
+		}),
+		kong.Vars{
+			"version": flags.Version,
+		})
 
 	return kongCtx.Run(&Globals{Context: ctx})
 }

@@ -9,11 +9,12 @@ builds:
   - env:
       - CGO_ENABLED=1
     goos:
-      - darwin
+      - linux
     main: './cmd/chloe/main.go'
-    id: chloe_darwin
+    id: chloe_linux
     ignore:
       - goarch: arm64
+      - goarch: 386
 
 archives:
   - format: tar.gz
@@ -23,7 +24,7 @@ archives:
       - goos: windows
         format: zip
 checksum:
-  name_template: checksums-macos.txt
+  name_template: checksums-linux-amd64.txt
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:

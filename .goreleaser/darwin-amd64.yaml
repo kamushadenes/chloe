@@ -13,7 +13,7 @@ builds:
     main: './cmd/chloe/main.go'
     id: chloe_darwin
     ignore:
-      - goarch: amd64
+      - goarch: arm64
 
 archives:
   - format: tar.gz
@@ -23,7 +23,7 @@ archives:
       - goos: windows
         format: zip
 checksum:
-  name_template: checksums-macos-m1.txt
+  name_template: checksums-darwin-amd64.txt
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:

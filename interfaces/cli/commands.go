@@ -22,10 +22,21 @@ var CLIFlags struct {
 	TTS         TTSCmd         `cmd:"tts" short:"t" help:"Generate an audio from a prompt"`
 	Forget      ForgetCmd      `cmd:"forget" short:"f" help:"Forget all users"`
 	CountTokens CountTokensCmd `cmd:"count-tokens" help:"Count tokens"`
+	Version     VersionFlag    `name:"version" help:"Print version information and quit"`
 }
 
 func parseFlags() *kong.Context {
 	return kong.Parse(&CLIFlags)
+}
+
+type VersionFlag string
+
+func (v VersionFlag) Decode(ctx *kong.DecodeContext) error { return nil }
+func (v VersionFlag) IsBool() bool                         { return true }
+func (v VersionFlag) BeforeApply(app *kong.Kong, vars kong.Vars) error {
+	fmt.Println(vars["version"])
+	app.Exit(0)
+	return nil
 }
 
 type CompleteCmd struct {
