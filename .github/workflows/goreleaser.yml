@@ -27,6 +27,14 @@ jobs:
           toolchain: nightly
           override: true
 
+      - name: Setup GCC multilib
+        run: sudo apt-get install gcc-multilib g++-multilib
+
+      - name: OSXCross setup
+        run: |
+          mkdir ../../osxcross
+          git clone https://github.com/plentico/osxcross-target.git ../../osxcross/target
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
