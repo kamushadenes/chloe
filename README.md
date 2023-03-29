@@ -64,16 +64,6 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 I also plan to release an Alexa open hardware clone that will be able to run Chloe, but this will
 take quite some time.
 
-# Table of Contents
-
-- [Dependencies](#dependencies)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [References](#references)
-- [Acknowledgements](#acknowledgements)
-
 ## Dependencies
 
 ### Aria2
@@ -108,9 +98,11 @@ Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for 
 
 ### Pre-built binaries
 
-Pre-built binaries are available for Linux, macOS, and Windows.
+Pre-built binaries are available for Linux (amd64) and macOS (Intel and M1).
 
 You can download them from the [releases page](https://github.com/kamushadenes/chloe/releases).
+
+Windows might work if you compile from source but it's untested.
 
 ### From source
 
