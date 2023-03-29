@@ -129,11 +129,17 @@ make
 Setup the required environment variables
 
 ```bash
-export OPENAI_API_KEY="your_openai_api_key"                       # This is the only mandatory one
+# This is the only mandatory variable
+export OPENAI_API_KEY="your_openai_api_key"                       
 
-export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"             # Only necessary if you want to use the Telegram interface
-export CHLOE_DISCORD_TOKEN="your_discord_bot_token"               # Only necessary if you want to use the Discord interface
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json" # Only necessary if you want to use the Text-to-Speech engine
+# Only necessary if you want to use the Telegram interface
+export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"             
+
+# Only necessary if you want to use the Discord interface
+export CHLOE_DISCORD_TOKEN="your_discord_bot_token"               
+
+# Only necessary if you want to use the Text-to-Speech engine
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json" 
 ```
 
 Running the `chloe` binary will start the bot.
@@ -154,7 +160,8 @@ Chloe is a powerful AI Assistant
 Running Chloe without arguments will start the server
 
 Flags:
-  -h, --help    Show context-sensitive help.
+  -h, --help       Show context-sensitive help.
+      --version    Print version information and quit
 
 Commands:
   complete        Complete a prompt

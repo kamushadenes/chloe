@@ -24,7 +24,7 @@ archives:
       - goos: windows
         format: zip
 checksum:
-  name_template: checksums-linux-amd64.txt
+  name_template: checksums_linux_amd64.txt
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:

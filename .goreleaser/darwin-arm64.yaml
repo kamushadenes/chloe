@@ -23,7 +23,7 @@ archives:
       - goos: windows
         format: zip
 checksum:
-  name_template: checksums-darwin-arm64.txt
+  name_template: checksums_darwin_arm64.txt
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
