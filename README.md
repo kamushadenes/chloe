@@ -138,6 +138,29 @@ cd cmd/chloe/
 ./chloe
 ```
 
+Here's the complete list of available commands:
+
+```
+Usage: chloe <command>
+
+Chloe is a powerful AI Assistant
+
+Running Chloe without arguments will start the server
+
+Flags:
+  -h, --help    Show context-sensitive help.
+
+Commands:
+  complete        Complete a prompt
+  generate        Generate an prompt
+  tts             Generate an audio from a prompt
+  forget          Forget all users
+  count-tokens    Count tokens
+
+Run "chloe <command> --help" for more information on a command.
+```
+
+
 ## Configuration
 
 See [docs/configuration.md](docs/configuration.md) for more information.
