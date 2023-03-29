@@ -52,7 +52,8 @@ func (w *TelegramWriter) Flush() {
 }
 
 func (w *TelegramWriter) Close() error {
-	if len(w.bufs) > 0 && w.bufs[0].Len() > 0 {
+	if (len(w.bufs) > 0 && w.bufs[0].Len() > 0) ||
+		(w.mainWriter != nil && len(w.mainWriter.bufs) > 0 && w.mainWriter.bufs[0].Len() > 0) {
 		switch w.Type {
 		case "text":
 			return w.closeText()
