@@ -7,7 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
+func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetAudios() {
 
 		req := structs.NewActionRequest()

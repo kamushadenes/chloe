@@ -16,7 +16,7 @@ func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, er
 	}
 
 	if err != nil {
-		user, err = memory.NewUser(ctx, names[0], surname, msg.Source.Discord.Message.Author.Username)
+		user, err = memory.CreateUser(ctx, names[0], surname, msg.Source.Discord.Message.Author.Username)
 		if err != nil {
 			return nil, err
 		}

@@ -4,7 +4,7 @@ News is a simple action that searches news articles using either Google
 or [NewsAPI](https://newsapi.org) and summarizes them.
 
 To use NewsAPI, you need to [register](https://newsapi.org/register) and set
-the `CHLOE_REACT_NEWSAPI_TOKEN` environment. If the token is not set, the action will fallback to
+the `CHLOE_REACT_NEWSAPI_TOKEN` environment. If the token is not set, the action will fall back to
 Google.
 
 ## Configuration

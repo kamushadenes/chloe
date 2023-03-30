@@ -2,7 +2,7 @@
 
 Chloe isn't REALLY implemented for iOS, but I created a Shortcut based on [this one](https://www.icloud.com/shortcuts/c700aede703b49218244132a0cec4864) using OpenAI and Google's TTS engine using the same default prompt Chloe have.
 
-In the future, I'll change this shortcut to talk to Chloe's HTTP interface so you can leverage all the features Chloe has.
+In the future, I'll change this shortcut to talk to Chloe's HTTP interface, so you can leverage all the features Chloe has.
 
 ## Setup
 

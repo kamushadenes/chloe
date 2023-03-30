@@ -15,32 +15,7 @@ func handleTextUpdate(ctx context.Context, msg *memory.Message) {
 }
 
 func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
-	logger := zerolog.Ctx(ctx)
-
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-
-	ch := make(chan interface{})
-
-	if err := processAudio(ctx, msg, ch); err != nil {
-		logger.Error().Err(err).Msg("error processing audio")
-		return
-	}
-
-	transcription := (<-ch).(string)
-
-	oresp := transcription
-	msg.Source.Telegram.Update.Message.Text = oresp
-
-	ch2 := make(chan interface{})
-	if err := processText(ctx, msg, ch2); err != nil {
-		logger.Error().Err(err).Msg("error processing text")
-		return
-	}
-
-	response2 := (<-ch2).(string)
-
-	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	_ = msg.SendText(response2, true)
 }
 
 func handleImageUpdate(ctx context.Context, msg *memory.Message) {
@@ -73,7 +48,7 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 
 	user, err := userFromMessage(ctx, msg)
 	if err != nil {
-		user, err = memory.NewUser(ctx, update.Message.From.FirstName, update.Message.From.LastName, update.Message.From.UserName)
+		user, err = memory.CreateUser(ctx, update.Message.From.FirstName, update.Message.From.LastName, update.Message.From.UserName)
 		if err != nil {
 			logger.Error().Err(err).Msg("error getting user from message")
 			return

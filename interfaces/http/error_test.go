@@ -15,7 +15,7 @@ func TestErrInvalidRequest(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/invalid-request", nil)
 
-	render.Render(rr, req, ErrInvalidRequest(err))
+	_ = render.Render(rr, req, ErrInvalidRequest(err))
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))
@@ -28,7 +28,7 @@ func TestErrRender(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/error-rendering", nil)
 
-	render.Render(rr, req, ErrRender(err))
+	_ = render.Render(rr, req, ErrRender(err))
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
 	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))
@@ -40,7 +40,7 @@ func TestErrNotFound_Render(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/not-found", nil)
 
-	render.Render(rr, req, ErrNotFound)
+	_ = render.Render(rr, req, ErrNotFound)
 
 	assert.Equal(t, http.StatusNotFound, rr.Code)
 	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))

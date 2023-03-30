@@ -24,7 +24,9 @@ func downloadFileData(api *tgbotapi.BotAPI, req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	return io.ReadAll(resp.Body)
 }
@@ -33,7 +35,7 @@ func saveFile(filePath string, data []byte) error {
 	if err := os.MkdirAll(path.Dir(filePath), 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0600)
 }
 
 func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) string {
@@ -68,7 +70,9 @@ func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) stri
 
 	if path.Ext(filePath) == ".ogg" || path.Ext(filePath) == ".oga" {
 		nfilePath, err := convertAudioToMp3(ctx, filePath)
-		defer os.Remove(filePath)
+		defer func(name string) {
+			_ = os.Remove(name)
+		}(filePath)
 		if err != nil {
 			logger.Error().Err(err).Msg("error converting file")
 			return ""

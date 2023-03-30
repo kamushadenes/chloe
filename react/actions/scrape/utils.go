@@ -11,7 +11,7 @@ import (
 )
 
 func clean(c *colly.Collector) {
-	// Try to cleanup scripts and other stuff
+	// Try to clean up scripts and other stuff
 	for _, s := range []string{"script", "link", "style", "iframe"} {
 		c.OnHTML(s, func(e *colly.HTMLElement) {
 			e.DOM.ReplaceWithHtml("")

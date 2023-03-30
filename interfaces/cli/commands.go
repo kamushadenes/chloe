@@ -25,10 +25,6 @@ var CLIFlags struct {
 	Version     VersionFlag    `name:"version" help:"Print version information and quit"`
 }
 
-func parseFlags() *kong.Context {
-	return kong.Parse(&CLIFlags)
-}
-
 type VersionFlag string
 
 func (v VersionFlag) Decode(ctx *kong.DecodeContext) error { return nil }

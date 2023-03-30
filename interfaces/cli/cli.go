@@ -14,7 +14,7 @@ func Handle(ctx context.Context) error {
 
 	user, err = memory.GetUserByExternalID(ctx, "cli", "cli")
 	if err != nil {
-		user, err = memory.NewUser(ctx, "User", "CLI", "cli")
+		user, err = memory.CreateUser(ctx, "User", "CLI", "cli")
 		if err != nil {
 			return err
 		}

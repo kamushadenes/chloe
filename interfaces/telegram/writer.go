@@ -44,7 +44,7 @@ func (w *TelegramWriter) Flush() {
 		return
 	}
 
-	if w.lastUpdate != nil && time.Now().Sub(*w.lastUpdate) > config.Telegram.StreamFlushInterval {
+	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Telegram.StreamFlushInterval {
 		_, _ = w.Bot.Send(tgbotapi.NewEditMessageText(w.ChatID, w.externalID, w.bufs[0].String()[:config.Telegram.MaxMessageLength]))
 		tt := time.Now()
 		w.lastUpdate = &tt

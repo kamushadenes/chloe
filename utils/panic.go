@@ -10,7 +10,9 @@ func RecoverPanic() {
 		if err != nil {
 			panic(err)
 		}
-		defer f.Close()
+		defer func(f *os.File) {
+			_ = f.Close()
+		}(f)
 
 		if _, err := f.WriteString(r.(string)); err != nil {
 			panic(err)

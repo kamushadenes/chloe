@@ -6,7 +6,9 @@ import (
 )
 
 func init() {
-	os.MkdirAll(Misc.TempDir, 0755)
+	if err := os.MkdirAll(Misc.TempDir, 0755); err != nil {
+		panic(err)
+	}
 }
 
 type MiscConfig struct {

@@ -21,7 +21,9 @@ func TTS(request *structs.TTSRequest) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func(client *texttospeech.Client) {
+		_ = client.Close()
+	}(client)
 
 	// Perform the text-to-speech request on the text input with the selected
 	// voice parameters and audio file type.

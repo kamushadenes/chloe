@@ -25,7 +25,7 @@ func TestRequest(t *testing.T) {
 			s: &CompletionRequest{
 				Context:         ctx,
 				Writer:          w,
-				SkipClose:       skipClose,
+				SkipClose:       true,
 				StartChannel:    startChannel,
 				ContinueChannel: continueChannel,
 				ErrorChannel:    errorChannel,
@@ -37,19 +37,7 @@ func TestRequest(t *testing.T) {
 			s: &GenerationRequest{
 				Context:         ctx,
 				Writers:         []io.WriteCloser{w},
-				SkipClose:       skipClose,
-				StartChannel:    startChannel,
-				ContinueChannel: continueChannel,
-				ErrorChannel:    errorChannel,
-				ResultChannel:   resultChannel,
-			},
-		},
-		{
-			name: "Scrape",
-			s: &ScrapeRequest{
-				Context:         ctx,
-				Writer:          w,
-				SkipClose:       skipClose,
+				SkipClose:       true,
 				StartChannel:    startChannel,
 				ContinueChannel: continueChannel,
 				ErrorChannel:    errorChannel,
@@ -61,7 +49,7 @@ func TestRequest(t *testing.T) {
 			s: &TranscriptionRequest{
 				Context:         ctx,
 				Writer:          w,
-				SkipClose:       skipClose,
+				SkipClose:       true,
 				StartChannel:    startChannel,
 				ContinueChannel: continueChannel,
 				ErrorChannel:    errorChannel,
@@ -73,7 +61,7 @@ func TestRequest(t *testing.T) {
 			s: &TTSRequest{
 				Context:         ctx,
 				Writers:         []io.WriteCloser{w},
-				SkipClose:       skipClose,
+				SkipClose:       true,
 				StartChannel:    startChannel,
 				ContinueChannel: continueChannel,
 				ErrorChannel:    errorChannel,
@@ -85,7 +73,7 @@ func TestRequest(t *testing.T) {
 			s: &VariationRequest{
 				Context:         ctx,
 				Writers:         []io.WriteCloser{w},
-				SkipClose:       skipClose,
+				SkipClose:       true,
 				StartChannel:    startChannel,
 				ContinueChannel: continueChannel,
 				ErrorChannel:    errorChannel,

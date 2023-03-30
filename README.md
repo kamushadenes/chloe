@@ -71,7 +71,7 @@ take quite some time.
 Chloe uses [aria2](https://aria2.github.io/) to download YouTube videos for transcription.
 
 Although highly recommended, this is not a mandatory dependency. If you don't have it installed,
-Chloe will fallback to using the `youtube-dl` default downloader.
+Chloe will fall back to using the `youtube-dl` default downloader.
 
 ### Cargo
 
@@ -102,7 +102,7 @@ Pre-built binaries are available for Linux (amd64) and macOS (Intel and M1).
 
 You can download them from the [releases page](https://github.com/kamushadenes/chloe/releases).
 
-Windows might work if you compile from source but it's untested.
+Windows might work if you compile from source, but it's untested.
 
 ### From source
 

@@ -14,8 +14,8 @@ func processText(ctx context.Context, msg *memory.Message, ch chan interface{}) 
 	return nil
 }
 
-func processAudio(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
-	return aiTranscribe(ctx, msg, ch)
+func processAudio(ctx context.Context, msg *memory.Message) error {
+	return aiTranscribe(ctx, msg)
 }
 
 func processImage(ctx context.Context, msg *memory.Message) error {

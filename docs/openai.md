@@ -1,6 +1,6 @@
 # OpenAI
 
-OpenAI is the main AI provider for Chloe. It is used for all of the AI-related features, such as
+OpenAI is the main AI provider for Chloe. It is used for all the AI-related features, such as
 image generation, summarization, moderation, etc.
 
 The `OPENAI_API_KEY` variable is required for Chloe to work.

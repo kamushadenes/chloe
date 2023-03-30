@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/biter777/countries"
 	"github.com/kamushadenes/chloe/config"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -30,7 +31,9 @@ func NewsAPIQuery(q string) (*NewsAPIResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	if err := json.NewDecoder(resp.Body).Decode(&newsResp); err != nil {
 		return nil, err
@@ -74,7 +77,9 @@ func NewsAPITopHeadlines(country string) (*NewsAPIResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	if err := json.NewDecoder(resp.Body).Decode(&newsResp); err != nil {
 		return nil, err

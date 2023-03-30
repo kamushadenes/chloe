@@ -46,7 +46,7 @@ func Test_parseFromRequest(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			w.Write(reqBody)
+			_, _ = w.Write(reqBody)
 
 			err = parseFromRequest(req, &tt.expected)
 			if (err == nil) != (tt.err == nil) {

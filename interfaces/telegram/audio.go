@@ -26,7 +26,7 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 
 	return npath, err
 }
-func aiTranscribe(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
+func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetAudios() {
 		req := structs.NewActionRequest()
 		req.Message = msg

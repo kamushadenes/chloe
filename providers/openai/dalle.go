@@ -15,7 +15,7 @@ import (
 	"os"
 )
 
-// cloneImageHeaders clones specified headers from an http.Response to an io.Writer.
+// cloneImageHeaders clones specified headers from a http.Response to an io.Writer.
 func cloneImageHeaders(resp *http.Response, writer io.Writer) {
 	for _, key := range []string{
 		"Content-Type",
@@ -29,12 +29,15 @@ func cloneImageHeaders(resp *http.Response, writer io.Writer) {
 }
 
 // writeImage writes an image from a URL to an io.WriteCloser.
-func writeImage(request structs.Request, writer io.WriteCloser, url string) error {
+func writeImage(writer io.WriteCloser, url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status: %s", resp.Status)
 	}
@@ -101,7 +104,7 @@ func processSuccessfulImageRequest(request *structs.GenerationRequest, response 
 	utils2.StartAndWait(request)
 
 	for k := range request.GetWriters() {
-		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
+		if err := writeImage(request.Writers[k], response.Data[k].URL); err != nil {
 			return err
 		}
 	}
@@ -220,7 +223,7 @@ func processSuccessfulImageVariationRequest(request *structs.VariationRequest, r
 	utils2.StartAndWait(request)
 
 	for k := range request.Writers {
-		if err := writeImage(request, request.Writers[k], response.Data[k].URL); err != nil {
+		if err := writeImage(request.Writers[k], response.Data[k].URL); err != nil {
 			return err
 		}
 	}

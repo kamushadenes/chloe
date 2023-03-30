@@ -2,7 +2,7 @@ package openai
 
 import (
 	"github.com/kamushadenes/chloe/config"
-	openai "github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai"
 )
 
 var openAIClient *openai.Client
