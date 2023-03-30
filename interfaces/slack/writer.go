@@ -1,19 +1,19 @@
-package discord
+package slack
 
 import (
 	"bytes"
 	"context"
 	"github.com/aquilax/truncate"
-	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/slack-go/slack"
 	"time"
 )
 
-type DiscordWriter struct {
+type SlackWriter struct {
 	Context    context.Context
 	Prompt     string
-	Bot        *discordgo.Session
+	Bot        *slack.Client
 	ChatID     string
 	Type       string
 	ReplyID    string
@@ -21,43 +21,45 @@ type DiscordWriter struct {
 	bufs       []bytes.Buffer
 	bufID      int
 	closedBufs int
-	mainWriter *DiscordWriter
+	mainWriter *SlackWriter
 	externalID string
 	lastUpdate *time.Time
 }
 
-func (w *DiscordWriter) Flush() {
+func (w *SlackWriter) Flush() {
 	if w.Type != "text" {
 		return
 	}
 
-	if w.externalID == "" && (config.Discord.SendProcessingMessage || config.Discord.StreamMessages) {
-		msg, err := w.Bot.ChannelMessageSend(w.ChatID, "↻ Processing...")
+	if w.externalID == "" && (config.Slack.SendProcessingMessage || config.Slack.StreamMessages) {
+		_, ts, err := w.Bot.PostMessage(w.ChatID, slack.MsgOptionText("↻ Processing...", false))
 		if err != nil {
 			return
 		}
-		w.externalID = msg.ID
+		w.externalID = ts
 		tt := time.Now()
 		w.lastUpdate = &tt
 	}
 
-	if !config.Discord.StreamMessages {
+	if !config.Slack.StreamMessages {
 		return
 	}
 
-	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Discord.StreamFlushInterval {
-		_, _ = w.Bot.ChannelMessageEdit(w.ChatID, w.externalID, truncate.Truncate(
-			w.bufs[0].String(),
-			config.Discord.MaxMessageLength,
-			"...",
-			truncate.PositionEnd,
-		))
+	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Slack.StreamFlushInterval {
+		_, _, _, _ = w.Bot.UpdateMessage(w.ChatID, w.externalID, slack.MsgOptionText(
+			truncate.Truncate(
+				w.bufs[0].String(),
+				config.Slack.MaxMessageLength,
+				"...",
+				truncate.PositionEnd,
+			), false))
+
 		tt := time.Now()
 		w.lastUpdate = &tt
 	}
 }
 
-func (w *DiscordWriter) Close() error {
+func (w *SlackWriter) Close() error {
 	if (len(w.bufs) > 0 && w.bufs[0].Len() > 0) ||
 		(w.mainWriter != nil && len(w.mainWriter.bufs) > 0 && w.mainWriter.bufs[0].Len() > 0) {
 		switch w.Type {
@@ -73,7 +75,7 @@ func (w *DiscordWriter) Close() error {
 	return nil
 }
 
-func (w *DiscordWriter) Write(p []byte) (n int, err error) {
+func (w *SlackWriter) Write(p []byte) (n int, err error) {
 	if w.mainWriter != nil {
 		return w.mainWriter.bufs[w.bufID].Write(p)
 	}
@@ -81,10 +83,10 @@ func (w *DiscordWriter) Write(p []byte) (n int, err error) {
 	return w.bufs[0].Write(p)
 }
 
-func (w *DiscordWriter) Subwriter() *DiscordWriter {
+func (w *SlackWriter) Subwriter() *SlackWriter {
 	w.bufs = append(w.bufs, bytes.Buffer{})
 
-	return &DiscordWriter{
+	return &SlackWriter{
 		Context:    w.Context,
 		Bot:        w.Bot,
 		ChatID:     w.ChatID,
@@ -98,6 +100,6 @@ func (w *DiscordWriter) Subwriter() *DiscordWriter {
 	}
 }
 
-func (w *DiscordWriter) SetPrompt(prompt string) {
+func (w *SlackWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }

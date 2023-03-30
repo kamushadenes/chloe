@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/cli"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/http"
+	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
@@ -41,6 +42,7 @@ func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 		go http.Start(ctx)
 		go telegram.Start(ctx)
 		go discord.Start(ctx)
+		go slack.Start(ctx)
 	}
 
 	for {

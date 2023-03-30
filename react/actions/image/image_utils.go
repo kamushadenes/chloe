@@ -3,6 +3,7 @@ package image
 import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/interfaces/discord"
+	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/react/actions/midjourney_prompt_generator"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
@@ -27,6 +28,14 @@ func imagePreActions(a structs2.Action, request *structs.ActionRequest) error {
 		w := request.GetWriters()[0].(*discord.DiscordWriter)
 		iw := w.ToImageWriter()
 		for k := 0; k < config.Discord.ImageCount; k++ {
+			siw := iw.Subwriter()
+			siw.SetPrompt(request.Params)
+			ws = append(ws, siw)
+		}
+	case "slack":
+		w := request.GetWriters()[0].(*slack.SlackWriter)
+		iw := w.ToImageWriter()
+		for k := 0; k < config.Slack.ImageCount; k++ {
 			siw := iw.Subwriter()
 			siw.SetPrompt(request.Params)
 			ws = append(ws, siw)

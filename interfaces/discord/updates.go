@@ -5,31 +5,11 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"strings"
 )
-
-func isMentioned(s *discordgo.Session, m *discordgo.Message) bool {
-	if !config.Discord.OnlyMention {
-		return true
-	}
-
-	if m.GuildID == "" {
-		return true
-	}
-
-	for k := range m.Mentions {
-		user := m.Mentions[k]
-		if user.ID == s.State.User.ID {
-			return true
-		}
-	}
-
-	return false
-}
 
 func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {

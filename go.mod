@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/texttospeech v1.6.0
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/alecthomas/kong v0.7.1
+	github.com/aquilax/truncate v1.0.0
 	github.com/biter777/countries v1.6.4
 	github.com/briandowns/spinner v1.23.0
 	github.com/bwmarrin/discordgo v0.27.1
@@ -21,9 +22,9 @@ require (
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2
+	github.com/slack-go/slack v0.12.1
 	github.com/stretchr/testify v1.8.1
 	github.com/trietmn/go-wiki v1.0.0
-	golang.org/x/crypto v0.6.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
@@ -74,6 +75,7 @@ require (
 	github.com/temoto/robotstxt v1.1.1 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sys v0.6.0 // indirect

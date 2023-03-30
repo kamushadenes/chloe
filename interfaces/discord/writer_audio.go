@@ -51,7 +51,7 @@ func (w *DiscordWriter) closeAudio() error {
 	var files []*discordgo.File
 	for k := range bufs {
 		files = append(files, &discordgo.File{
-			Name:        "generated.mp3",
+			Name:        fmt.Sprintf("generated-%d.mp3", k),
 			ContentType: "audio/mpeg",
 			Reader:      bytes.NewReader(bufs[k].Bytes()),
 		})

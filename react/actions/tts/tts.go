@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/interfaces/discord"
+	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
@@ -80,6 +81,11 @@ func (a *TTSAction) RunPreActions(request *structs.ActionRequest) error {
 		ws = append(ws, aw)
 	case "discord":
 		iw := request.GetWriters()[0].(*discord.DiscordWriter)
+		aw := iw.ToAudioWriter()
+		aw.SetPrompt(request.Params)
+		ws = append(ws, aw)
+	case "slack":
+		iw := request.GetWriters()[0].(*slack.SlackWriter)
 		aw := iw.ToAudioWriter()
 		aw.SetPrompt(request.Params)
 		ws = append(ws, aw)

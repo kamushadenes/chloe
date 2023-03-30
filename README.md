@@ -42,17 +42,18 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 
 ## Supported Interfaces
 
-- [Telegram](docs/telegram.md)
-- [Discord](docs/discord.md)
-- [HTTP REST](docs/http.md)
 - [Command Line (CLI)](docs/cli.md)
+- [HTTP REST](docs/http.md)
+- [Discord](docs/discord.md)
+- [Telegram](docs/telegram.md)
+- [Slack](docs/slack.md)
 - [iOS Shortcut](docs/ios.md) (kinda)
 
 ## Roadmap
 
 - [x] Add additional storage backends
 - [x] Add Discord interface
-- [ ] Add Slack interface
+- [x] Add Slack interface
 - [ ] Take action when content is flagged by the moderation
 - [x] Add GPT-4 support
 - [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)

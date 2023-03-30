@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
@@ -62,7 +63,7 @@ func (w *TelegramWriter) closeImage() error {
 	for k := range bufs {
 		files = append(files, tgbotapi.NewInputMediaPhoto(
 			tgbotapi.FileReader{
-				Name:   "generated.png",
+				Name:   fmt.Sprintf("generated-%d.png", k),
 				Reader: bytes.NewReader(bufs[k].Bytes()),
 			},
 		))

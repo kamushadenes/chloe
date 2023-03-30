@@ -1,0 +1,100 @@
+{
+  "display_information": {
+    "name": "Chloe",
+    "description": "A powerful AI assistant",
+    "background_color": "#000000",
+    "long_description": "Chloe is a powerful AI Assistant written in Go that leverages OpenAI technologies (ChatGPT, Whisper, and DALL-E) along with Google's Text-to-Speech engine to provide versatile and comprehensive assistance.\r\n\r\nIt offers multiple interfaces and utilizes the Chain of Thought approach to understand and respond to complex instructions."
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Chloe",
+      "always_online": false
+    },
+    "slash_commands": [
+      {
+        "command": "/generate",
+        "description": "Generate an image using DALL-E",
+        "usage_hint": "a cat with a cute yellow hat",
+        "should_escape": false
+      },
+      {
+        "command": "/forget",
+        "description": "Wipe all context and reset the conversation with the bot",
+        "should_escape": false
+      },
+      {
+        "command": "/tts",
+        "description": "Converts text to speech",
+        "usage_hint": "Hello World!",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "app_mentions:read",
+        "channels:history",
+        "channels:join",
+        "chat:write",
+        "channels:manage",
+        "channels:read",
+        "commands",
+        "chat:write.public",
+        "chat:write.customize",
+        "files:read",
+        "files:write",
+        "emoji:read",
+        "groups:read",
+        "groups:write",
+        "groups:history",
+        "im:read",
+        "im:write",
+        "im:history",
+        "metadata.message:read",
+        "links.embed:write",
+        "links:read",
+        "links:write",
+        "mpim:write",
+        "mpim:history",
+        "reactions:read",
+        "reminders:read",
+        "reminders:write",
+        "mpim:read",
+        "remote_files:read",
+        "remote_files:write",
+        "remote_files:share",
+        "reactions:write",
+        "team:read",
+        "users:read",
+        "users.profile:read",
+        "users:read.email"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "app_mention",
+        "app_uninstalled",
+        "channel_left",
+        "file_created",
+        "file_shared",
+        "link_shared",
+        "message.channels",
+        "message.groups",
+        "message.im",
+        "message.mpim",
+        "reaction_added",
+        "reaction_removed",
+        "tokens_revoked"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": true
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}

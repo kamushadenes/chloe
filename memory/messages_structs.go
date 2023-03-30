@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -23,10 +25,17 @@ type DiscordMessageSource struct {
 	Interaction bool
 }
 
+type SlackMessageSource struct {
+	API          *slack.Client
+	Message      *slackevents.MessageEvent
+	SlashCommand slack.SlashCommand
+}
+
 type MessageSource struct {
 	Telegram *TelegramMessageSource `json:"telegram,omitempty"`
 	HTTP     *HTTPMessageSource     `json:"http,omitempty"`
 	Discord  *DiscordMessageSource  `json:"discord,omitempty"`
+	Slack    *SlackMessageSource    `json:"slack,omitempty"`
 }
 
 type MessageModeration struct {

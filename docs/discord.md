@@ -6,9 +6,8 @@ the `CHLOE_DISCORD_TOKEN` environment variable.
 1. Invite your bot to a server (try [this page](https://discordapi.com/permissions.html))
 2. Just chat.
 
-Chloe should automatically detect what you want to do and respond accordingly, including
-images and voice messages. You can also send voice messages, and it will convert them to text and
-respond accordingly.
+Chloe should automatically detect what you want to do and respond accordingly, including generating
+images and voice messages.
 
 ## Commands
 

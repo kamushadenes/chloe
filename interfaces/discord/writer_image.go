@@ -52,7 +52,7 @@ func (w *DiscordWriter) closeImage() error {
 	var files []*discordgo.File
 	for k := range bufs {
 		files = append(files, &discordgo.File{
-			Name:        "generated.png",
+			Name:        fmt.Sprintf("generated-%d.png", k),
 			ContentType: "image/png",
 			Reader:      bytes.NewReader(bufs[k].Bytes()),
 		})

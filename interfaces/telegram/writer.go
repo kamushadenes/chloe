@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"context"
+	"github.com/aquilax/truncate"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
@@ -45,7 +46,12 @@ func (w *TelegramWriter) Flush() {
 	}
 
 	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Telegram.StreamFlushInterval {
-		_, _ = w.Bot.Send(tgbotapi.NewEditMessageText(w.ChatID, w.externalID, w.bufs[0].String()[:config.Telegram.MaxMessageLength]))
+		_, _ = w.Bot.Send(tgbotapi.NewEditMessageText(w.ChatID, w.externalID, truncate.Truncate(
+			w.bufs[0].String(),
+			config.Telegram.MaxMessageLength,
+			"...",
+			truncate.PositionEnd,
+		)))
 		tt := time.Now()
 		w.lastUpdate = &tt
 	}
