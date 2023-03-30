@@ -9,6 +9,15 @@ the `CHLOE_DISCORD_TOKEN` environment variable.
 Chloe should automatically detect what you want to do and respond accordingly, including generating
 images and voice messages.
 
+## Support
+
+| **Feature**      | **Supported** |
+|------------------|---------------|
+| Completion       | Yes           |
+| Image Generation | Yes           |
+| Text-to-Speech   | Yes           |
+| Transcription    | No            |
+
 ## Commands
 
 The following commands are available via DM:

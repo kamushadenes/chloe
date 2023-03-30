@@ -12,6 +12,15 @@ Chloe should automatically detect what you want to do and respond accordingly, i
 images and voice messages. You can also send voice messages, and it will convert them to text and
 respond accordingly.
 
+## Support
+
+| **Feature**      | **Supported** |
+|------------------|---------------|
+| Completion       | Yes           |
+| Image Generation | Yes           |
+| Text-to-Speech   | Yes           |
+| Transcription    | Yes           |
+
 ## Commands
 
 The following commands are available:

@@ -6,6 +6,15 @@ Chloe can also be used as a command line interface. This is useful for testing p
 ./chloe <command>
 ```
 
+## Support
+
+| **Feature**      | **Supported** |
+|------------------|---------------|
+| Completion       | Yes           |
+| Image Generation | Yes           |
+| Text-to-Speech   | Yes           |
+| Transcription    | No            |
+
 ## Commands
 
 The following commands are available:

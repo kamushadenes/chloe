@@ -3,12 +3,21 @@
 Chloe can be used as an HTTP server. By default, it will listen on port `8080`. You can change
 this by setting the `PORT` environment variable.
 
+## Support
+
+| **Feature**      | **Supported** |
+|------------------|---------------|
+| Completion       | Yes           |
+| Image Generation | Yes           |
+| Text-to-Speech   | Yes           |
+| Transcription    | No            |
+
 ## Authentication
 
-To interact with the HTTP API, you'll need to provide an `Authorization` header with a valid Bearer token.
+To interact with the HTTP API, you'll need to provide an `Authorization` header with a valid Bearer
+token.
 
 To create a token, you can run the `create-api-key` command for your user.
-
 
 First, get your user ID:
 
@@ -28,11 +37,13 @@ $ ./chloe list-users
 
 Take note of the `#` column, which is the user ID.
 
-If your user isn't there, you can talk to the bot through any interface except CLI and it will be created automatically.
+If your user isn't there, you can talk to the bot through any interface except CLI and it will be
+created automatically.
 
 Otherwise, you can use the `create-user` command to create a new user.
 
 Then, create a new API key for your user:
+
 ```bash
 $ ./chloe create-api-key <user_id>
 
@@ -40,7 +51,8 @@ $ ./chloe create-api-key <user_id>
 
 ```
 
-You can now use this token to interact with the HTTP API by providing it in the `Authorization` header like so:
+You can now use this token to interact with the HTTP API by providing it in the `Authorization`
+header like so:
 
 ```
 Authorization: Bearer <token>
