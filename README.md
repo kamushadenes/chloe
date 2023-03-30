@@ -5,7 +5,9 @@
 ![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml?label=tests)
 ![license](https://img.shields.io/github/license/kamushadenes/chloe)
 
-<img src=".github/resources/images/chloe_avatar.png" />
+<p align="center">
+  <img src=".github/resources/images/chloe_avatar.png" alt="Chloe" />
+</p>
 
 [Chloe](https://blog.hadenes.io/post/chloe-ai-assistant/) is a powerful AI Assistant written in Go
 that leverages OpenAI
