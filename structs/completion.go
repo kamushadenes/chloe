@@ -166,7 +166,7 @@ func (creq *CompletionRequest) getUserMessages() []openai.ChatCompletionMessage 
 
 	var messages []openai.ChatCompletionMessage
 
-	savedMessages, err := creq.Message.User.LoadMessages(creq.GetContext())
+	savedMessages, err := creq.Message.User.ListMessages(creq.GetContext())
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load saved messages")
 		return nil

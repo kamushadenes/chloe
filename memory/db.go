@@ -57,6 +57,7 @@ func Setup(ctx context.Context) (*gorm.DB, error) {
 	toMigrate = append(toMigrate, &User{})
 	toMigrate = append(toMigrate, &ExternalID{})
 	toMigrate = append(toMigrate, &Message{})
+	toMigrate = append(toMigrate, &APIKey{})
 
 	for _, model := range toMigrate {
 		if err := db.AutoMigrate(model); err != nil {

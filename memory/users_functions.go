@@ -22,13 +22,69 @@ func CreateUser(ctx context.Context, firstName, lastName, username string) (*Use
 	return &u, nil
 }
 
-func GetUser(ctx context.Context, id string) (*User, error) {
+func GetUser(ctx context.Context, id uint) (*User, error) {
 	var u User
 
 	err := db.WithContext(ctx).
 		First(&u, id).Error
 
 	return &u, err
+}
+
+func MergeUsersByID(ctx context.Context, ids ...uint) error {
+	var users []*User
+	for k := range ids {
+		u, err := GetUser(ctx, ids[k])
+		if err != nil {
+			return err
+		}
+		users = append(users, u)
+	}
+
+	return MergeUsers(ctx, users...)
+}
+
+func MergeUsers(ctx context.Context, users ...*User) error {
+	if len(users) < 2 {
+		return nil
+	}
+
+	mainUser := users[0]
+
+	for k := range users[1:] {
+		user := users[k+1]
+		eids, err := user.GetExternalIDs()
+		if err != nil {
+			return err
+		}
+		for kk := range eids {
+			eid := eids[kk]
+			if err := mainUser.AddExternalID(ctx, eid.ExternalID, eid.Interface); err != nil {
+				return err
+			}
+			if err := user.DeleteExternalID(ctx, eid.ExternalID, eid.Interface); err != nil {
+				return err
+			}
+		}
+		if err := BulkChangeMessageOwner(ctx, user, mainUser); err != nil {
+			return err
+		}
+		if err := user.Delete(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ListUsers() ([]*User, error) {
+	var users []*User
+	if err := db.
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func GetUserByExternalID(ctx context.Context, externalID, interf string) (*User, error) {
@@ -49,6 +105,11 @@ func GetUserByExternalID(ctx context.Context, externalID, interf string) (*User,
 	}
 
 	return &u, nil
+}
+
+func (u *User) Delete(ctx context.Context) error {
+	return db.WithContext(ctx).
+		Delete(u).Error
 }
 
 func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID {
@@ -99,6 +160,16 @@ func (u *User) AddExternalID(ctx context.Context, externalID, interf string) err
 		Save(&eid).Error
 }
 
+func (u *User) DeleteExternalID(ctx context.Context, externalID, interf string) error {
+	var eid ExternalID
+
+	return db.WithContext(ctx).
+		Where("user_id = ?", u.ID).
+		Where("interface = ?", interf).
+		Where("external_id = ?", externalID).
+		Delete(&eid).Error
+}
+
 func (u *User) SetMode(ctx context.Context, mode string) error {
 	return db.WithContext(ctx).
 		Model(u).
@@ -110,7 +181,7 @@ func (u *User) Save(ctx context.Context) error {
 		Save(u).Error
 }
 
-func (u *User) LoadMessages(ctx context.Context) ([]*Message, error) {
+func (u *User) ListMessages(ctx context.Context) ([]*Message, error) {
 	var messages []*Message
 	if err := db.WithContext(ctx).
 		Where("user_id = ?", u.ID).
@@ -128,7 +199,7 @@ func (u *User) DeleteMessages(ctx context.Context) error {
 		Delete(&Message{}).Error
 }
 
-func (u *User) DeleteAllMessages(ctx context.Context) error {
+func DeleteAllMessages(ctx context.Context) error {
 	return db.WithContext(ctx).
 		Delete(&Message{}).Error
 }
@@ -144,4 +215,21 @@ func (u *User) DeleteOldestMessage(ctx context.Context) error {
 
 	return db.WithContext(ctx).
 		Delete(&message).Error
+}
+
+func (u *User) GetExternalIDs() ([]*ExternalID, error) {
+	var eids []*ExternalID
+	if err := db.
+		Where("user_id = ?", u.ID).
+		Find(&eids).Error; err != nil {
+		return nil, err
+	}
+
+	return eids, nil
+}
+
+func (u *User) CreateAPIKey(ctx context.Context) (string, error) {
+	apiKey := NewAPIKey(u)
+
+	return apiKey.Key, db.WithContext(ctx).Save(apiKey).Error
 }

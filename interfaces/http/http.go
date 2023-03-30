@@ -27,6 +27,7 @@ func setMiddlewares(ctx context.Context, r *chi.Mux) {
 		middleware.NoCache,
 		middleware.Timeout(60 * time.Second),
 		middleware.AllowContentType("application/json"),
+		UserAPIKeyAuthMiddleware,
 	} {
 		logger.Debug().Str("middleware", utils.GetFunctionName(mid)).Msg("adding middleware")
 		r.Use(mid)

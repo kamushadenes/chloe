@@ -24,7 +24,7 @@ func Handle(ctx context.Context) error {
 		}
 	}
 
-	kongCtx := kong.Parse(&CLIFlags,
+	kongCtx := kong.Parse(&Flags,
 		kong.Name("chloe"),
 		kong.Description("Chloe is a powerful AI Assistant\n\nRunning Chloe without arguments will start the server"),
 		kong.UsageOnError(),
@@ -35,7 +35,9 @@ func Handle(ctx context.Context) error {
 			"version": flags.Version,
 		})
 
-	return kongCtx.Run(&Globals{Context: ctx})
+	kongCtx.FatalIfErrorf(kongCtx.Run(&Globals{Context: ctx}))
+
+	return nil
 }
 
 func Start(ctx context.Context) {

@@ -3,6 +3,49 @@
 Chloe can be used as an HTTP server. By default, it will listen on port `8080`. You can change
 this by setting the `PORT` environment variable.
 
+## Authentication
+
+To interact with the HTTP API, you'll need to provide an `Authorization` header with a valid Bearer token.
+
+To create a token, you can run the `create-api-key` command for your user.
+
+
+First, get your user ID:
+
+```
+$ ./chloe list-users
+
+╭───┬────────────┬───────────┬───────────────┬─────────┬───────────────────────────────────╮
+│ # │ FIRST NAME │ LAST NAME │ USERNAME      │ MODE    │            EXTERNAL IDS           │
+│   │            │           │               │         ├──────────────┬────────────────────┤
+│   │            │           │               │         │ INTERFACE    │ ID                 │
+├───┼────────────┼───────────┼───────────────┼─────────┼──────────────┼────────────────────┤
+│ 1 │ Kamus      │ Hadenes   │ Kamus Hadenes │ default │ discord      │ XPTO               │
+├───┼────────────┼───────────┼───────────────┤         ├──────────────┼────────────────────┤
+│ 2 │ User       │ CLI       │ cli           │         │ cli          │ cli                │
+╰───┴────────────┴───────────┴───────────────┴─────────┴──────────────┴────────────────────╯
+```
+
+Take note of the `#` column, which is the user ID.
+
+If your user isn't there, you can talk to the bot through any interface except CLI and it will be created automatically.
+
+Otherwise, you can use the `create-user` command to create a new user.
+
+Then, create a new API key for your user:
+```bash
+$ ./chloe create-api-key <user_id>
+
+6d011998e67fa56494d822abe4e4b4c22838fa5488c60fdb05488fcb42365606
+
+```
+
+You can now use this token to interact with the HTTP API by providing it in the `Authorization` header like so:
+
+```
+Authorization: Bearer <token>
+```
+
 ## Endpoints
 
 The following endpoints are available:

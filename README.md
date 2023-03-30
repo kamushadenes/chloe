@@ -164,11 +164,19 @@ Flags:
       --version    Print version information and quit
 
 Commands:
-  complete        Complete a prompt
-  generate        Generate an prompt
-  tts             Generate an audio from a prompt
-  forget          Forget all users
-  count-tokens    Count tokens
+  complete              Complete a prompt
+  generate              Generate an prompt
+  tts                   Generate an audio from a prompt
+  forget                Forget all users
+  count-tokens          Count tokens
+  create-user           Create a new user
+  delete-user           Delete a user
+  list-users            List users
+  merge-users           Merge users
+  add-external-id       Add external ID to user
+  delete-external-id    Delete external ID from user
+  list-messages         List messages
+  create-api-key        Create an API key for use with the HTTP interface
 
 Run "chloe <command> --help" for more information on a command.
 ```

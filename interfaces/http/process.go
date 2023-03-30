@@ -28,19 +28,7 @@ func aiContext(next http.Handler) http.Handler {
 				Request: r,
 			}
 
-			user, err := memory.GetUserByExternalID(ctx, "http", "http")
-			if err != nil {
-				user, err = memory.CreateUser(ctx, "User", "HTTP", "http")
-				if err != nil {
-					_ = render.Render(w, r, ErrInvalidRequest(err))
-					return
-				}
-				err = user.AddExternalID(ctx, "http", "http")
-				if err != nil {
-					_ = render.Render(w, r, ErrInvalidRequest(err))
-					return
-				}
-			}
+			user := ctx.Value(userCtxKey{}).(*memory.User)
 
 			msg.User = user
 

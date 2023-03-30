@@ -3,7 +3,6 @@ package memory
 import (
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/tokenizer"
@@ -143,37 +142,8 @@ func (m *Message) SetContent(content string) {
 	m.TokenCount = tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion.String(), content)
 }
 
-func (m *Message) SendText(text string, notify bool, replyTo ...interface{}) error {
-	if len(text) == 0 {
-		return nil
-	}
-	switch m.Interface {
-	case "telegram":
-		msg := tgbotapi.NewMessage(m.Source.Telegram.Update.Message.Chat.ID, text)
-		msg.ParseMode = tgbotapi.ModeMarkdown
-
-		if !notify {
-			msg.DisableNotification = true
-			msg.DisableWebPagePreview = true
-		}
-
-		if len(replyTo) > 0 {
-			msg.ReplyToMessageID = replyTo[0].(int)
-		}
-		_, err := m.Source.Telegram.API.Send(msg)
-		if err != nil {
-			msg.ParseMode = ""
-			_, err = m.Source.Telegram.API.Send(msg)
-		}
-		return err
-	case "discord":
-		_, err := m.Source.Discord.API.ChannelMessageSend(m.Source.Discord.Message.ChannelID, text)
-		return err
-	}
-
-	return fmt.Errorf("unsupported interface %s", m.Interface)
-}
-
-func (m *Message) NotifyAction(act string) {
-	_ = m.SendText(fmt.Sprintf("*%s*", act), false)
+func BulkChangeMessageOwner(ctx context.Context, oldUser *User, newUser *User) error {
+	return db.Model(&Message{}).
+		Where("user_id = ?", oldUser.ID).
+		Update("user_id", newUser.ID).Error
 }
