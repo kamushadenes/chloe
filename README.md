@@ -69,33 +69,13 @@ take quite some time.
 
 ## Dependencies
 
-### Aria2
-
-Chloe uses [aria2](https://aria2.github.io/) to download YouTube videos for transcription.
-
-Although highly recommended, this is not a mandatory dependency. If you don't have it installed,
-Chloe will fall back to using the `youtube-dl` default downloader.
-
-### Cargo
-
-Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bindings.
-
-This is only necessary during the build process, so if you're using the pre-built binaries you can
-skip this dependency.
-
-### FFmpeg
-
-Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert
-audio received from Telegram to an appropriate format for Whisper.
-
-### ImageMagick
-
-Chloe uses [imagemagick](https://imagemagick.org/index.php) to convert images to the appropriate
-format for DALL-E.
-
-### YouTube-DL
-
-Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.
+| **Dependency**                            | **Description**                                                                                                                                                                                                                                                             | **License** | **Type** |
+|:------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------|:---------|
+| [aria2](https://aria2.github.io)          | Chloe uses [aria2](https://aria2.github.io/) to speed up the download YouTube videos for transcription. Although highly recommended, this is not a mandatory dependency. If you don't have it installed, Chloe will fall back to using the `youtube-dl` default downloader. | GPL-2.0     | Runtime  |
+| [cargo](https://doc.rust-lang.org/cargo/) | Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bindings. This is only necessary during the build process, so if you're using the pre-built binaries you can skip this dependency.                                                              | Apache-2.0  | Build    |
+| [ffmpeg](https://ffmpeg.org)              | Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert audio received from Telegram to an appropriate format for Whisper.                                                                                                         | LGPL-2.1    | Runtime  |
+| [imagemagick](https://imagemagick.org)    | Chloe uses [imagemagick](https://imagemagick.org/index.php) to convert images to the appropriate format for DALL-E.                                                                                                                                                         | Apache-2.0  | Runtime  |
+| [youtube-dl](https://youtube-dl.org)      | Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.                                                                                                                                                                              | Unlicense   | Runtime  |
 
 ## Installation
 
