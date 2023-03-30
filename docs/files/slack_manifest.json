@@ -8,7 +8,7 @@
   "features": {
     "bot_user": {
       "display_name": "Chloe",
-      "always_online": false
+      "always_online": true
     },
     "slash_commands": [
       {
@@ -26,6 +26,12 @@
         "command": "/tts",
         "description": "Converts text to speech",
         "usage_hint": "Hello World!",
+        "should_escape": false
+      },
+      {
+        "command": "/action",
+        "description": "Perform an action",
+        "usage_hint": "latex $f(x) = \\frac{\\sqrt{x +20}}{2\\pi} +\\hbar \\sum y\\partial y$",
         "should_escape": false
       }
     ]

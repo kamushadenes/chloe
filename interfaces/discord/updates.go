@@ -84,6 +84,26 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 	var reply string
 
 	switch i.ApplicationCommandData().Name {
+	case "action":
+		for _, opt := range options {
+			optionMap[opt.Name] = opt
+		}
+
+		act := optionMap["action"].StringValue()
+		params := optionMap["params"].StringValue()
+
+		msg.SetContent(fmt.Sprintf("%s %s", act, params))
+
+		channels.IncomingMessagesCh <- msg
+
+		if err := <-msg.ErrorCh; err != nil {
+			logger.Error().Msg("error saving message")
+			return
+		}
+
+		action(ctx, msg)
+
+		reply = "Running action..."
 	case "generate":
 		for _, opt := range options {
 			optionMap[opt.Name] = opt

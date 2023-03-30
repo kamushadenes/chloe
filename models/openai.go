@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/sashabaranov/go-openai"
@@ -140,7 +141,7 @@ func GetModel(name string) *Model {
 		return TextModerationLatest
 	}
 
-	return nil
+	panic(fmt.Sprintf("model %s not found", name))
 }
 
 func ModelsToString(models ...*Model) []string {

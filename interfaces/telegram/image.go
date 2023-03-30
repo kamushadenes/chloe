@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"os/exec"
+	"strings"
 )
 
 func convertImageToPng(filePath string) (string, error) {
@@ -27,12 +28,26 @@ func convertImageToPng(filePath string) (string, error) {
 	return npath, err
 }
 
-func aiGenerate(ctx context.Context, msg *memory.Message) error {
+func aiAction(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Message = msg
 	req.Context = ctx
 	req.Action = "image"
 	req.Params = promptFromMessage(msg)
+	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
+
+	channels.ActionRequestsCh <- req
+
+	return nil
+}
+
+func aiGenerate(ctx context.Context, msg *memory.Message) error {
+	fields := strings.Fields(msg.Content)
+	req := structs.NewActionRequest()
+	req.Context = ctx
+	req.Action = fields[0]
+	req.Params = strings.Join(fields[1:], " ")
+	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
 
 	channels.ActionRequestsCh <- req

@@ -2,8 +2,14 @@ package slack
 
 import (
 	"context"
+	"fmt"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
+	"io"
+	"os"
+	"strings"
 )
 
 func complete(ctx context.Context, msg *memory.Message) {
@@ -32,4 +38,17 @@ func tts(ctx context.Context, msg *memory.Message) {
 
 func forgetUser(ctx context.Context, msg *memory.Message) error {
 	return msg.User.DeleteMessages(ctx)
+}
+
+func action(ctx context.Context, msg *memory.Message) {
+	fields := strings.Fields(msg.Content)
+
+	req := structs.NewActionRequest()
+	req.Context = ctx
+	req.Action = fields[0]
+	req.Params = strings.Join(fields[1:], " ")
+	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
+	req.Writers = []io.WriteCloser{os.Stdout}
+
+	channels.ActionRequestsCh <- req
 }

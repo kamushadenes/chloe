@@ -52,10 +52,10 @@ func setRoutes(ctx context.Context, r *chi.Mux) {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Use(aiContext)
-		r.Post("/complete", aiComplete)
-		r.Post("/generate", aiGenerate)
-		r.Post("/tts", aiTTS)
-		r.Post("/forget", aiForget)
+		r.Post("/complete", complete)
+		r.Post("/generate", generate)
+		r.Post("/tts", tts)
+		r.Post("/forget", forget)
 	})
 }
 

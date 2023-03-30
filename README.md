@@ -61,7 +61,7 @@ simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/reac
 - [x] Add GPT-4 support
 - [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
 - [ ] Add Wolfram Alpha integration
-- [ ] Add LaTeX rendering support
+- [x] Add LaTeX rendering support
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
 
@@ -151,6 +151,7 @@ Commands:
   complete              Complete a prompt
   generate              Generate an prompt
   tts                   Generate an audio from a prompt
+  action                Performs an action
   forget                Forget all users
   count-tokens          Count tokens
   create-user           Create a new user

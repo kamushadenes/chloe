@@ -86,6 +86,8 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 			}
 
 			switch cmd.Command {
+			case "/action":
+				action(ctx, msg)
 			case "/generate":
 				generate(ctx, msg)
 			case "/tts":

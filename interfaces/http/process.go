@@ -8,6 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/react/actions"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -40,7 +41,7 @@ func aiContext(next http.Handler) http.Handler {
 	})
 }
 
-func aiComplete(w http.ResponseWriter, r *http.Request) {
+func complete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	msg := ctx.Value(msgCtxKey).(*memory.Message)
 
@@ -89,7 +90,7 @@ func aiComplete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func aiGenerate(w http.ResponseWriter, r *http.Request) {
+func generate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	msg := ctx.Value(msgCtxKey).(*memory.Message)
 
@@ -133,7 +134,7 @@ func aiGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func aiTTS(w http.ResponseWriter, r *http.Request) {
+func tts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	msg := ctx.Value(msgCtxKey).(*memory.Message)
 
@@ -177,7 +178,7 @@ func aiTTS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func aiForget(w http.ResponseWriter, r *http.Request) {
+func forget(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	msg := ctx.Value(msgCtxKey).(*memory.Message)
 
@@ -187,6 +188,41 @@ func aiForget(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := w.Write([]byte(i18n.GetForgetText())); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
+}
+
+func action(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	msg := ctx.Value(msgCtxKey).(*memory.Message)
+
+	var params = struct {
+		Action string `json:"action"`
+		Params string `json:"params"`
+	}{}
+	if err := parseFromRequest(r, &params); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
+	if params.Action == "" {
+		_ = render.Render(w, r, ErrInvalidRequest(fmt.Errorf("action is required")))
+		return
+	}
+	if params.Params == "" {
+		_ = render.Render(w, r, ErrInvalidRequest(fmt.Errorf("params is required")))
+		return
+	}
+
+	req := structs.NewActionRequest()
+	req.Context = ctx
+	req.Message = msg
+	req.Action = params.Action
+	req.Params = params.Params
+	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
+	req.Writers = []io.WriteCloser{&utils.HTTPResponseWriteCloser{Writer: w}}
+
+	if err := actions.HandleAction(req); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}

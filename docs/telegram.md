@@ -25,11 +25,10 @@ respond accordingly.
 
 The following commands are available:
 
-- **/listmodes** - Retrieve the list of all available bot modes or personalities
 - **/forget** - Wipe all context and reset the conversation with the bot
-- **/mode** - Instruct the bot to switch to a different mode or personality
 - **/generate** - Generate an image using DALL-E
 - **/tts** - Converts text to speech
+- **/action** - Performs an action
 
 ## Configuration
 

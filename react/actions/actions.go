@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/image"
+	"github.com/kamushadenes/chloe/react/actions/latex"
 	"github.com/kamushadenes/chloe/react/actions/math"
 	"github.com/kamushadenes/chloe/react/actions/news"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
@@ -39,6 +40,7 @@ var actions = map[string]func() structs2.Action{
 	"variation":         image.NewVariationAction,
 	"wikipedia":         wikipedia.NewWikipediaAction,
 	"summarize_youtube": youtube_summarizer.NewYoutubeSummarizerAction,
+	"latex":             latex.NewLatexAction,
 }
 
 func HandleAction(request *structs.ActionRequest) error {

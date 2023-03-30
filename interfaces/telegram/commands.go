@@ -55,6 +55,15 @@ func handleCommands(ctx context.Context, msg *memory.Message) bool {
 	return false
 }
 
+func action(ctx context.Context, msg *memory.Message) {
+	logger := zerolog.Ctx(ctx)
+
+	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatUploadPhoto))
+
+	if err := aiAction(ctx, msg); err != nil {
+		logger.Error().Err(err).Msg("error running action")
+	}
+}
 func generate(ctx context.Context, msg *memory.Message) {
 	logger := zerolog.Ctx(ctx)
 

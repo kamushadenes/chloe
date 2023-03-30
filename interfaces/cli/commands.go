@@ -17,6 +17,8 @@ var Flags struct {
 	Generate GenerateCmd `cmd:"generate" short:"g" help:"Generate an prompt"`
 	TTS      TTSCmd      `cmd:"tts" short:"t" help:"Generate an audio from a prompt"`
 
+	Action ActionCmd `cmd:"" help:"Performs an action"`
+
 	Forget ForgetCmd `cmd:"forget" short:"f" help:"Forget all users"`
 
 	CountTokens CountTokensCmd `cmd:"count-tokens" help:"Count tokens"`
