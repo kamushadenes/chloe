@@ -1,13 +1,14 @@
-<h1 align="center">Chloe AI Assistant</h1>
+<h1 align="center">Chloe</h1>
 
 <p align="center">A powerful AI assistant</p>
-
-![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml?label=tests)
-![license](https://img.shields.io/github/license/kamushadenes/chloe)
 
 <p align="center">
   <img src=".github/resources/images/chloe_avatar.png" alt="Chloe" />
 </p>
+
+
+![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml?label=tests)
+![license](https://img.shields.io/github/license/kamushadenes/chloe)
 
 [Chloe](https://blog.hadenes.io/post/chloe-ai-assistant/) is a powerful AI Assistant written in Go
 that leverages OpenAI
