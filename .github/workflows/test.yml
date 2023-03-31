@@ -29,7 +29,7 @@ jobs:
         run: make tokenizer
 
       - name: Save GOOGLE_APPLICATION_CREDENTIALS
-        run: echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/gcp.json
+        run: echo $GOOGLE_APPLICATION_CREDENTIALS | base64 -d > /tmp/gcp.json
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
