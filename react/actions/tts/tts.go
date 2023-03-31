@@ -18,7 +18,7 @@ type TTSAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewAudioAction() structs2.Action {
+func NewTTSAction() structs2.Action {
 	return &TTSAction{
 		Name: "tts",
 	}

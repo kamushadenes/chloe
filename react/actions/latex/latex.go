@@ -18,7 +18,7 @@ type LatexAction struct {
 
 func NewLatexAction() structs2.Action {
 	return &LatexAction{
-		Name: "image",
+		Name: "latex",
 	}
 }
 

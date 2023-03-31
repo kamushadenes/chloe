@@ -9,6 +9,7 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/image"
 	"github.com/kamushadenes/chloe/react/actions/latex"
 	"github.com/kamushadenes/chloe/react/actions/math"
+	"github.com/kamushadenes/chloe/react/actions/mock"
 	"github.com/kamushadenes/chloe/react/actions/news"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
@@ -24,6 +25,8 @@ import (
 )
 
 var actions = map[string]func() structs2.Action{
+	"mock": mock.NewMockAction,
+
 	"google":            google.NewGoogleAction,
 	"news":              news.NewNewsAction,
 	"news_by_country":   news.NewNewsByCountryAction,
@@ -32,7 +35,7 @@ var actions = map[string]func() structs2.Action{
 	"scrape":            scrape.NewScrapeAction,
 	"web":               scrape.NewScrapeAction,
 	"generate":          image.NewImageAction,
-	"tts":               tts.NewAudioAction,
+	"tts":               tts.NewTTSAction,
 	"transcribe":        transcribe.NewTranscribeAction,
 	"variation":         image.NewVariationAction,
 	"wikipedia":         wikipedia.NewWikipediaAction,
@@ -70,9 +73,11 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 		}
 	}
 
-	request.Message.NotifyAction(act.GetNotification())
-	if err = utils.StoreChainOfThoughtResult(request, act.GetNotification()); err != nil {
-		return
+	if !utils2.Testing() {
+		request.Message.NotifyAction(act.GetNotification())
+		if err = utils.StoreChainOfThoughtResult(request, act.GetNotification()); err != nil {
+			return
+		}
 	}
 
 	logger.Info().Msg("executing action")

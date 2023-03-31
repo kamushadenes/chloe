@@ -1,4 +1,4 @@
-example_user {"question": "I want to know what 4 * 7 / 3 is"}
+example_user {"question": "I want to know what 4 * 7 / 2 is"}
 example_assistant {"thought": "User wants to know the answer to a calculation", "action": "calculate","params": "4 * 7 / 2"}
 example_user {"result": "14"}
 example_user {"question": "Who is Barack Obama?"}
