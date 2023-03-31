@@ -20,6 +20,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/mattn/go-isatty v0.0.14
+	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2

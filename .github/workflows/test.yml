@@ -28,10 +28,16 @@ jobs:
       - name: Build tokenizer
         run: make tokenizer
 
+      - name: Save GOOGLE_APPLICATION_CREDENTIALS
+        run: echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/gcp.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
       - name: Generate
         run: go generate -v ./...
 
       - name: Test
         run: go test -v ./...
         env:
-          OPENAI_API_KEY: mock
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp.json

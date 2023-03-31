@@ -94,7 +94,7 @@ func Start(ctx context.Context) {
 	router := getRouter(ctx)
 
 	server := &http.Server{
-		Addr:              fmt.Sprintf("%s:%s", config.HTTP.Host, config.HTTP.Port),
+		Addr:              fmt.Sprintf("%s:%d", config.HTTP.Host, config.HTTP.Port),
 		Handler:           router,
 		ReadHeaderTimeout: 60 * time.Second,
 	}
