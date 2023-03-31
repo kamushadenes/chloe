@@ -8,6 +8,7 @@ import (
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
+	utils2 "github.com/kamushadenes/chloe/utils"
 	"github.com/rocketlaunchr/google-search"
 	"io"
 )
@@ -56,16 +57,18 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 		return err
 	}
 
-	for _, r := range res {
-		na := scrape.NewScrapeAction()
-		na.SetParams(r.URL)
-		na.SetMessage(request.Message)
-		if err := na.RunPreActions(request); err != nil {
-			continue
-		}
-		request.Message.NotifyAction(na.GetNotification())
-		if err := na.Execute(request); err != nil {
-			continue
+	if !utils2.Testing() {
+		for _, r := range res {
+			na := scrape.NewScrapeAction()
+			na.SetParams(r.URL)
+			na.SetMessage(request.Message)
+			if err := na.RunPreActions(request); err != nil {
+				continue
+			}
+			request.Message.NotifyAction(na.GetNotification())
+			if err := na.Execute(request); err != nil {
+				continue
+			}
 		}
 	}
 
