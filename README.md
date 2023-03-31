@@ -175,6 +175,13 @@ See [docs/configuration.md](docs/configuration.md) for more information.
 We welcome contributions! If you would like to improve Chloe, please check out
 the [Contributing Guide](CONTRIBUTING.md).
 
+### Disclaimer
+
+There are some rushed parts of the code, and some parts that are not very well documented. You can
+also find a lot of TODOs scattered around the codebase and some duplicated code too.
+
+Feel free to open an issue if you have any questions, or even better, open a pull request!
+
 ## License
 
 Chloe is licensed under the [MIT License](LICENSE.md).
