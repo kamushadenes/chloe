@@ -45,7 +45,7 @@ func aiAction(ctx context.Context, msg *memory.Message) error {
 func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Context = ctx
-	req.Action = "image"
+	req.Action = "generate"
 	req.Params = promptFromMessage(msg)
 	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
 

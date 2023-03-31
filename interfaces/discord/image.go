@@ -9,7 +9,7 @@ import (
 
 func generate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
-	req.Action = "image"
+	req.Action = "generate"
 	req.Params = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx

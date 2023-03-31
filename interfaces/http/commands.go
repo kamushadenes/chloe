@@ -77,10 +77,12 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	request.Writer = utils.NewHTTPResponseWriteCloser(w)
 
-	if err := channels.RunCompletion(request); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
+	go func() {
+		if err := channels.RunCompletion(request); err != nil {
+			_ = render.Render(w, r, ErrInvalidRequest(err))
+			return
+		}
+	}()
 
 	for {
 		select {
@@ -118,15 +120,17 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	req := structs.NewActionRequest()
 	req.ID = msg.ExternalID
 	req.Context = ctx
-	req.Action = "image"
+	req.Action = "generate"
 	req.Params = params.Prompt
 	req.Message = msg
 	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
-	if err := channels.RunAction(req); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
+	go func() {
+		if err := channels.RunAction(req); err != nil {
+			_ = render.Render(w, r, ErrInvalidRequest(err))
+			return
+		}
+	}()
 
 	for {
 		select {
@@ -169,10 +173,12 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	req.Message = msg
 	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
-	if err := channels.RunAction(req); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
+	go func() {
+		if err := channels.RunAction(req); err != nil {
+			_ = render.Render(w, r, ErrInvalidRequest(err))
+			return
+		}
+	}()
 
 	for {
 		select {
@@ -234,8 +240,19 @@ func action(w http.ResponseWriter, r *http.Request) {
 	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
 	req.Writers = []io.WriteCloser{&utils.HTTPResponseWriteCloser{Writer: w}}
 
-	if err := channels.RunAction(req); err != nil {
-		_ = render.Render(w, r, ErrInvalidRequest(err))
-		return
+	go func() {
+		if err := channels.RunAction(req); err != nil {
+			_ = render.Render(w, r, ErrInvalidRequest(err))
+			return
+		}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
+			return
+		}
 	}
 }
