@@ -177,6 +177,9 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 	if err != nil {
 		return utils2.NotifyAndClose(request, request.Writer, err)
 	}
+	if responseMessage == "" {
+		return utils2.NotifyAndClose(request, request.Writer, errors.New("empty response"))
+	}
 	if strings.TrimSpace(responseMessage) == "" {
 		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
 		return Complete(request, false)

@@ -47,13 +47,14 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 						}
 						msg.User = user
 
-						channels.IncomingMessagesCh <- msg
-						if err := <-msg.ErrorCh; err != nil {
-							logger.Error().Msg("error saving message")
+						if err := channels.RegisterIncomingMessage(msg); err != nil {
 							continue
 						}
 
-						complete(ctx, msg)
+						if err := complete(ctx, msg); err != nil {
+							_ = msg.SendError(err)
+							continue
+						}
 					}
 				}
 			}
@@ -79,22 +80,26 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 			}
 			msg.User = user
 
-			channels.IncomingMessagesCh <- msg
-			if err := <-msg.ErrorCh; err != nil {
-				logger.Error().Msg("error saving message")
+			if err := channels.RegisterIncomingMessage(msg); err != nil {
 				continue
 			}
 
 			switch cmd.Command {
 			case "/action":
-				action(ctx, msg)
+				if err := action(ctx, msg); err != nil {
+					_ = msg.SendError(err)
+				}
 			case "/generate":
-				generate(ctx, msg)
+				if err := generate(ctx, msg); err != nil {
+					_ = msg.SendError(err)
+				}
 			case "/tts":
-				tts(ctx, msg)
+				if err := tts(ctx, msg); err != nil {
+					_ = msg.SendError(err)
+				}
 			case "/forget":
 				if err := forgetUser(ctx, msg); err != nil {
-					logger.Error().Err(err).Msg("error forgetting user")
+					_ = msg.SendError(err)
 				}
 
 				if _, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionText(i18n.GetForgetText(), false)); err != nil {

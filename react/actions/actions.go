@@ -3,6 +3,7 @@ package actions
 import (
 	"errors"
 	"fmt"
+	errors3 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/image"
@@ -18,6 +19,7 @@ import (
 	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
+	utils2 "github.com/kamushadenes/chloe/utils"
 	"strings"
 )
 
@@ -29,70 +31,71 @@ var actions = map[string]func() structs2.Action{
 	"math":              math.NewCalculateAction,
 	"scrape":            scrape.NewScrapeAction,
 	"web":               scrape.NewScrapeAction,
-	"image":             image.NewImageAction,
-	"dalle":             image.NewImageAction,
-	"dall-e":            image.NewImageAction,
-	"audio":             tts.NewAudioAction,
+	"generate":          image.NewImageAction,
 	"tts":               tts.NewAudioAction,
-	"speak":             tts.NewAudioAction,
 	"transcribe":        transcribe.NewTranscribeAction,
-	"transcription":     transcribe.NewTranscribeAction,
 	"variation":         image.NewVariationAction,
 	"wikipedia":         wikipedia.NewWikipediaAction,
 	"summarize_youtube": youtube_summarizer.NewYoutubeSummarizerAction,
 	"latex":             latex.NewLatexAction,
 }
 
-func HandleAction(request *structs.ActionRequest) error {
+func HandleAction(request *structs.ActionRequest) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = utils2.HandlePanic(r)
+		}
+	}()
+
 	logger := logging.GetLogger().With().Str("action", request.Action).Str("params", request.Params).Logger()
 
 	request.Action = strings.ToLower(request.Action)
 
 	actI, ok := actions[request.Action]
 	if !ok {
-		return fmt.Errorf("unknown request.Action: %s", request.Action)
+		return errors3.Wrap(errors3.ErrInvalidAction, fmt.Errorf("action %s not found", request.Action))
 	}
 	act := actI()
 
 	act.SetParams(request.Params)
 	act.SetMessage(request.Message)
 
-	if err := act.RunPreActions(request); err != nil {
+	if err = act.RunPreActions(request); err != nil {
 		if errors.Is(err, errors2.ErrNotImplemented) {
-			if err := defaultPreActions(act, request); err != nil {
-				return err
+			if err = defaultPreActions(act, request); err != nil {
+				return
 			}
+		} else {
+			return
 		}
-		return err
 	}
 
 	request.Message.NotifyAction(act.GetNotification())
-	if err := utils.StoreChainOfThoughtResult(request, act.GetNotification()); err != nil {
-		return err
+	if err = utils.StoreChainOfThoughtResult(request, act.GetNotification()); err != nil {
+		return
 	}
 
 	logger.Info().Msg("executing action")
-	err := act.Execute(request)
+	err = act.Execute(request)
 	if err != nil {
 		if !errors.Is(err, errors2.ErrProceed) {
 			logger.Error().Err(err).Msg("error executing action")
 		}
-		return err
+		return
 	}
 
 	ws := act.GetWriters()
 	for k := range ws {
-		if err := ws[k].Close(); err != nil {
-			return err
+		if err = ws[k].Close(); err != nil {
+			return
 		}
 	}
 
-	if err := act.RunPostActions(request); err != nil {
+	if err = act.RunPostActions(request); err != nil {
 		if errors.Is(err, errors2.ErrNotImplemented) {
-			return defaultPostActions(act, request)
+			err = defaultPostActions(act, request)
 		}
-		return err
 	}
 
-	return nil
+	return
 }

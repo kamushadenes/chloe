@@ -1,0 +1,25 @@
+package discord
+
+import (
+	"context"
+	"fmt"
+	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/structs"
+	"io"
+	"strings"
+)
+
+func action(ctx context.Context, msg *memory.Message) error {
+	fields := strings.Fields(msg.Content)
+
+	req := structs.NewActionRequest()
+	req.Context = ctx
+	req.Message = msg
+	req.Action = fields[0]
+	req.Params = strings.Join(fields[1:], " ")
+	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
+	req.Writers = []io.WriteCloser{NewTextWriter(ctx, req, false)}
+
+	return channels.RunAction(req)
+}

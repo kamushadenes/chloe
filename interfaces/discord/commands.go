@@ -1,15 +1,7 @@
 package discord
 
 import (
-	"context"
-	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
-	"io"
-	"strings"
 )
 
 func getCommands() []*discordgo.ApplicationCommand {
@@ -72,54 +64,4 @@ func registerCommands(s *discordgo.Session) error {
 	}
 
 	return nil
-}
-
-// TODO: This is a mess, refactor it
-
-func action(ctx context.Context, msg *memory.Message) {
-	fields := strings.Fields(msg.Content)
-
-	req := structs.NewActionRequest()
-	req.Context = ctx
-	req.Message = msg
-	req.Action = fields[0]
-	req.Params = strings.Join(fields[1:], " ")
-	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
-	req.Writers = []io.WriteCloser{NewTextWriter(ctx, req, false)}
-
-	channels.ActionRequestsCh <- req
-}
-
-func complete(ctx context.Context, msg *memory.Message) {
-	logger := zerolog.Ctx(ctx)
-
-	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
-
-	if err := aiComplete(ctx, msg); err != nil {
-		logger.Error().Err(err).Msg("error generating image")
-	}
-}
-
-func generate(ctx context.Context, msg *memory.Message) {
-	logger := zerolog.Ctx(ctx)
-
-	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
-
-	if err := aiGenerate(ctx, msg); err != nil {
-		logger.Error().Err(err).Msg("error generating image")
-	}
-}
-
-func tts(ctx context.Context, msg *memory.Message) {
-	logger := zerolog.Ctx(ctx)
-
-	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
-
-	if err := aiTTS(ctx, msg); err != nil {
-		logger.Error().Err(err).Msg("error generating audio")
-	}
-}
-
-func forgetUser(ctx context.Context, msg *memory.Message) error {
-	return msg.User.DeleteMessages(ctx)
 }

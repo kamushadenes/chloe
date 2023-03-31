@@ -7,7 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func aiGenerate(ctx context.Context, msg *memory.Message) error {
+func generate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Action = "image"
 	req.Params = promptFromMessage(msg)
@@ -15,7 +15,5 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false, req.Params))
 
-	channels.ActionRequestsCh <- req
-
-	return nil
+	return channels.RunAction(req)
 }

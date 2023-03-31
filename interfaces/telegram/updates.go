@@ -16,15 +16,17 @@ func handleTextUpdate(ctx context.Context, msg *memory.Message) {
 
 func handleAudioUpdate(ctx context.Context, msg *memory.Message) {
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
+
+	if err := processAudio(ctx, msg); err != nil {
+		_ = msg.SendError(err)
+	}
 }
 
 func handleImageUpdate(ctx context.Context, msg *memory.Message) {
-	logger := zerolog.Ctx(ctx)
-
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatUploadPhoto))
 
 	if err := processImage(ctx, msg); err != nil {
-		logger.Error().Err(err).Msg("error processing image")
+		_ = msg.SendError(err)
 	}
 }
 
@@ -48,22 +50,14 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 
 	user, err := userFromMessage(ctx, msg)
 	if err != nil {
-		user, err = memory.CreateUser(ctx, update.Message.From.FirstName, update.Message.From.LastName, update.Message.From.UserName)
-		if err != nil {
-			logger.Error().Err(err).Msg("error getting user from message")
-			return
-		}
-		err = user.AddExternalID(ctx, fmt.Sprintf("%d", update.Message.From.ID), "telegram")
-		if err != nil {
-			logger.Error().Err(err).Msg("error getting user from message")
-			return
-		}
+		logger.Error().Err(err).Msg("error getting user from message")
+		_ = msg.SendError(err)
+		return
 	}
 	msg.User = user
 
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
-		logger.Error().Err(err).Msg("error saving message")
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
+		_ = msg.SendError(err)
 		return
 	}
 

@@ -1,6 +1,6 @@
 module github.com/kamushadenes/chloe
 
-go 1.19
+go 1.20
 
 require (
 	cloud.google.com/go/texttospeech v1.6.0

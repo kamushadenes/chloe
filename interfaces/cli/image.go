@@ -3,15 +3,15 @@ package cli
 import (
 	"context"
 	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"os"
 )
 
 func Generate(ctx context.Context, text string, writers ...io.WriteCloser) error {
-	req := structs.NewGenerationRequest()
+	req := structs.NewActionRequest()
 	req.Context = ctx
 	req.Message = memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
 	req.Message.User = user
@@ -20,7 +20,8 @@ func Generate(ctx context.Context, text string, writers ...io.WriteCloser) error
 	} else {
 		req.Writers = []io.WriteCloser{os.Stdout}
 	}
-	req.Prompt = text
+	req.Action = "generate"
+	req.Params = text
 
-	return openai.Generate(req)
+	return channels.RunAction(req)
 }

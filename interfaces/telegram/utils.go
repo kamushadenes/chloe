@@ -29,7 +29,23 @@ func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorT
 }
 
 func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, error) {
-	return memory.GetUserByExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
+	logger := zerolog.Ctx(ctx)
+
+	user, err := memory.GetUserByExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
+	if err != nil {
+		user, err = memory.CreateUser(ctx, msg.Source.Telegram.Update.Message.From.FirstName, msg.Source.Telegram.Update.Message.From.LastName, msg.Source.Telegram.Update.Message.From.UserName)
+		if err != nil {
+			logger.Error().Err(err).Msg("error getting user from message")
+			return nil, err
+		}
+		err = user.AddExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
+		if err != nil {
+			logger.Error().Err(err).Msg("error getting user from message")
+			return nil, err
+		}
+	}
+
+	return user, err
 }
 
 func promptFromMessage(msg *memory.Message) string {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react/actions"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeout"
@@ -98,5 +98,5 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(nil, content)).
 		Msg("chain of thought analysis finished")
 
-	return actions.HandleAction(actReq)
+	return channels.RunAction(actReq)
 }

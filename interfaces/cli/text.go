@@ -24,6 +24,7 @@ func Complete(ctx context.Context, text string) error {
 
 	startCh := make(chan bool)
 	continueCh := make(chan bool)
+	errorCh := make(chan error)
 
 	go func() {
 		for {
@@ -37,6 +38,13 @@ func Complete(ctx context.Context, text string) error {
 				}
 				continueCh <- true
 				return
+			case err := <-errorCh:
+				if flags.InteractiveCLI {
+					s.Stop()
+					fmt.Print(s.Prefix)
+				}
+				fmt.Println(colors.BoldRed(err.Error()))
+				return
 			}
 		}
 	}()
@@ -46,8 +54,7 @@ func Complete(ctx context.Context, text string) error {
 	msg.User = user
 	msg.SetContent(text)
 
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
 		return err
 	}
 
@@ -57,6 +64,7 @@ func Complete(ctx context.Context, text string) error {
 	req.SkipClose = true
 	req.StartChannel = startCh
 	req.ContinueChannel = continueCh
+	req.ErrorChannel = errorCh
 	req.Mode = "default"
 	req.Message = msg
 

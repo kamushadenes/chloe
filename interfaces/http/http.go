@@ -56,6 +56,7 @@ func setRoutes(ctx context.Context, r *chi.Mux) {
 		r.Post("/generate", generate)
 		r.Post("/tts", tts)
 		r.Post("/forget", forget)
+		r.Post("/action", action)
 	})
 }
 

@@ -35,17 +35,22 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	user, err := userFromMessage(ctx, msg)
 	if err != nil {
 		logger.Error().Err(err).Msg("error getting user from message")
+		_ = msg.SendError(err)
 		return
 	}
 	msg.User = user
 
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
-		logger.Error().Msg("error saving message")
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
+		_ = msg.SendError(err)
 		return
 	}
 
-	complete(ctx, msg)
+	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
+
+	if err := complete(ctx, msg); err != nil {
+		_ = msg.SendError(err)
+		return
+	}
 }
 
 func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -83,6 +88,8 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 	var reply string
 
+	_ = msg.Source.Discord.API.ChannelTyping(msg.Source.Discord.Message.ChannelID)
+
 	switch i.ApplicationCommandData().Name {
 	case "action":
 		for _, opt := range options {
@@ -94,14 +101,15 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(fmt.Sprintf("%s %s", act, params))
 
-		channels.IncomingMessagesCh <- msg
-
-		if err := <-msg.ErrorCh; err != nil {
-			logger.Error().Msg("error saving message")
+		if err := channels.RegisterIncomingMessage(msg); err != nil {
+			_ = msg.SendError(err)
 			return
 		}
 
-		action(ctx, msg)
+		if err := action(ctx, msg); err != nil {
+			_ = msg.SendError(err)
+			return
+		}
 
 		reply = "Running action..."
 	case "generate":
@@ -113,13 +121,15 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(prompt)
 
-		channels.IncomingMessagesCh <- msg
-		if err := <-msg.ErrorCh; err != nil {
-			logger.Error().Msg("error saving message")
+		if err := channels.RegisterIncomingMessage(msg); err != nil {
+			_ = msg.SendError(err)
 			return
 		}
 
-		generate(ctx, msg)
+		if err := generate(ctx, msg); err != nil {
+			_ = msg.SendError(err)
+			return
+		}
 
 		reply = i18n.GetImageGenerationText()
 	case "tts":
@@ -131,17 +141,22 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(text)
 
-		channels.IncomingMessagesCh <- msg
-		if err := <-msg.ErrorCh; err != nil {
-			logger.Error().Msg("error saving message")
+		if err := channels.RegisterIncomingMessage(msg); err != nil {
+			_ = msg.SendError(err)
 			return
 		}
 
-		tts(ctx, msg)
+		if err := tts(ctx, msg); err != nil {
+			_ = msg.SendError(err)
+			return
+		}
 
 		reply = i18n.GetTextToSpeechText()
 	case "forget":
-		_ = forgetUser(ctx, msg)
+		if err := forgetUser(ctx, msg); err != nil {
+			_ = msg.SendError(err)
+			return
+		}
 		reply = i18n.GetForgetText()
 	}
 

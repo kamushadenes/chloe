@@ -16,10 +16,11 @@ type CompleteCmd struct {
 }
 
 func (c *CompleteCmd) Run(globals *Globals) error {
+	config.OpenAI.DefaultModel.Completion = models.GetModel(c.Model)
+
 	if len(c.Prompt) > 0 {
 		return Complete(globals.Context, strings.Join(c.Prompt, " "))
 	} else {
-		config.OpenAI.DefaultModel.Completion = models.GetModel(c.Model)
 
 		fmt.Println("Welcome to Chloe CLI")
 		fmt.Println("Type 'quit' to exit")

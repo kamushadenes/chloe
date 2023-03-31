@@ -24,7 +24,5 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 	request.Context = ctx
 	request.Writer = NewTextWriter(ctx, request, false)
 
-	channels.CompletionRequestsCh <- request
-
-	return nil
+	return channels.RunCompletion(request)
 }

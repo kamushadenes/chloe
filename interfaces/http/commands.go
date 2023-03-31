@@ -8,7 +8,6 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react/actions"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -59,8 +58,8 @@ func complete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Content)
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
+
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
@@ -78,7 +77,10 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	request.Writer = utils.NewHTTPResponseWriteCloser(w)
 
-	channels.CompletionRequestsCh <- request
+	if err := channels.RunCompletion(request); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
 
 	for {
 		select {
@@ -108,8 +110,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Prompt)
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
@@ -122,7 +123,10 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	req.Message = msg
 	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
-	channels.ActionRequestsCh <- req
+	if err := channels.RunAction(req); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
 
 	for {
 		select {
@@ -152,8 +156,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Content)
-	channels.IncomingMessagesCh <- msg
-	if err := <-msg.ErrorCh; err != nil {
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
@@ -166,7 +169,10 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	req.Message = msg
 	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
 
-	channels.ActionRequestsCh <- req
+	if err := channels.RunAction(req); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
 
 	for {
 		select {
@@ -214,6 +220,12 @@ func action(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	msg.SetContent(fmt.Sprintf("%s %s", params.Action, params.Params))
+	if err := channels.RegisterIncomingMessage(msg); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
+	}
+
 	req := structs.NewActionRequest()
 	req.Context = ctx
 	req.Message = msg
@@ -222,7 +234,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
 	req.Writers = []io.WriteCloser{&utils.HTTPResponseWriteCloser{Writer: w}}
 
-	if err := actions.HandleAction(req); err != nil {
+	if err := channels.RunAction(req); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}

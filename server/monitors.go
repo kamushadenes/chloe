@@ -32,6 +32,9 @@ func MonitorRequests(ctx context.Context) {
 			logger := structs.LoggerFromRequest(req)
 			go func() {
 				err := actions.HandleAction(req)
+				if req.ErrorChannel != nil {
+					req.ErrorChannel <- err
+				}
 				if err != nil {
 					if errors.Is(err, errors2.ErrProceed) {
 						channels.CompletionRequestsCh <- req.ToCompletionRequest()

@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestGetFunctionName(t *testing.T) {
+	fmt.Println(Testing())
+
 	tests := []struct {
 		name     string
 		function interface{}

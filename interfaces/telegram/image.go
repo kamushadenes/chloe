@@ -29,30 +29,27 @@ func convertImageToPng(filePath string) (string, error) {
 }
 
 func aiAction(ctx context.Context, msg *memory.Message) error {
+	fields := strings.Fields(promptFromMessage(msg))
+
 	req := structs.NewActionRequest()
 	req.Message = msg
+	req.Context = ctx
+	req.Action = fields[0]
+	req.Params = strings.Join(fields[1:], " ")
+	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
+	req.Writers = append(req.Writers, NewTextWriter(ctx, req, false))
+
+	return channels.RunAction(req)
+}
+
+func aiGenerate(ctx context.Context, msg *memory.Message) error {
+	req := structs.NewActionRequest()
 	req.Context = ctx
 	req.Action = "image"
 	req.Params = promptFromMessage(msg)
 	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
 
-	channels.ActionRequestsCh <- req
-
-	return nil
-}
-
-func aiGenerate(ctx context.Context, msg *memory.Message) error {
-	fields := strings.Fields(msg.Content)
-	req := structs.NewActionRequest()
-	req.Context = ctx
-	req.Action = fields[0]
-	req.Params = strings.Join(fields[1:], " ")
-	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
-	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
-
-	channels.ActionRequestsCh <- req
-
-	return nil
+	return channels.RunAction(req)
 }
 
 func aiImage(ctx context.Context, msg *memory.Message) error {
@@ -64,7 +61,9 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 		req.Params = path
 		req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
 
-		channels.ActionRequestsCh <- req
+		if err := channels.RunAction(req); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/kamushadenes/chloe/react/actions"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"os"
@@ -22,5 +22,5 @@ func (a *ActionCmd) Run(globals *Globals) error {
 	req.Thought = fmt.Sprintf("User wants to run action %s", a.Action)
 	req.Writers = []io.WriteCloser{os.Stdout}
 
-	return actions.HandleAction(req)
+	return channels.RunAction(req)
 }

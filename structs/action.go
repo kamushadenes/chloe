@@ -15,6 +15,8 @@ type ActionRequest struct {
 	Writers   []io.WriteCloser
 	SkipClose bool
 
+	ErrorChannel chan error
+
 	Action  string
 	Params  string
 	Thought string

@@ -7,7 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func aiTTS(ctx context.Context, msg *memory.Message) error {
+func tts(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Action = "tts"
 	req.Params = promptFromMessage(msg)
@@ -15,7 +15,5 @@ func aiTTS(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Writers = append(req.Writers, NewAudioWriter(ctx, req, false))
 
-	channels.ActionRequestsCh <- req
-
-	return nil
+	return channels.RunAction(req)
 }
