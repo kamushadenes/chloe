@@ -19,6 +19,8 @@ type ActionRequest struct {
 	Params  string
 	Thought string
 
+	Count int
+
 	Message *memory.Message `json:"message,omitempty"`
 }
 

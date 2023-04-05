@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
@@ -43,6 +44,7 @@ func aiAction(ctx context.Context, msg *memory.Message) error {
 	req.Params = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writer = NewTelegramWriter(ctx, req, false)
+	req.Count = config.Telegram.ImageCount
 
 	return channels.RunAction(req)
 }
@@ -54,6 +56,7 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req.Params = promptFromMessage(msg)
 	req.Message = msg
 	req.Writer = NewTelegramWriter(ctx, req, false)
+	req.Count = config.Telegram.ImageCount
 
 	return channels.RunAction(req)
 }
@@ -66,6 +69,7 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 		req.Action = "variation"
 		req.Params = path
 		req.Writer = NewTelegramWriter(ctx, req, false)
+		req.Count = config.Telegram.ImageCount
 
 		if err := channels.RunAction(req); err != nil {
 			return err

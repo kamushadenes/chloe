@@ -46,6 +46,7 @@ func (a *VariationAction) Execute(request *structs.ActionRequest) ([]*structs.Re
 	req.Context = request.GetContext()
 	req.ImagePath = a.Params
 	req.ErrorChannel = errorCh
+	req.Count = request.Count
 
 	req.Writer = obj
 

@@ -3,6 +3,7 @@ package discord
 import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
@@ -14,6 +15,7 @@ func generate(ctx context.Context, msg *memory.Message) error {
 	req.Message = msg
 	req.Context = ctx
 	req.Writer = NewDiscordWriter(ctx, req, false, req.Params)
+	req.Count = config.Discord.ImageCount
 
 	return channels.RunAction(req)
 }

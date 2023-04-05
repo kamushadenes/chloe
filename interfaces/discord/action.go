@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"strings"
@@ -19,6 +20,7 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req.Params = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writer = NewDiscordWriter(ctx, req, false)
+	req.Count = config.Discord.ImageCount
 
 	return channels.RunAction(req)
 }

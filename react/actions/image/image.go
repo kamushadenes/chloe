@@ -38,31 +38,33 @@ func (a *ImageAction) GetParams() string {
 func (a *ImageAction) SetMessage(message *memory.Message) {}
 
 func (a *ImageAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
-	obj := structs.NewResponseObject(structs.Image)
+	var objs []*structs.ResponseObject
 
-	errorCh := make(chan error)
+	for k := 0; k < request.Count; k++ {
+		obj := structs.NewResponseObject(structs.Image)
 
-	req := structs.NewGenerationRequest()
-	req.Context = request.GetContext()
-	req.Prompt = a.Params
-	req.ErrorChannel = errorCh
-	req.Count = 1
-	// add count
-	// req.Count = request.Message.??
+		errorCh := make(chan error)
 
-	req.Writer = obj
+		req := structs.NewGenerationRequest()
+		req.Context = request.GetContext()
+		req.Prompt = a.Params
+		req.ErrorChannel = errorCh
+		req.Count = 1
 
-	channels.GenerationRequestsCh <- req
+		req.Writer = obj
 
-	for {
-		select {
-		case err := <-errorCh:
-			if err != nil {
-				return nil, errors.Wrap(errors.ErrActionFailed, err)
-			}
-			return []*structs.ResponseObject{obj}, nil
+		channels.GenerationRequestsCh <- req
+
+		err := <-errorCh
+
+		if err != nil {
+			return objs, errors.Wrap(errors.ErrActionFailed, err)
 		}
+
+		objs = append(objs, obj)
 	}
+
+	return objs, nil
 }
 
 func (a *ImageAction) RunPreActions(request *structs.ActionRequest) error {
