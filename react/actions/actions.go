@@ -104,9 +104,18 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 
 	for k := range objs {
 		if !errors.Is(err, errors.ErrProceed) {
+			// Handle HTTP writers
+			for kk := range objs[k].Header() {
+				for kkk := range objs[k].Header()[kk] {
+					request.Writer.Header().Add(kk, objs[k].Header()[kk][kkk])
+				}
+			}
+
 			if err = request.Writer.WriteObject(objs[k]); err != nil {
 				return err
 			}
+
+			request.Writer.WriteHeader(objs[k].HTTPStatusCode)
 		}
 
 		if err := utils.StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {

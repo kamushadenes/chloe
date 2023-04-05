@@ -5,19 +5,6 @@ import (
 	"net/http"
 )
 
-type BytesWriter struct {
-	Bytes []byte
-}
-
-func (w *BytesWriter) Write(p []byte) (n int, err error) {
-	w.Bytes = append(w.Bytes, p...)
-	return len(p), nil
-}
-
-func (w *BytesWriter) Close() error {
-	return nil
-}
-
 type HTTPResponseWriteCloser struct {
 	Writer  http.ResponseWriter
 	CloseCh chan bool

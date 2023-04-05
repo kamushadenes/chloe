@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"net/http"
 	"time"
 )
 
@@ -111,3 +112,6 @@ func (w *TelegramWriter) WriteObject(obj *structs.ResponseObject) error {
 func (w *TelegramWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
+
+func (w *TelegramWriter) WriteHeader(statusCode int) {}
+func (w *TelegramWriter) Header() http.Header        { return nil }

@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
+	"net/http"
 	"time"
 )
 
@@ -114,3 +115,6 @@ func (w *DiscordWriter) WriteObject(obj *structs.ResponseObject) error {
 func (w *DiscordWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
+
+func (w *DiscordWriter) WriteHeader(statusCode int) {}
+func (w *DiscordWriter) Header() http.Header        { return nil }

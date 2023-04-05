@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/kamushadenes/chloe/structs"
 	"io"
+	"net/http"
 	"os"
 )
 
@@ -41,3 +42,6 @@ func (w *FileWriter) Flush() {}
 func (w *FileWriter) Close() error {
 	return w.f.Close()
 }
+
+func (w *FileWriter) WriteHeader(statusCode int) {}
+func (w *FileWriter) Header() http.Header        { return nil }

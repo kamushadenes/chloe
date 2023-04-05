@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"github.com/kamushadenes/chloe/structs"
+	"net/http"
 	"os"
 )
 
@@ -33,3 +34,6 @@ func (w *CLIWriter) Flush() {
 func (w *CLIWriter) Close() error {
 	return nil
 }
+
+func (w *CLIWriter) WriteHeader(statusCode int) {}
+func (w *CLIWriter) Header() http.Header        { return nil }

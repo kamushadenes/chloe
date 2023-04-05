@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/slack-go/slack"
+	"net/http"
 	"time"
 )
 
@@ -122,3 +123,6 @@ func (w *SlackWriter) WriteObject(obj *structs.ResponseObject) error {
 func (w *SlackWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
+
+func (w *SlackWriter) WriteHeader(statusCode int) {}
+func (w *SlackWriter) Header() http.Header        { return nil }

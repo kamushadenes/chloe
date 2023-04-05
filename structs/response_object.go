@@ -2,6 +2,7 @@ package structs
 
 import (
 	"io"
+	"net/http"
 	"strings"
 )
 
@@ -14,16 +15,20 @@ const (
 )
 
 type ResponseObject struct {
-	Name    string             `json:"name"`
-	Data    []byte             `json:"payload"`
-	Type    ResponseObjectType `json:"type"`
-	Result  bool               `json:"result"`
-	readIdx int64
+	Name           string             `json:"name"`
+	Data           []byte             `json:"payload"`
+	Type           ResponseObjectType `json:"type"`
+	Result         bool               `json:"result"`
+	readIdx        int64
+	HTTPHeader     http.Header
+	HTTPStatusCode int
 }
 
 func NewResponseObject(objectType ResponseObjectType) *ResponseObject {
 	return &ResponseObject{
-		Type: objectType,
+		Type:           objectType,
+		HTTPStatusCode: http.StatusOK,
+		HTTPHeader:     http.Header{},
 	}
 }
 
@@ -96,4 +101,9 @@ func (ro *ResponseObject) Fail() {
 	ro.Result = false
 }
 
-// TODO: add Store() method to ResponseObject
+func (ro *ResponseObject) WriteHeader(statusCode int) {
+	ro.HTTPStatusCode = statusCode
+}
+func (ro *ResponseObject) Header() http.Header {
+	return ro.HTTPHeader
+}

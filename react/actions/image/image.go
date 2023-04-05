@@ -40,7 +40,12 @@ func (a *ImageAction) SetMessage(message *memory.Message) {}
 func (a *ImageAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	var objs []*structs.ResponseObject
 
-	for k := 0; k < request.Count; k++ {
+	cnt := 1
+	if request.Count > 0 {
+		cnt = request.Count
+	}
+
+	for k := 0; k < cnt; k++ {
 		obj := structs.NewResponseObject(structs.Image)
 
 		errorCh := make(chan error)
