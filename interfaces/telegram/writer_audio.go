@@ -2,12 +2,12 @@ package telegram
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 )
 
 func (w *TelegramWriter) closeAudio() error {
-	logger := zerolog.Ctx(w.Context).With().Str("requestID", w.Request.GetID()).Logger()
+	logger := logging.FromContext(w.Context)
 
 	for k := range w.objs {
 		obj := w.objs[k]

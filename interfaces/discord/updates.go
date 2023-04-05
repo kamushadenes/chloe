@@ -20,8 +20,8 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	ctx := context.Background()
-	logger := logging.GetLogger().With().Str("interface", "discord").Logger()
+	logger := logging.GetLogger().With().Str("interface", "discord").Str("requestID", m.Message.ID).Logger()
+	ctx := logger.WithContext(context.Background())
 
 	msg := memory.NewMessage(m.Message.ID, "discord")
 	msg.Source.Discord = &memory.DiscordMessageSource{
@@ -54,9 +54,6 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	ctx := context.Background()
-	logger := logging.GetLogger().With().Str("interface", "discord").Logger()
-
 	if i.Message == nil {
 		i.Message = &discordgo.Message{
 			ID:        i.ID,
@@ -67,6 +64,9 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 			i.Message.Author = i.Member.User
 		}
 	}
+
+	logger := logging.GetLogger().With().Str("interface", "discord").Str("requestID", i.Message.ID).Logger()
+	ctx := logger.WithContext(context.Background())
 
 	msg := memory.NewMessage(i.Message.ID, "discord")
 	msg.Source.Discord = &memory.DiscordMessageSource{

@@ -41,9 +41,9 @@ func (a *NewsByCountryAction) GetParams() string {
 }
 
 func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
-	var objs []*structs.ResponseObject
+	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("query", a.Params).Logger()
 
-	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("query", a.Params).Logger()
+	var objs []*structs.ResponseObject
 
 	source := config.React.NewsSource
 	if source == "newsapi" && config.React.NewsAPIToken == "" {

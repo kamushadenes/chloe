@@ -44,7 +44,7 @@ func (a *GoogleAction) GetParams() string {
 }
 
 func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
-	logger := logging.GetLogger().With().Str("action", a.GetName()).Logger()
+	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Logger()
 
 	var results []googleResult
 	var objs []*structs.ResponseObject

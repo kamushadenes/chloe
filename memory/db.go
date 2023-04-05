@@ -23,7 +23,7 @@ var toMigrate = []interface{}{
 }
 
 func Setup(ctx context.Context) (*gorm.DB, error) {
-	logger := logging.GetLogger()
+	logger := logging.FromContext(ctx)
 
 	logger.Info().Msg("initializing database")
 

@@ -74,7 +74,7 @@ func (w *DiscordWriter) Flush() {
 }
 
 func (w *DiscordWriter) Close() error {
-	logger := logging.GetLogger()
+	logger := logging.FromContext(w.Context)
 
 	funcs := []func() error{
 		w.closeText,
@@ -83,7 +83,6 @@ func (w *DiscordWriter) Close() error {
 	}
 
 	for k := range funcs {
-		logger.Debug().Str("requestID", w.Request.GetID()).Msgf("closing writer %d", k)
 		if err := funcs[k](); err != nil {
 			logger.Error().Err(err).Str("requestID", w.Request.GetID()).Msgf("error closing writer %d", k)
 			return err

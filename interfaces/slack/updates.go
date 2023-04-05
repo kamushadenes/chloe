@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
@@ -13,7 +13,7 @@ import (
 )
 
 func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slack.Client, auth *slack.AuthTestResponse) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	for envelope := range socketMode.Events {
 		switch envelope.Type {
@@ -27,6 +27,9 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 			case slackevents.CallbackEvent:
 				switch event := eventPayload.InnerEvent.Data.(type) {
 				case *slackevents.MessageEvent:
+					nlogger := logger.With().Str("requestID", event.TimeStamp).Logger()
+					ctx = nlogger.WithContext(ctx)
+
 					if !isMentioned(auth, event) {
 						continue
 					}
@@ -42,7 +45,7 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 
 						user, err := userFromMessage(ctx, msg)
 						if err != nil {
-							logger.Error().Err(err).Msg("error getting user from message")
+							nlogger.Error().Err(err).Msg("error getting user from message")
 							continue
 						}
 						msg.User = user
@@ -62,6 +65,9 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 			// Acknowledge the eventPayload first
 			socketMode.Ack(*envelope.Request)
 
+			nlogger := logger.With().Str("requestID", envelope.Request.EnvelopeID).Logger()
+			ctx = nlogger.WithContext(ctx)
+
 			cmd, _ := envelope.Data.(slack.SlashCommand)
 
 			msg := memory.NewMessage(cmd.TriggerID, "slack")
@@ -75,7 +81,7 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 
 			user, err := userFromMessage(ctx, msg)
 			if err != nil {
-				logger.Error().Err(err).Msg("error getting user from message")
+				nlogger.Error().Err(err).Msg("error getting user from message")
 				continue
 			}
 			msg.User = user
@@ -103,7 +109,7 @@ func HandleUpdates(ctx context.Context, socketMode *socketmode.Client, api *slac
 				}
 
 				if _, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionText(i18n.GetForgetText(), false)); err != nil {
-					logger.Error().Err(err).Msg("error sending message")
+					nlogger.Error().Err(err).Msg("error sending message")
 				}
 			}
 		}

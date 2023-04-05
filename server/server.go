@@ -16,7 +16,7 @@ import (
 func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 	ctx, cancel := context.WithCancel(ctx)
 
-	logger := logging.GetLogger()
+	logger := logging.FromContext(ctx)
 
 	if config.OpenAI.APIKey == "" {
 		logger.Fatal().Msg("OpenAI API key is not set")

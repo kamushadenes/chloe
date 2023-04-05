@@ -3,12 +3,12 @@ package telegram
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
 )
 
 func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorText string, err error, reply bool) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	text := successText
 
@@ -29,7 +29,7 @@ func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorT
 }
 
 func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	user, err := memory.GetUserByExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
 	if err != nil {

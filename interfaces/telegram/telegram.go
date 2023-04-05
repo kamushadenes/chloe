@@ -6,11 +6,10 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/rs/zerolog"
 )
 
 func newBot(ctx context.Context, token string) (*tgbotapi.BotAPI, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	logger.Info().Msg("creating telegram bot")
 

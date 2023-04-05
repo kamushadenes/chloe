@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 	"os/exec"
 )
 
@@ -16,7 +16,7 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 		return "", fmt.Errorf("unable to locate `ffmpeg`: %w", err)
 	}
 
-	logger := zerolog.Ctx(ctx).With().Str("filePath", filePath).Logger()
+	logger := logging.FromContext(ctx).With().Str("filePath", filePath).Logger()
 
 	logger.Info().Msg("converting audio to mp3")
 

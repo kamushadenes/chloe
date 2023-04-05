@@ -3,14 +3,12 @@ package discord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 )
 
 func (w *DiscordWriter) closeAudio() error {
-	logger := zerolog.Ctx(w.Context).With().Str("requestID", w.Request.GetID()).Logger()
-
-	logger.Debug().Str("chatID", w.ChatID).Msg("replying with audio")
+	logger := logging.FromContext(w.Context)
 
 	var files []*discordgo.File
 
@@ -28,6 +26,8 @@ func (w *DiscordWriter) closeAudio() error {
 	if len(files) == 0 {
 		return nil
 	}
+
+	logger.Debug().Str("chatID", w.ChatID).Msg("replying with audio")
 
 	_, err := w.Bot.ChannelMessageSendComplex(w.ChatID, &discordgo.MessageSend{
 		Files:   files,

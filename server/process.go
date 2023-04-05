@@ -7,7 +7,7 @@ import (
 )
 
 func ProcessMessage(ctx context.Context, msg *memory.Message) error {
-	logger := logging.GetLogger()
+	logger := logging.FromContext(ctx)
 
 	logger.Info().
 		Uint("userID", msg.User.ID).

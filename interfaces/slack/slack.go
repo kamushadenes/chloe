@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/rs/zerolog"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/socketmode"
 )
 
 func newBot(ctx context.Context, token string, appLevelToken string) (*slack.Client, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	api := slack.New(
 		token,

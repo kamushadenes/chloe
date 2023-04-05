@@ -8,7 +8,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/utils"
-	"github.com/rs/zerolog"
 	"io/fs"
 	"net/http"
 	"sync"
@@ -16,7 +15,7 @@ import (
 )
 
 func setMiddlewares(ctx context.Context, r *chi.Mux) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	for _, mid := range []func(http.Handler) http.Handler{
 		LoggingMiddleware(ctx),
@@ -35,7 +34,8 @@ func setMiddlewares(ctx context.Context, r *chi.Mux) {
 }
 
 func setRoutes(ctx context.Context, r *chi.Mux) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
+
 	logger.Debug().Msg("adding routes")
 
 	// Create a subdirectory filesystem that only contains the contents of the "web" folder
@@ -61,7 +61,8 @@ func setRoutes(ctx context.Context, r *chi.Mux) {
 }
 
 func getRouter(ctx context.Context) *chi.Mux {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
+
 	logger.Debug().Msg("getting router")
 
 	r := chi.NewRouter()
@@ -73,7 +74,7 @@ func getRouter(ctx context.Context) *chi.Mux {
 }
 
 func listen(ctx context.Context, server *http.Server, wg *sync.WaitGroup) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	logger.Debug().Msg("listening")
 

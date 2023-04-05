@@ -45,13 +45,13 @@ func (a *YoutubeSummarizerAction) GetParams() string {
 func (a *YoutubeSummarizerAction) SetMessage(message *memory.Message) {}
 
 func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("url", a.Params).Logger()
+
 	obj := structs.NewResponseObject(structs.Text)
 
 	if _, err := exec.LookPath("youtube-dl"); err != nil {
 		return nil, errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandNotFound, err)
 	}
-
-	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("url", a.Params).Logger()
 
 	tmpDir, err := os.MkdirTemp(config.Misc.TempDir, "youtube")
 	if err != nil {

@@ -2,15 +2,13 @@ package slack
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/rs/zerolog"
 	"github.com/slack-go/slack"
 )
 
 func (w *SlackWriter) closeImage() error {
-	logger := zerolog.Ctx(w.Context).With().Str("requestID", w.Request.GetID()).Logger()
-
-	logger.Debug().Str("chatID", w.ChatID).Msg("replying with image")
+	logger := logging.FromContext(w.Context)
 
 	content := fmt.Sprintf("Prompt: %s", w.Prompt)
 
@@ -22,6 +20,7 @@ func (w *SlackWriter) closeImage() error {
 	for k := range w.objs {
 		obj := w.objs[k]
 		if obj.Type == structs.Image {
+			logger.Debug().Str("chatID", w.ChatID).Msg("replying with image")
 			if _, err := w.Bot.UploadFileV2(slack.UploadFileV2Parameters{
 				Reader:          obj,
 				FileSize:        obj.Size(),

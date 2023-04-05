@@ -5,8 +5,8 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
 )
 
 func handleTextUpdate(ctx context.Context, msg *memory.Message) {
@@ -31,10 +31,7 @@ func handleImageUpdate(ctx context.Context, msg *memory.Message) {
 }
 
 func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	logger := zerolog.Ctx(ctx)
-	logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
-		return c.Str("externalUserID", fmt.Sprintf("%d", update.Message.From.ID))
-	})
+	logger := logging.FromContext(ctx).With().Str("externalUserID", fmt.Sprintf("%d", update.Message.From.ID)).Logger()
 
 	if update.Message == nil { // ignore non-Message updates
 		return

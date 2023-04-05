@@ -57,11 +57,9 @@ func (a *ImageAction) Execute(request *structs.ActionRequest) ([]*structs.Respon
 	for {
 		select {
 		case err := <-errorCh:
-			fmt.Println("eita", err)
 			if err != nil {
 				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
-			fmt.Println(obj.Size())
 			return []*structs.ResponseObject{obj}, nil
 		}
 	}

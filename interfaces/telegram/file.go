@@ -40,7 +40,7 @@ func saveFile(filePath string, data []byte) error {
 }
 
 func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) string {
-	logger := logging.GetLogger().With().Str("fileID", fileID).Logger()
+	logger := logging.FromContext(ctx).With().Str("fileID", fileID).Logger()
 
 	logger.Info().Msg("downloading file")
 

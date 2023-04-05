@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/rs/zerolog"
+	"github.com/kamushadenes/chloe/logging"
 	"time"
 )
 
 func WaitTimeout(ctx context.Context, timeout time.Duration, fn func(ch chan interface{}, errCh chan error)) (interface{}, error) {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 
 	nch := make(chan interface{})
 	errCh := make(chan error)

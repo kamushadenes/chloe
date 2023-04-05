@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/go-chi/render"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/rs/zerolog"
 	"net/http"
 	"strings"
 )
@@ -13,7 +13,7 @@ import (
 type userCtxKey struct{}
 
 func LoggingMiddleware(ctx context.Context) func(next http.Handler) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := logging.FromContext(ctx)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := logger.WithContext(r.Context())

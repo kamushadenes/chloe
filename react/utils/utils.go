@@ -23,7 +23,7 @@ func StartAndWait(req structs.Request) {
 }
 
 func NotifyError(req structs.Request, errs ...error) error {
-	logger := logging.GetLogger().With().Str("requestID", req.GetID()).Logger()
+	logger := logging.FromContext(req.GetContext()).With().Str("requestID", req.GetID()).Logger()
 
 	for k := range errs {
 		if errs[k] != nil {

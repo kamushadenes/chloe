@@ -7,7 +7,7 @@ import (
 )
 
 func (w *TelegramWriter) closeImage() error {
-	logger := logging.GetLogger().With().Str("requestID", w.Request.GetID()).Logger()
+	logger := logging.FromContext(w.Context)
 
 	var files []interface{}
 	for k := range w.objs {

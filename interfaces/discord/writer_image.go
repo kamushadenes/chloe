@@ -8,12 +8,11 @@ import (
 )
 
 func (w *DiscordWriter) closeImage() error {
-	logger := logging.GetLogger().With().Str("requestID", w.Request.GetID()).Logger()
+	logger := logging.FromContext(w.Context)
 
 	var files []*discordgo.File
 	for k := range w.objs {
 		obj := w.objs[k]
-		fmt.Println(obj.Type, obj.Type == structs.Image)
 		if obj.Type == structs.Image {
 			files = append(files, &discordgo.File{
 				Name:        fmt.Sprintf("generated-%d.png", k),
@@ -22,8 +21,6 @@ func (w *DiscordWriter) closeImage() error {
 			})
 		}
 	}
-
-	fmt.Println(files)
 
 	if len(files) == 0 {
 		return nil
@@ -37,7 +34,5 @@ func (w *DiscordWriter) closeImage() error {
 		Files:   files,
 		Content: content,
 	})
-	fmt.Println(err)
-	fmt.Println("???")
 	return err
 }
