@@ -62,6 +62,9 @@ func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompleti
 		}
 		ch <- resp
 	})
+	if err != nil {
+		return openai.ChatCompletionResponse{}, err
+	}
 
 	return respi.(openai.ChatCompletionResponse), err
 }

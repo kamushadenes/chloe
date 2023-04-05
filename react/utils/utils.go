@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
@@ -70,8 +71,13 @@ func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, conte
 	if err != nil {
 		return errors.Wrap(errors.ErrSaveMessage, err)
 	}
+	var buf bytes.Buffer
+	err = json.Compact(&buf, b)
+	if err != nil {
+		return errors.Wrap(errors.ErrSaveMessage, err)
+	}
 
-	nmsg.SetContent(string(b))
+	nmsg.SetContent(buf.String())
 	nmsg.User = request.GetMessage().User
 
 	err = nmsg.Save(request.GetContext())

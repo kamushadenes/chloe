@@ -5,6 +5,7 @@ import (
 	markdown "github.com/MichaelMure/go-term-markdown"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/utils/colors"
 	"github.com/slack-go/slack"
@@ -53,18 +54,20 @@ func (m *Message) SendError(err error) error {
 
 		return nil
 	case "cli":
-		width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
-		if err != nil {
-			width = 80
+		if flags.InteractiveCLI {
+			width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+			if err != nil {
+				width = 80
+			}
+
+			result := markdown.Render(text, width, 0)
+
+			m.Source.CLI.PauseSpinnerCh <- true
+
+			fmt.Printf("%s %s\n", colors.BoldRed("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
+
+			m.Source.CLI.ResumeSpinnerCh <- false
 		}
-
-		result := markdown.Render(text, width, 0)
-
-		m.Source.CLI.PauseSpinnerCh <- true
-
-		fmt.Printf("%s %s\n", colors.BoldRed("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
-
-		m.Source.CLI.ResumeSpinnerCh <- false
 	}
 
 	return nil
@@ -127,18 +130,20 @@ func (m *Message) SendText(text string, notify bool, extraArgs ...interface{}) e
 			return nil
 		}
 	case "cli":
-		width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
-		if err != nil {
-			width = 80
+		if flags.InteractiveCLI {
+			width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+			if err != nil {
+				width = 80
+			}
+
+			result := markdown.Render(text, width, 0)
+
+			m.Source.CLI.PauseSpinnerCh <- true
+
+			fmt.Printf("%s %s\n", colors.Yellow("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
+
+			m.Source.CLI.ResumeSpinnerCh <- false
 		}
-
-		result := markdown.Render(text, width, 0)
-
-		m.Source.CLI.PauseSpinnerCh <- true
-
-		fmt.Printf("%s %s\n", colors.Yellow("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
-
-		m.Source.CLI.ResumeSpinnerCh <- false
 	}
 
 	return fmt.Errorf("unsupported interface %s", m.Interface)

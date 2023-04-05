@@ -10,6 +10,7 @@ import (
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
@@ -45,20 +46,25 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 	resp = respi.(openai.ChatCompletionResponse)
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
+	j := utils.FindJSON(content)
 
-	var cotResp DetectedAction
-	if err := json.Unmarshal([]byte(content), &cotResp); err != nil {
+	logger.Debug().Str("content", content).Str("json", j).Msg("action detection response")
+
+	var actResp DetectedAction
+
+	if err := json.Unmarshal([]byte(j), &actResp); err != nil {
 		return nil, err
 	}
 
-	if cotResp.Action == "" || cotResp.Action == "none" {
+	if actResp.Command.Name == "" || actResp.Command.Name == "none" {
 		logger.Info().Msg("action not found")
 		return nil, fmt.Errorf("no action found in response: %s", content)
 	}
 
 	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
-		msg.SetContent(fmt.Sprintf("Thought: %s\nAction: %s\nParams: %s", cotResp.Thought, cotResp.Action, cotResp.Params))
+		j = utils.FindJSON(msg.Content)
+		msg.SetContent(j)
 		if err := msg.Save(request.Context); err != nil {
 			return nil, err
 		}
@@ -73,24 +79,26 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 		return nil, err
 	}
 
-	logger.Info().Str("action", cotResp.Action).
-		Str("params", cotResp.Params).
-		Str("thought", cotResp.Thought).
+	logger.Info().
+		EmbedObject(actResp).
 		Msg("action detected")
+
+	_ = request.Message.SendText(fmt.Sprintf("*Thought: %s*", actResp.Thoughts.Speak), false)
+	_ = request.Message.SendText(fmt.Sprintf("*Reasoning: %s*", actResp.Thoughts.Reasoning), false)
+	_ = request.Message.SendText(fmt.Sprintf("*Plan:\n  - %s*", strings.Join(actResp.Thoughts.Plan, "\n  - ")), false)
+	_ = request.Message.SendText(fmt.Sprintf("*Criticism: %s*", actResp.Thoughts.Criticism), false)
 
 	actReq := structs.NewActionRequest()
 	actReq.ID = request.ID
 	actReq.Message = request.Message
 	actReq.Context = request.Context
-	actReq.Action = cotResp.Action
-	actReq.Params = cotResp.Params
-	actReq.Thought = cotResp.Thought
+	actReq.Action = actResp.Command.Name
+	actReq.Params = actResp.Command.Params
+	actReq.Thought = actResp.Thoughts.Text
 	actReq.Writers = []io.WriteCloser{request.Writer}
 
 	logger.Info().
-		Str("action", cotResp.Action).
-		Str("params", cotResp.Params).
-		Str("thought", cotResp.Thought).
+		EmbedObject(actResp).
 		Float64("estimatedPromptCost",
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
 		Float64("estimatedResponseCost",
