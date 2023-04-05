@@ -20,20 +20,33 @@ func Complete(ctx context.Context, text string) error {
 	if flags.InteractiveCLI {
 		s.Prefix = colors.BoldCyan("Chloe: ")
 		s.Start()
+		s.Disable()
 	}
 
 	startCh := make(chan bool)
 	continueCh := make(chan bool)
 	errorCh := make(chan error)
 
+	pauseSpinnerCh := make(chan bool)
+	resumeSpinnerCh := make(chan bool)
+
 	go func() {
 		for {
 			select {
+			case <-pauseSpinnerCh:
+				if flags.InteractiveCLI {
+					s.Stop()
+				}
+			case <-resumeSpinnerCh:
+				if flags.InteractiveCLI {
+					s.Start()
+				}
 			case <-ctx.Done():
 				return
 			case <-startCh:
 				if flags.InteractiveCLI {
 					s.Stop()
+					fmt.Println()
 					fmt.Print(s.Prefix)
 				}
 				continueCh <- true
@@ -41,6 +54,7 @@ func Complete(ctx context.Context, text string) error {
 			case err := <-errorCh:
 				if flags.InteractiveCLI {
 					s.Stop()
+					fmt.Println()
 					fmt.Print(s.Prefix)
 				}
 				fmt.Println(colors.BoldRed(err.Error()))
@@ -52,6 +66,13 @@ func Complete(ctx context.Context, text string) error {
 	msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
 	msg.Role = "user"
 	msg.User = user
+	msg.Source = &memory.MessageSource{
+		CLI: &memory.CLIMessageSource{
+			PauseSpinnerCh:  pauseSpinnerCh,
+			ResumeSpinnerCh: resumeSpinnerCh,
+		},
+	}
+
 	msg.SetContent(text)
 
 	if err := channels.RegisterIncomingMessage(msg); err != nil {

@@ -10,6 +10,11 @@ import (
 	"net/http"
 )
 
+type CLIMessageSource struct {
+	PauseSpinnerCh  chan bool
+	ResumeSpinnerCh chan bool
+}
+
 type TelegramMessageSource struct {
 	API    *tgbotapi.BotAPI
 	Update tgbotapi.Update
@@ -36,6 +41,7 @@ type MessageSource struct {
 	HTTP     *HTTPMessageSource     `json:"http,omitempty"`
 	Discord  *DiscordMessageSource  `json:"discord,omitempty"`
 	Slack    *SlackMessageSource    `json:"slack,omitempty"`
+	CLI      *CLIMessageSource      `json:"cli,omitempty"`
 }
 
 type MessageModeration struct {

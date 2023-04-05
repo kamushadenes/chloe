@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/memory"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
@@ -18,12 +17,12 @@ import (
 
 var CheckpointMarker = "###CHECKPOINT###"
 
-func ChainOfThought(request *structs.CompletionRequest) error {
+func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, error) {
 	logger := zerolog.Ctx(request.Context)
 
-	logger.Info().Msg("detecting chain of thought")
+	logger.Info().Msg("detecting action")
 
-	request.Mode = "chain_of_thought"
+	request.Mode = "action_detection"
 	req := openai.ChatCompletionRequest{
 		Model:    config.OpenAI.DefaultModel.ChainOfThought.String(),
 		Messages: request.ToChatCompletionMessages(),
@@ -34,34 +33,34 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	respi, err := timeout.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
 		resp, err := reactOpenAI.OpenAIClient.CreateChatCompletion(request.Context, req)
 		if err != nil {
-			logger.Error().Err(err).Msg("error requesting chain of thought")
+			logger.Error().Err(err).Msg("error detecting action")
 			errCh <- err
 		}
 		ch <- resp
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	resp = respi.(openai.ChatCompletionResponse)
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
-	var cotResp ChainOfThoughtResponse
+	var cotResp DetectedAction
 	if err := json.Unmarshal([]byte(content), &cotResp); err != nil {
-		return err
+		return nil, err
 	}
 
 	if cotResp.Action == "" || cotResp.Action == "none" {
-		logger.Info().Msg("chain of thought not found")
-		return fmt.Errorf("no action found in response: %s", content)
+		logger.Info().Msg("action not found")
+		return nil, fmt.Errorf("no action found in response: %s", content)
 	}
 
 	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
 		msg.SetContent(fmt.Sprintf("Thought: %s\nAction: %s\nParams: %s", cotResp.Thought, cotResp.Action, cotResp.Params))
 		if err := msg.Save(request.Context); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -71,13 +70,13 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 	msg.SetContent(CheckpointMarker)
 	msg.Role = "user"
 	if err := msg.Save(request.Context); err != nil {
-		return err
+		return nil, err
 	}
 
 	logger.Info().Str("action", cotResp.Action).
 		Str("params", cotResp.Params).
 		Str("thought", cotResp.Thought).
-		Msg("chain of thought")
+		Msg("action detected")
 
 	actReq := structs.NewActionRequest()
 	actReq.ID = request.ID
@@ -96,7 +95,7 @@ func ChainOfThought(request *structs.CompletionRequest) error {
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
 		Float64("estimatedResponseCost",
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(nil, content)).
-		Msg("chain of thought analysis finished")
+		Msg("action dectection finished")
 
-	return channels.RunAction(actReq)
+	return actReq, nil
 }

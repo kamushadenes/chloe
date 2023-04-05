@@ -27,20 +27,30 @@ import (
 var actions = map[string]func() structs2.Action{
 	"mock": mock.NewMockAction,
 
-	"google":            google.NewGoogleAction,
-	"news":              news.NewNewsAction,
-	"news_by_country":   news.NewNewsByCountryAction,
-	"calculate":         math.NewCalculateAction,
-	"math":              math.NewCalculateAction,
-	"scrape":            scrape.NewScrapeAction,
-	"web":               scrape.NewScrapeAction,
-	"generate":          image.NewImageAction,
-	"tts":               tts.NewTTSAction,
-	"transcribe":        transcribe.NewTranscribeAction,
-	"variation":         image.NewVariationAction,
-	"wikipedia":         wikipedia.NewWikipediaAction,
+	"google": google.NewGoogleAction,
+	"search": google.NewGoogleAction,
+
+	"news":            news.NewNewsAction,
+	"news_by_country": news.NewNewsByCountryAction,
+
+	"calculate": math.NewCalculateAction,
+	"math":      math.NewCalculateAction,
+
+	"scrape": scrape.NewScrapeAction,
+	"web":    scrape.NewScrapeAction,
+
+	"generate":  image.NewImageAction,
+	"variation": image.NewVariationAction,
+
+	"tts": tts.NewTTSAction,
+
+	"transcribe": transcribe.NewTranscribeAction,
+
+	"wikipedia": wikipedia.NewWikipediaAction,
+
 	"summarize_youtube": youtube_summarizer.NewYoutubeSummarizerAction,
-	"latex":             latex.NewLatexAction,
+
+	"latex": latex.NewLatexAction,
 }
 
 func HandleAction(request *structs.ActionRequest) (err error) {

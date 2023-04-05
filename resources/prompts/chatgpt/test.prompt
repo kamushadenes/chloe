@@ -1,1 +1,0 @@
-This is just a test {{.Args.variable_1}} {{.Args.variable_2}}

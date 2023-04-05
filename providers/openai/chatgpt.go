@@ -13,6 +13,7 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
+	"github.com/kamushadenes/chloe/react/actions"
 	errors2 "github.com/kamushadenes/chloe/react/errors"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -40,7 +41,13 @@ func processChainOfThought(request *structs.CompletionRequest) error {
 
 	cotreq := request.Copy()
 	cotreq.Message.SetContent(string(b))
-	return react.ChainOfThought(cotreq)
+
+	actReq, err := react.DetectAction(cotreq)
+	if err != nil {
+		return err
+	}
+
+	return actions.HandleAction(actReq)
 }
 
 // newChatCompletionRequest creates a new OpenAI ChatCompletionRequest

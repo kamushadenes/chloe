@@ -2,9 +2,13 @@ package memory
 
 import (
 	"fmt"
+	markdown "github.com/MichaelMure/go-term-markdown"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/i18n"
+	"github.com/kamushadenes/chloe/utils/colors"
 	"github.com/slack-go/slack"
+	"golang.org/x/crypto/ssh/terminal"
+	"os"
 	"strings"
 )
 
@@ -34,6 +38,19 @@ func (m *Message) SendError(err error) error {
 			_, _, err := m.Source.Slack.API.PostMessage(m.Source.Slack.SlashCommand.ChannelID, msgText)
 			return err
 		}
+	case "cli":
+		width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+		if err != nil {
+			width = 80
+		}
+
+		result := markdown.Render(text, width, 0)
+
+		m.Source.CLI.PauseSpinnerCh <- true
+
+		fmt.Printf("%s %s\n", colors.BoldRed("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
+
+		m.Source.CLI.ResumeSpinnerCh <- false
 	}
 
 	return nil
@@ -80,6 +97,19 @@ func (m *Message) SendText(text string, notify bool, extraArgs ...interface{}) e
 			_, _, err := m.Source.Slack.API.PostMessage(m.Source.Slack.SlashCommand.ChannelID, msgText)
 			return err
 		}
+	case "cli":
+		width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+		if err != nil {
+			width = 80
+		}
+
+		result := markdown.Render(text, width, 0)
+
+		m.Source.CLI.PauseSpinnerCh <- true
+
+		fmt.Printf("%s %s\n", colors.Yellow("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
+
+		m.Source.CLI.ResumeSpinnerCh <- false
 	}
 
 	return fmt.Errorf("unsupported interface %s", m.Interface)
