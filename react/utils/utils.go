@@ -58,6 +58,10 @@ func WriteResult(req structs.Request, result interface{}) {
 }
 
 func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, content string) error {
+	logger := logging.FromContext(request.GetContext())
+
+	logger.Debug().Str("content", content).Msg("storing action detection result")
+
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
 	nmsg.Role = "user"
 

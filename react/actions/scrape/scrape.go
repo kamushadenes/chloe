@@ -52,13 +52,6 @@ func (a *ScrapeAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	// TODO: store in the main loop outside
-	/*
-		if err := utils.StoreActionDetectionResult(request, utils2.Truncate(res.GetStorableContent(), truncateTokenCount)); err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
-		}
-	*/
-
 	return []*structs.ResponseObject{obj}, errors.ErrProceed
 }
 

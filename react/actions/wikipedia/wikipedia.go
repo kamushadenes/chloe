@@ -76,16 +76,6 @@ func (a *WikipediaAction) Execute(request *structs.ActionRequest) ([]*structs.Re
 				page.URL, page.Title, utils2.Truncate(content, truncateTokenCount)))); err != nil {
 			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
-
-		// TODO: store in the main loop outside
-		/*
-			if !utils2.Testing() {
-				msg := fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s", page.URL, page.Title, content)
-				if err := utils.StoreActionDetectionResult(request, utils2.Truncate(msg, truncateTokenCount)); err != nil {
-					return nil, errors.Wrap(errors.ErrActionFailed, err)
-				}
-			}
-		*/
 	}
 
 	return []*structs.ResponseObject{obj}, errors.ErrProceed

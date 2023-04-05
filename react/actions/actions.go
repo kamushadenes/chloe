@@ -103,8 +103,14 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	logger.Info().Msg("writing action results")
 
 	for k := range objs {
-		if err = request.Writer.WriteObject(objs[k]); err != nil {
-			return err
+		if !errors.Is(err, errors.ErrProceed) {
+			if err = request.Writer.WriteObject(objs[k]); err != nil {
+				return err
+			}
+		}
+
+		if err := utils.StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 	}
 

@@ -71,6 +71,19 @@ func (ro *ResponseObject) Bytes() []byte {
 	return ro.Data
 }
 
+func (ro *ResponseObject) GetStorableContent() string {
+	switch ro.Type {
+	case Image:
+		return "[generated image]"
+	case Audio:
+		return "[generated audio]"
+	case Text:
+		return string(ro.Data)
+	}
+
+	return ""
+}
+
 func (ro *ResponseObject) Size() int {
 	return len(ro.Data)
 }

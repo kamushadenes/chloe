@@ -78,7 +78,7 @@ func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) ([]*struct
 				continue
 			}
 			aobjs, err := na.Execute(request)
-			if err != nil {
+			if err != nil && err != errors.ErrProceed {
 				continue
 			}
 			objs = append(objs, aobjs...)

@@ -109,7 +109,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 			request.Message.NotifyAction(na.GetNotification())
 
 			aobjs, err := na.Execute(request)
-			if err != nil {
+			if err != nil && !errors.Is(err, errors.ErrProceed) {
 				continue
 			}
 
