@@ -4,7 +4,6 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -16,7 +15,7 @@ type TranscribeAction struct {
 	Message *memory.Message
 }
 
-func NewTranscribeAction() structs2.Action {
+func NewTranscribeAction() structs.Action {
 	return &TranscribeAction{
 		Name: "audio",
 	}

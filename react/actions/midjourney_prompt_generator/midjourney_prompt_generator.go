@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
@@ -17,7 +16,7 @@ type MidjourneyPromptGeneratorAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewMidjourneyPromptGeneratorAction() structs2.Action {
+func NewMidjourneyPromptGeneratorAction() structs.Action {
 	return &MidjourneyPromptGeneratorAction{
 		Name: "image",
 	}

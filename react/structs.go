@@ -8,20 +8,16 @@ type DetectedAction struct {
 		Params string `json:"params"`
 	} `json:"command"`
 	Thoughts struct {
-		Text      string   `json:"text"`
-		Reasoning string   `json:"reasoning"`
-		Plan      []string `json:"plan"`
-		Criticism string   `json:"criticism"`
-		Speak     string   `json:"speak"`
+		ChainOfThought []string `json:"chain_of_thought"`
+		Plan           []string `json:"plan"`
+		Criticism      string   `json:"criticism"`
 	} `json:"thoughts"`
 }
 
 func (d DetectedAction) MarshalZerologObject(e *zerolog.Event) {
 	e.Str("command_name", d.Command.Name)
 	e.Str("command_params", d.Command.Params)
-	e.Str("thoughts_text", d.Thoughts.Text)
-	e.Str("thoughts_reasoning", d.Thoughts.Reasoning)
 	e.Strs("thoughts_plan", d.Thoughts.Plan)
 	e.Str("thoughts_criticism", d.Thoughts.Criticism)
-	e.Str("thoughts_speak", d.Thoughts.Speak)
+	e.Strs("thoughts_chain_of_thought", d.Thoughts.ChainOfThought)
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -16,7 +15,7 @@ type VariationAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewVariationAction() structs2.Action {
+func NewVariationAction() structs.Action {
 	return &VariationAction{
 		Name: "image",
 	}

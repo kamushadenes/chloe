@@ -11,7 +11,6 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/mock"
 	"github.com/kamushadenes/chloe/react/actions/news"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
 	"github.com/kamushadenes/chloe/react/actions/tts"
 	"github.com/kamushadenes/chloe/react/actions/wikipedia"
@@ -22,7 +21,7 @@ import (
 	"strings"
 )
 
-var actions = map[string]func() structs2.Action{
+var actions = map[string]func() structs.Action{
 	"mock": mock.NewMockAction,
 
 	"google": google.NewGoogleAction,

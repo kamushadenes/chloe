@@ -26,10 +26,11 @@ RESOURCES:
 
 PERFORMANCE EVALUATION:
 
-1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
-2. Constructively self-criticize your big-picture behavior constantly.
-3. Reflect on past decisions and strategies to refine your approach.
-4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
+1. Think step by step.
+2. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+3. Constructively self-criticize your big-picture behavior constantly.
+4. Reflect on past decisions and strategies to refine your approach.
+5. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
 
 RESPONSE FORMAT:
 
@@ -39,11 +40,9 @@ RESPONSE FORMAT:
         "params": "<command params>"
     },
     "thoughts": {
-        "text": "thought",
-        "reasoning": "reasoning",
+        "chain_of_thought": ["array of", "thoughts", "that convey the decision making process"],
         "plan": ["array of", "action points", "that convey long term plan"],
         "criticism": "constructive self-criticism",
-        "speak": "thoughts summary to say to user"
     }
 }
 

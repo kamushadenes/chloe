@@ -84,8 +84,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 		Msg("action detected")
 
 	if config.React.ReportThoughts {
-		_ = request.Message.SendText(fmt.Sprintf("*Thought: %s*", actResp.Thoughts.Speak), false)
-		_ = request.Message.SendText(fmt.Sprintf("*Reasoning: %s*", actResp.Thoughts.Reasoning), false)
+		_ = request.Message.SendText(fmt.Sprintf("*Chain of Thought:\n  - %s*", strings.Join(actResp.Thoughts.ChainOfThought, "\n  - ")), false)
 		_ = request.Message.SendText(fmt.Sprintf("*Plan:\n  - %s*", strings.Join(actResp.Thoughts.Plan, "\n  - ")), false)
 		_ = request.Message.SendText(fmt.Sprintf("*Criticism: %s*", actResp.Thoughts.Criticism), false)
 	}
@@ -96,7 +95,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 	actReq.Context = request.Context
 	actReq.Action = actResp.Command.Name
 	actReq.Params = actResp.Command.Params
-	actReq.Thought = actResp.Thoughts.Text
+	actReq.Thought = strings.Join(actResp.Thoughts.ChainOfThought, "\n - ")
 	actReq.Writers = []io.WriteCloser{request.Writer}
 
 	logger.Info().

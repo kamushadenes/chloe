@@ -4,12 +4,11 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
 
-func latexPreActions(a structs2.Action, request *structs.ActionRequest) error {
+func latexPreActions(a structs.Action, request *structs.ActionRequest) error {
 	var ws []io.WriteCloser
 
 	switch request.Message.Interface {

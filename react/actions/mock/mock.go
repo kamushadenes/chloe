@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -15,7 +14,7 @@ type MockAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewMockAction() structs2.Action {
+func NewMockAction() structs.Action {
 	return &MockAction{
 		Name: "mock",
 	}

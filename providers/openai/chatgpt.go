@@ -167,6 +167,8 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 				return errors.Wrap(errors.ErrCompletionFailed, err)
 			}
 			return Complete(request, true)
+		} else if !errors.Is(err, errors.ErrActionFailed) {
+			return utils2.NotifyError(request, err)
 		}
 	}
 

@@ -8,7 +8,6 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -19,7 +18,7 @@ type NewsAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewNewsAction() structs2.Action {
+func NewNewsAction() structs.Action {
 	return &NewsAction{
 		Name: "news",
 	}

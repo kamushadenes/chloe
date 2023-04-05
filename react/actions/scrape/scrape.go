@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
@@ -17,7 +16,7 @@ type ScrapeAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewScrapeAction() structs2.Action {
+func NewScrapeAction() structs.Action {
 	return &ScrapeAction{
 		Name: "scrape",
 	}

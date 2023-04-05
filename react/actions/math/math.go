@@ -5,7 +5,6 @@ import (
 	"github.com/Knetic/govaluate"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"strings"
@@ -17,7 +16,7 @@ type CalculateAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewCalculateAction() structs2.Action {
+func NewCalculateAction() structs.Action {
 	return &CalculateAction{
 		Name: "calculate",
 	}

@@ -1,14 +1,13 @@
 package actions
 
 import (
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
 	"io"
 )
 
-func defaultPreActions(a structs2.Action, request *structs.ActionRequest) error {
+func defaultPreActions(a structs.Action, request *structs.ActionRequest) error {
 	b := &utils.BytesWriter{}
 
 	var ws []io.WriteCloser
@@ -20,7 +19,7 @@ func defaultPreActions(a structs2.Action, request *structs.ActionRequest) error 
 	return nil
 }
 
-func defaultPostActions(a structs2.Action, request *structs.ActionRequest) error {
+func defaultPostActions(a structs.Action, request *structs.ActionRequest) error {
 	truncateTokenCount := utils.GetAvailableTokenCount(request)
 
 	for _, w := range a.GetWriters() {

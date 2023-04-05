@@ -6,7 +6,6 @@ import (
 	"github.com/go-latex/latex/mtex"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -17,7 +16,7 @@ type LatexAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewLatexAction() structs2.Action {
+func NewLatexAction() structs.Action {
 	return &LatexAction{
 		Name: "latex",
 	}

@@ -6,13 +6,12 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/react/actions/midjourney_prompt_generator"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
 
-func imagePreActions(a structs2.Action, request *structs.ActionRequest) error {
+func imagePreActions(a structs.Action, request *structs.ActionRequest) error {
 	var ws []io.WriteCloser
 
 	switch request.Message.Interface {

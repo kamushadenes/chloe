@@ -5,7 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
@@ -19,7 +18,7 @@ type WikipediaAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewWikipediaAction() structs2.Action {
+func NewWikipediaAction() structs.Action {
 	return &WikipediaAction{
 		Name: "wikipedia",
 	}

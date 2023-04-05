@@ -6,7 +6,6 @@ import (
 	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
@@ -24,7 +23,7 @@ type YoutubeSummarizerAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewYoutubeSummarizerAction() structs2.Action {
+func NewYoutubeSummarizerAction() structs.Action {
 	return &YoutubeSummarizerAction{
 		Name: "youtube_summarizer",
 	}

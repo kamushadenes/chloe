@@ -7,7 +7,6 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
-	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rocketlaunchr/google-search"
@@ -22,7 +21,7 @@ type GoogleAction struct {
 	Writers []io.WriteCloser
 }
 
-func NewGoogleAction() structs2.Action {
+func NewGoogleAction() structs.Action {
 	return &GoogleAction{
 		Name: "google",
 	}
