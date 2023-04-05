@@ -3,11 +3,8 @@ package actions
 import (
 	"context"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"os"
 	"testing"
 )
 
@@ -24,10 +21,6 @@ func TestActions_Metadata(t *testing.T) {
 			assert.True(t, len(act.GetParams()) == 0)
 			act.SetParams("test")
 			assert.True(t, act.GetParams() == "test")
-
-			assert.True(t, len(act.GetWriters()) == 0)
-			act.SetWriters([]io.WriteCloser{os.Stdout})
-			assert.True(t, len(act.GetWriters()) == 1)
 		})
 	}
 }
@@ -64,10 +57,7 @@ func TestActions_HandleAction(t *testing.T) {
 		req := structs.NewActionRequest()
 		req.Context = context.Background()
 		req.Params = tt.params
-
-		b := utils.BytesWriter{}
-
-		req.Writers = []io.WriteCloser{&b}
+		// TODO: add test ChloeWriter
 
 		req.Action = "mock"
 
