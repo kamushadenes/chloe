@@ -7,14 +7,14 @@ type DeleteUserCmd struct {
 }
 
 func (c *DeleteUserCmd) Run(globals *Globals) error {
-	user, err := memory.GetUser(globals.Context, c.UserID)
+	u, err := memory.GetUser(globals.Context, c.UserID)
 	if err != nil {
 		return err
 	}
 
-	if err := user.DeleteMessages(globals.Context); err != nil {
+	if err := u.DeleteMessages(globals.Context); err != nil {
 		return err
 	}
 
-	return user.Delete(globals.Context)
+	return u.Delete(globals.Context)
 }

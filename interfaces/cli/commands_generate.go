@@ -28,5 +28,6 @@ func (c *GenerateCmd) Run(globals *Globals) error {
 		}
 		return Generate(globals.Context, strings.Join(c.Prompt, " "), f)
 	}
+
 	return Generate(globals.Context, strings.Join(c.Prompt, " "))
 }

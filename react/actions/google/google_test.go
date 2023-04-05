@@ -2,7 +2,7 @@ package google
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/react/errors"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/stretchr/testify/assert"

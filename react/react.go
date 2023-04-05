@@ -8,7 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -30,7 +30,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 
 	var resp openai.ChatCompletionResponse
 
-	respi, err := timeout.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(request.Context, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
 		resp, err := reactOpenAI.OpenAIClient.CreateChatCompletion(request.Context, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error detecting action")

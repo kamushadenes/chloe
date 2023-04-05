@@ -1,11 +1,13 @@
 package i18n
 
-import "math/rand"
+import (
+	"github.com/kamushadenes/chloe/utils"
+)
 
 // TODO: add actual localization support, for now this only holds some english messages
 
 func GetImageGenerationText() string {
-	var messages = []string{
+	return utils.PickRandomString(
 		"Hold on, I'll attempt to generate this picture.",
 		"Just a moment, let me work on producing this visual.",
 		"Wait a sec, I'm going to endeavor to form this image.",
@@ -17,7 +19,5 @@ func GetImageGenerationText() string {
 		"Allow me some time, I'm going to try and render this picture.",
 		"Kindly wait, I'll put in the effort to create this depiction.",
 		"I'll try to create that.",
-	}
-
-	return messages[rand.Intn(len(messages))]
+	)
 }

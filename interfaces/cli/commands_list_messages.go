@@ -13,12 +13,12 @@ type ListMessagesCmd struct {
 }
 
 func (c *ListMessagesCmd) Run(globals *Globals) error {
-	user, err := memory.GetUser(globals.Context, c.UserID)
+	u, err := memory.GetUser(globals.Context, c.UserID)
 	if err != nil {
 		return err
 	}
 
-	messages, err := user.ListMessages(globals.Context)
+	messages, err := u.ListMessages(globals.Context)
 	if err != nil {
 		return err
 	}

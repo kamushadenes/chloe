@@ -2,9 +2,9 @@ package mock
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -55,7 +55,7 @@ func (a *MockAction) Execute(request *structs.ActionRequest) error {
 	for _, w := range a.Writers {
 		_, err := w.Write([]byte(request.Params))
 		if err != nil {
-			return err
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 	}
 	return nil

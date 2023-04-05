@@ -2,9 +2,9 @@ package telegram
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/rs/zerolog"
 )
@@ -16,7 +16,7 @@ func newBot(ctx context.Context, token string) (*tgbotapi.BotAPI, error) {
 
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		return nil, fmt.Errorf("error creating telegram bot: %w", err)
+		return nil, errors.Wrap(errors.ErrCreateTelegramBot, err)
 	}
 
 	logger.Info().Str("account", bot.Self.UserName).Msg("telegram bot created")

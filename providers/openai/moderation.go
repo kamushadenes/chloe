@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 )
@@ -57,7 +58,7 @@ func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error)
 func createModerationWithTimeout(ctx context.Context, req openai.ModerationRequest) (openai.ModerationResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.Moderation, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.Moderations(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error moderating message")
@@ -81,12 +82,12 @@ func Moderate(ctx context.Context, msg *memory.Message) error {
 
 	req, err := newModerationRequest(msg)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrModerationFailed, err)
 	}
 
 	resp, err := createModerationWithTimeout(ctx, req)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrModerationFailed, err)
 	}
 
 	msg.Moderation = newMessageModeration(resp)

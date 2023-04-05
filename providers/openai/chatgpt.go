@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/logging"
@@ -14,18 +15,17 @@ import (
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/react/actions"
-	errors2 "github.com/kamushadenes/chloe/react/errors"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
 )
 
-// processChainOfThought processes the chain of thought for a completion request
+// detectAction processes the chain of thought for a completion request
 // and returns an error if there is any issue.
-func processChainOfThought(request *structs.CompletionRequest) error {
+func detectAction(request *structs.CompletionRequest) error {
 	ocontent := request.Message.Content
 
 	params := struct {
@@ -69,7 +69,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
 		Msg("creating chat completion stream")
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		stream, err := openAIClient.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error requesting completion")
@@ -90,6 +90,7 @@ func processCompletionStream(request *structs.CompletionRequest, stream *openai.
 	utils2.StartAndWait(request)
 
 	resp := stream.GetResponse()
+	defer resp.Body.Close()
 
 	putils.WriteStatusCode(request.Writer, resp.StatusCode)
 
@@ -154,7 +155,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	// TODO: call CoT outside of this function
 	if len(skipCoT) == 0 || !skipCoT[0] {
-		if err := processChainOfThought(request); err == nil {
+		if err := detectAction(request); err == nil {
 			return utils2.NotifyError(request, err)
 		} else if errors.Is(err, errors2.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
@@ -177,15 +178,15 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	stream, err := createChatCompletionWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors2.ErrCompletionFailed, err)
 	}
 
 	responseMessage, err := processCompletionStream(request, stream)
 	if err != nil {
-		return utils2.NotifyAndClose(request, request.Writer, err)
+		return utils2.NotifyAndClose(request, request.Writer, errors2.ErrCompletionFailed, err)
 	}
 	if responseMessage == "" {
-		return utils2.NotifyAndClose(request, request.Writer, errors.New("empty response"))
+		return utils2.NotifyAndClose(request, request.Writer, errors2.ErrCompletionFailed, fmt.Errorf("empty response"))
 	}
 	if strings.TrimSpace(responseMessage) == "" {
 		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
@@ -193,6 +194,9 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 	}
 
 	err = recordAssistantResponse(request, responseMessage)
+	if err != nil {
+		err = errors2.Wrap(errors2.ErrCompletionFailed, err)
+	}
 
 	return utils2.NotifyAndClose(request, request.Writer, err)
 }

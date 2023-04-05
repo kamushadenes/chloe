@@ -14,7 +14,7 @@ func RegisterIncomingMessage(msg *memory.Message) error {
 	IncomingMessagesCh <- msg
 
 	if err := <-msg.ErrorCh; err != nil {
-		return errors.Wrap(errors.ErrSavingMessage, err)
+		return errors.Wrap(errors.ErrSaveMessage, err)
 	}
 
 	return nil

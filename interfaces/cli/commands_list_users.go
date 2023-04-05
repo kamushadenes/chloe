@@ -51,18 +51,18 @@ func (c *ListUsersCmd) Run(globals *Globals) error {
 	})
 
 	for k := range users {
-		user := users[k]
+		u := users[k]
 
-		eids, err := user.GetExternalIDs()
+		eids, err := u.GetExternalIDs()
 		if err != nil {
 			return err
 		}
 
 		if len(eids) == 0 {
-			t.AppendRow([]interface{}{user.ID, user.FirstName, user.LastName, user.Username, user.Mode, "", ""})
+			t.AppendRow([]interface{}{u.ID, u.FirstName, u.LastName, u.Username, u.Mode, "", ""})
 		} else {
 			for kk := range eids {
-				t.AppendRow([]interface{}{user.ID, user.FirstName, user.LastName, user.Username, user.Mode, eids[kk].Interface, eids[kk].ExternalID})
+				t.AppendRow([]interface{}{u.ID, u.FirstName, u.LastName, u.Username, u.Mode, eids[kk].Interface, eids[kk].ExternalID})
 			}
 		}
 		t.AppendSeparator()

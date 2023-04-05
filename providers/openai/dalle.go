@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
@@ -84,7 +85,7 @@ func newImageRequest(request *structs.GenerationRequest) openai.ImageRequest {
 func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (openai.ImageResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.ImageGeneration, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.ImageGeneration, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image")
@@ -122,10 +123,15 @@ func Generate(request *structs.GenerationRequest) error {
 
 	response, err := createImageWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, processSuccessfulImageRequest(request, response))
+	err = processSuccessfulImageRequest(request, response)
+	if err != nil {
+		err = errors.Wrap(errors.ErrGenerationFailed, err)
+	}
+
+	return utils2.NotifyError(request, err)
 }
 
 // newImageEditRequest creates a new openai.ImageEditRequest for image editing.
@@ -149,7 +155,7 @@ func newImageEditRequest(request *structs.GenerationRequest) (openai.ImageEditRe
 func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest) (openai.ImageResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.ImageEdit, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.ImageEdit, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateEditImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image edits")
@@ -172,15 +178,20 @@ func Edits(request *structs.GenerationRequest) error {
 
 	req, err := newImageEditRequest(request)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	response, err := createImageEditWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, processSuccessfulImageRequest(request, response))
+	err = processSuccessfulImageRequest(request, response)
+	if err != nil {
+		err = errors.Wrap(errors.ErrGenerationFailed, err)
+	}
+
+	return utils2.NotifyError(request, err)
 }
 
 // newImageVariationRequest creates a new openai.ImageVariRequest for image variations.
@@ -203,7 +214,7 @@ func newImageVariationRequest(request *structs.VariationRequest) (openai.ImageVa
 func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRequest) (openai.ImageResponse, error) {
 	logger := zerolog.Ctx(ctx)
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.ImageVariation, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.ImageVariation, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateVariImage(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error generating image variations")
@@ -239,13 +250,18 @@ func Variations(request *structs.VariationRequest) error {
 
 	req, err := newImageVariationRequest(request)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	response, err := createImageVariationWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, processSuccessfulImageVariationRequest(request, response))
+	err = processSuccessfulImageVariationRequest(request, response)
+	if err != nil {
+		err = errors.Wrap(errors.ErrGenerationFailed, err)
+	}
+
+	return utils2.NotifyError(request, err)
 }

@@ -9,10 +9,10 @@ type DeleteExternalIDCmd struct {
 }
 
 func (c *DeleteExternalIDCmd) Run(globals *Globals) error {
-	user, err := memory.GetUser(globals.Context, c.UserID)
+	u, err := memory.GetUser(globals.Context, c.UserID)
 	if err != nil {
 		return err
 	}
 
-	return user.DeleteExternalID(globals.Context, c.ExternalID, c.Interface)
+	return u.DeleteExternalID(globals.Context, c.ExternalID, c.Interface)
 }

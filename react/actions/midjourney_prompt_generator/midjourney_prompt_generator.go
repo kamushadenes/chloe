@@ -2,6 +2,7 @@ package midjourney_prompt_generator
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
@@ -50,14 +51,14 @@ func (a *MidjourneyPromptGeneratorAction) SetMessage(message *memory.Message) {}
 func (a *MidjourneyPromptGeneratorAction) Execute(request *structs.ActionRequest) error {
 	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "midjourney_prompt_generator", a.Params)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
 	for _, w := range a.Writers {
 		if _, err := w.Write([]byte(content)); err != nil {
-			return err
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 
 	}

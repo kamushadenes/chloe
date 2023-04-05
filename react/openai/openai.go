@@ -3,8 +3,9 @@ package utils
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/resources"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -30,7 +31,7 @@ func SimpleCompletionRequest(ctx context.Context, prompt string, message string)
 		},
 	}
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.ChainOfThought, func(ch chan interface{}, errCh chan error) {
 		resp, err := OpenAIClient.CreateChatCompletion(ctx, req)
 		if err != nil {
 			errCh <- err
@@ -38,7 +39,7 @@ func SimpleCompletionRequest(ctx context.Context, prompt string, message string)
 		ch <- resp
 	})
 	if err != nil {
-		return openai.ChatCompletionResponse{}, err
+		return openai.ChatCompletionResponse{}, errors.Wrap(errors.ErrCompletionFailed, err)
 	}
 
 	return respi.(openai.ChatCompletionResponse), nil

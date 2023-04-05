@@ -3,10 +3,10 @@ package google
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rocketlaunchr/google-search"
@@ -54,7 +54,7 @@ func (a *GoogleAction) GetParams() string {
 func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 	res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: config.React.GoogleMaxResults})
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	if !utils.Testing() {

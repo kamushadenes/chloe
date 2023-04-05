@@ -28,5 +28,6 @@ func (c *TTSCmd) Run(globals *Globals) error {
 		}
 		return TTS(globals.Context, strings.Join(c.Prompt, " "), f)
 	}
+
 	return TTS(globals.Context, strings.Join(c.Prompt, " "))
 }

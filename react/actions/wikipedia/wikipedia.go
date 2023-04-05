@@ -3,9 +3,9 @@ package wikipedia
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
@@ -61,28 +61,28 @@ func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
 
 	res, _, err := gowiki.Search(a.Params, config.React.WikipediaMaxResults, false)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	for _, r := range res {
 		page, err := gowiki.GetPage(r, -1, false, true)
 		if err != nil {
 			if utils2.Testing() {
-				return err
+				return errors.Wrap(errors.ErrActionFailed, err)
 			}
 			continue
 		}
 		content, err := page.GetContent()
 		if err != nil {
 			if utils2.Testing() {
-				return err
+				return errors.Wrap(errors.ErrActionFailed, err)
 			}
 			continue
 		}
 		if !utils2.Testing() {
 			msg := fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s", page.URL, page.Title, content)
-			if err := utils.StoreChainOfThoughtResult(request, utils.Truncate(msg, truncateTokenCount)); err != nil {
-				return err
+			if err := utils.StoreActionDetectionResult(request, utils2.Truncate(msg, truncateTokenCount)); err != nil {
+				return errors.Wrap(errors.ErrActionFailed, err)
 			}
 		}
 	}

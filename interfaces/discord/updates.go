@@ -106,10 +106,12 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 			return
 		}
 
-		if err := action(ctx, msg); err != nil {
-			_ = msg.SendError(err)
-			return
-		}
+		go func() {
+			if err := action(ctx, msg); err != nil {
+				_ = msg.SendError(err)
+				return
+			}
+		}()
 
 		reply = "Running action..."
 	case "generate":
@@ -126,10 +128,12 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 			return
 		}
 
-		if err := generate(ctx, msg); err != nil {
-			_ = msg.SendError(err)
-			return
-		}
+		go func() {
+			if err := generate(ctx, msg); err != nil {
+				_ = msg.SendError(err)
+				return
+			}
+		}()
 
 		reply = i18n.GetImageGenerationText()
 	case "tts":
@@ -146,10 +150,12 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 			return
 		}
 
-		if err := tts(ctx, msg); err != nil {
-			_ = msg.SendError(err)
-			return
-		}
+		go func() {
+			if err := tts(ctx, msg); err != nil {
+				_ = msg.SendError(err)
+				return
+			}
+		}()
 
 		reply = i18n.GetTextToSpeechText()
 	case "forget":

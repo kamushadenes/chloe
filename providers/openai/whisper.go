@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/sashabaranov/go-openai"
 	"net/http"
 )
@@ -27,7 +28,7 @@ func newTranscriptionRequest(request *structs.TranscriptionRequest) openai.Audio
 func createTranscriptionRequestWithTimeout(request *structs.TranscriptionRequest, req openai.AudioRequest) (openai.AudioResponse, error) {
 	logger := logging.GetLogger().With().Str("file", request.FilePath).Logger()
 
-	respi, err := timeout.WaitTimeout(request.GetContext(), config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(request.GetContext(), config.Timeouts.Transcription, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateTranscription(request.GetContext(), req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error transcribing audio")
@@ -84,13 +85,18 @@ func Transcribe(request *structs.TranscriptionRequest) error {
 
 	response, err := createTranscriptionRequestWithTimeout(request, req)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrTranscriptionFailed, err)
 	}
 
 	err = processSuccessfulTranscriptionRequest(request, response)
 	if err != nil {
-		return utils2.NotifyError(request, err)
+		return utils2.NotifyError(request, errors.ErrTranscriptionFailed, err)
 	}
 
-	return utils2.NotifyError(request, recordTranscriptionResponse(request, response))
+	err = recordTranscriptionResponse(request, response)
+	if err != nil {
+		err = errors.Wrap(errors.ErrTranscriptionFailed, err)
+	}
+
+	return utils2.NotifyError(request, err)
 }

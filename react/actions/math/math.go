@@ -3,9 +3,9 @@ package math
 import (
 	"fmt"
 	"github.com/Knetic/govaluate"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"strings"
@@ -54,18 +54,18 @@ func (a *CalculateAction) Execute(request *structs.ActionRequest) error {
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	result, err := expression.Evaluate(make(map[string]interface{}))
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	for _, w := range a.Writers {
 		_, err := w.Write([]byte(fmt.Sprintf("%v", result)))
 		if err != nil {
-			return err
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 	}
 
@@ -73,9 +73,9 @@ func (a *CalculateAction) Execute(request *structs.ActionRequest) error {
 }
 
 func (a *CalculateAction) RunPreActions(request *structs.ActionRequest) error {
-	return errors2.ErrNotImplemented
+	return errors.ErrNotImplemented
 }
 
 func (a *CalculateAction) RunPostActions(request *structs.ActionRequest) error {
-	return errors2.ErrNotImplemented
+	return errors.ErrNotImplemented
 }

@@ -2,9 +2,9 @@ package transcribe
 
 import (
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -65,7 +65,10 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
 	for {
 		select {
 		case err := <-errorCh:
-			return err
+			if err != nil {
+				return errors.Wrap(errors.ErrActionFailed, err)
+			}
+			return nil
 		}
 	}
 }

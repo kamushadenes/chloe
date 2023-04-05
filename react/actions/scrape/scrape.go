@@ -2,11 +2,12 @@ package scrape
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
+	utils2 "github.com/kamushadenes/chloe/utils"
 	"io"
 )
 
@@ -53,11 +54,11 @@ func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
 
 	res, err := scrape(a.Params)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	if err := utils.StoreChainOfThoughtResult(request, utils.Truncate(res.GetStorableContent(), truncateTokenCount)); err != nil {
-		return err
+	if err := utils.StoreActionDetectionResult(request, utils2.Truncate(res.GetStorableContent(), truncateTokenCount)); err != nil {
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	return errors.ErrProceed
@@ -66,7 +67,7 @@ func (a *ScrapeAction) Execute(request *structs.ActionRequest) error {
 func (a *ScrapeAction) RunPreActions(request *structs.ActionRequest) error {
 	nurl, err := resolveSpecialUrl(a.Params)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	a.SetParams(nurl)

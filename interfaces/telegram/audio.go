@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
@@ -24,7 +25,11 @@ func convertAudioToMp3(ctx context.Context, filePath string) (string, error) {
 	cmd := exec.Command("ffmpeg", "-i", filePath, npath)
 	err := cmd.Run()
 
-	return npath, err
+	if err != nil {
+		return npath, errors.Wrap(errors.ErrFFmpegError, err)
+	}
+
+	return npath, nil
 }
 func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetAudios() {

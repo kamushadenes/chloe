@@ -6,9 +6,9 @@ import (
 )
 
 func TestWrap(t *testing.T) {
-	err := Wrap(ErrActionFailed, ErrCompletionFailed, ErrInvalidAction, ErrSavingMessage, ErrForgettingUser)
+	err := Wrap(ErrCompletionFailed, ErrInvalidAction, ErrSaveMessage, ErrForgetUser)
 
 	assert.Error(t, err)
 
-	assert.Equal(t, "action failed\ncompletion failed\ninvalid action\nfailed to save message\nfailed to forget user", err.Error())
+	assert.Equal(t, "completion failed\ninvalid action\nfailed to save message\nfailed to forget user", err.Error())
 }

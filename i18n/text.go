@@ -1,13 +1,13 @@
 package i18n
 
-import "math/rand"
+import (
+	"github.com/kamushadenes/chloe/utils"
+)
 
 func GetForgetText() string {
-	var messages = []string{
+	return utils.PickRandomString(
 		"I have forgotten you.",
 		"Forgot.",
 		"Who? Where?",
-	}
-
-	return messages[rand.Intn(len(messages))]
+	)
 }

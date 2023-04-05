@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/sashabaranov/go-openai"
 	"strings"
 	"text/template"
@@ -24,13 +25,13 @@ func GetPrompt(prompt string, args *PromptArgs) (string, error) {
 		fmt.Sprintf("prompts/chatgpt/%s.prompt", prompt),
 	)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(errors.ErrPromptError, err)
 	}
 
 	var buf bytes.Buffer
 
 	if err := tmpl.Execute(&buf, args); err != nil {
-		return "", err
+		return "", errors.Wrap(errors.ErrPromptError, err)
 	}
 
 	return buf.String(), nil
@@ -42,13 +43,13 @@ func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessag
 		fmt.Sprintf("prompts/chatgpt/%s.prompt.examples", prompt),
 	)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrPromptError, err)
 	}
 
 	var buf bytes.Buffer
 
 	if err := tmpl.Execute(&buf, args); err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrPromptError, err)
 	}
 
 	var examples []openai.ChatCompletionMessage
@@ -76,31 +77,20 @@ func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessag
 }
 
 func GetPromptSize(prompt string) (int, error) {
-	tmpl, err := template.ParseFS(
-		prompts,
-		fmt.Sprintf("prompts/chatgpt/%s.prompt", prompt),
-	)
+	prompt, err := GetPrompt(prompt, &PromptArgs{Args: make(map[string]interface{}), Mode: prompt})
 	if err != nil {
-		return 0, err
-	}
-
-	var buf bytes.Buffer
-
-	if err := tmpl.Execute(&buf, nil); err != nil {
 		return 0, err
 	}
 
 	model := config.OpenAI.GetTokenizerModel(config.OpenAI.GetModel(config.Completion))
 
-	return model.CountTokens(buf.String()), nil
+	return model.CountTokens(prompt), nil
 }
 
 func ListPrompts() ([]string, error) {
-	// lists all files that end with .prompt in prompts/chatgpt
-	// and returns the file names without the .prompt extension
 	entries, err := prompts.ReadDir("prompts/chatgpt")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrPromptError, err)
 	}
 
 	var prompts []string

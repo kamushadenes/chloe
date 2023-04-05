@@ -12,12 +12,12 @@ type CreateUserCmd struct {
 }
 
 func (c *CreateUserCmd) Run(globals *Globals) error {
-	user, err := memory.CreateUser(globals.Context, c.Username, c.FirstName, c.LastName)
+	u, err := memory.CreateUser(globals.Context, c.Username, c.FirstName, c.LastName)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("User created: %d\n", user.ID)
+	fmt.Printf("User created: %d\n", u.ID)
 
 	return nil
 }

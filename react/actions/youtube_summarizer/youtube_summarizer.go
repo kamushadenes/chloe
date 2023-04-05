@@ -3,11 +3,11 @@ package youtube_summarizer
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
-	errors2 "github.com/kamushadenes/chloe/react/errors"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -57,14 +57,14 @@ func (a *YoutubeSummarizerAction) SetMessage(message *memory.Message) {}
 
 func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error {
 	if _, err := exec.LookPath("youtube-dl"); err != nil {
-		return fmt.Errorf("unable to locate `youtube-dl`: %w", err)
+		return errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandNotFound, err)
 	}
 
 	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("url", a.Params).Logger()
 
 	tmpDir, err := os.MkdirTemp(config.Misc.TempDir, "youtube")
 	if err != nil {
-		return err
+		return errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
 	logger.Info().Msg("downloading audio")
@@ -85,7 +85,7 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 
 	cmd := exec.Command("youtube-dl", args...)
 	if err := cmd.Run(); err != nil {
-		return err
+		return errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandError, err)
 	}
 
 	b := &utils2.BytesWriter{}
@@ -96,19 +96,19 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 	na.SetWriters([]io.WriteCloser{b})
 	request.Message.NotifyAction(na.GetNotification())
 	if err := na.Execute(request); err != nil {
-		return err
+		return errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
 	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarizer", string(b.Bytes))
 	if err != nil {
-		return err
+		return errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
 	for _, w := range a.Writers {
 		if _, err := w.Write([]byte(content)); err != nil {
-			return err
+			return errors2.Wrap(errors2.ErrActionFailed, err)
 		}
 
 	}

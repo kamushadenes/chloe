@@ -3,11 +3,12 @@ package openai
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
-	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/resources"
-	"github.com/kamushadenes/chloe/timeout"
+	"github.com/kamushadenes/chloe/timeouts"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -23,7 +24,7 @@ func getSummarizationPrompt(msg *memory.Message) (string, error) {
 
 	return resources.GetPrompt("summarize", &resources.PromptArgs{
 		Args: map[string]interface{}{
-			"text": utils2.Truncate(msg.Content, maxTokens-promptSize),
+			"text": utils.Truncate(msg.Content, maxTokens-promptSize),
 		},
 		Mode: "summarize",
 	})
@@ -53,7 +54,7 @@ func newSummarizationRequest(msg *memory.Message) (openai.ChatCompletionRequest,
 func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
 	logger := logging.GetLogger()
 
-	respi, err := timeout.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
+	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {
 		resp, err := openAIClient.CreateChatCompletion(ctx, req)
 		if err != nil {
 			logger.Error().Err(err).Msg("error summarizing message")
@@ -76,12 +77,12 @@ func Summarize(ctx context.Context, msg *memory.Message) error {
 
 	req, err := newSummarizationRequest(msg)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrSummarizationFailed, err)
 	}
 
 	response, err := createSummarizationWithTimeout(ctx, req)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrSummarizationFailed, err)
 	}
 
 	return msg.SetSummary(ctx, response.Choices[0].Message.Content)

@@ -5,10 +5,23 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/utils"
 	"github.com/rs/zerolog"
 	"time"
 )
+
+var handlers = []interface{}{
+	handleMessageCreate,
+	handleCommandInteraction,
+}
+
+var intents = []discordgo.Intent{
+	discordgo.IntentsGuildMessages,
+	discordgo.IntentsDirectMessages,
+	discordgo.IntentsMessageContent,
+}
 
 func newBot(ctx context.Context, token string) (*discordgo.Session, error) {
 	logger := zerolog.Ctx(ctx)
@@ -17,7 +30,7 @@ func newBot(ctx context.Context, token string) (*discordgo.Session, error) {
 
 	bot, err := discordgo.New(fmt.Sprintf("Bot %s", token))
 	if err != nil {
-		return nil, fmt.Errorf("error creating discord bot: %w", err)
+		return nil, errors.Wrap(errors.ErrCreateDiscordBot, err)
 	}
 
 	bot.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
@@ -44,13 +57,13 @@ func Start(ctx context.Context) {
 		return
 	}
 
-	bot.Identify.Intents = discordgo.MakeIntent(
-		discordgo.IntentsGuildMessages |
-			discordgo.IntentsDirectMessages |
-			discordgo.IntentsMessageContent)
+	for k := range intents {
+		bot.Identify.Intents |= intents[k]
+	}
 
-	bot.AddHandler(handleMessageCreate)
-	bot.AddHandler(handleCommandInteraction)
+	for k := range handlers {
+		bot.AddHandler(handlers[k])
+	}
 
 	err = bot.Open()
 	if err != nil {
@@ -63,13 +76,7 @@ func Start(ctx context.Context) {
 		return
 	}
 
-	var ticker *time.Ticker
-
-	if config.Discord.RandomStatusUpdateInterval > 0 {
-		ticker = time.NewTicker(config.Discord.RandomStatusUpdateInterval)
-	} else {
-		ticker = time.NewTicker(10 * time.Minute)
-	}
+	ticker := utils.TickerOrDefault(config.Discord.RandomStatusUpdateInterval, 10*time.Minute)
 
 	for {
 		select {

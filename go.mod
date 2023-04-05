@@ -20,6 +20,7 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/mattn/go-isatty v0.0.14
+	github.com/parinpan/pipe v0.0.0-20210213045347-59e385eb4440
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.27.0
@@ -27,6 +28,7 @@ require (
 	github.com/slack-go/slack v0.12.1
 	github.com/stretchr/testify v1.8.1
 	github.com/trietmn/go-wiki v1.0.0
+	golang.org/x/crypto v0.6.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
@@ -85,7 +87,6 @@ require (
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/temoto/robotstxt v1.1.1 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/image v0.5.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect

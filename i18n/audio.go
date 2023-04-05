@@ -1,19 +1,17 @@
 package i18n
 
-import "math/rand"
+import (
+	"github.com/kamushadenes/chloe/utils"
+)
 
 func GetTranscriptionText() string {
-	var messages = []string{
+	return utils.PickRandomString(
 		"Transcribing...",
-	}
-
-	return messages[rand.Intn(len(messages))]
+	)
 }
 
 func GetTextToSpeechText() string {
-	var messages = []string{
+	return utils.PickRandomString(
 		"Generating audio...",
-	}
-
-	return messages[rand.Intn(len(messages))]
+	)
 }

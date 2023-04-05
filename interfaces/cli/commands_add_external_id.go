@@ -1,6 +1,8 @@
 package cli
 
-import "github.com/kamushadenes/chloe/memory"
+import (
+	"github.com/kamushadenes/chloe/memory"
+)
 
 type AddExternalIDCmd struct {
 	UserID     uint   `short:"u" long:"user-id" description:"User ID"`
@@ -9,10 +11,10 @@ type AddExternalIDCmd struct {
 }
 
 func (c *AddExternalIDCmd) Run(globals *Globals) error {
-	user, err := memory.GetUser(globals.Context, c.UserID)
+	u, err := memory.GetUser(globals.Context, c.UserID)
 	if err != nil {
 		return err
 	}
 
-	return user.AddExternalID(globals.Context, c.ExternalID, c.Interface)
+	return u.AddExternalID(globals.Context, c.ExternalID, c.Interface)
 }

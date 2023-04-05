@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-latex/latex/drawtex/drawimg"
 	"github.com/go-latex/latex/mtex"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
@@ -51,7 +52,7 @@ func (a *LatexAction) Execute(request *structs.ActionRequest) error {
 	for _, w := range a.Writers {
 		dst := drawimg.NewRenderer(w)
 		if err := mtex.Render(dst, request.Params, 64, 600, nil); err != nil {
-			return err
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 	}
 

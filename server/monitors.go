@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"github.com/kamushadenes/chloe/channels"
+	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/providers/google"
 	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/react/actions"
-	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 )
 

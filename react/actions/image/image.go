@@ -3,6 +3,7 @@ package image
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
 	"github.com/kamushadenes/chloe/structs"
@@ -61,7 +62,10 @@ func (a *ImageAction) Execute(request *structs.ActionRequest) error {
 	for {
 		select {
 		case err := <-errorCh:
-			return err
+			if err != nil {
+				return errors.Wrap(errors.ErrActionFailed, err)
+			}
+			return nil
 		}
 	}
 }

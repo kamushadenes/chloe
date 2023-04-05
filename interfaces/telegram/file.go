@@ -4,6 +4,7 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"io"
 	"net/http"
@@ -33,7 +34,7 @@ func downloadFileData(api *tgbotapi.BotAPI, req *http.Request) ([]byte, error) {
 
 func saveFile(filePath string, data []byte) error {
 	if err := os.MkdirAll(path.Dir(filePath), 0755); err != nil {
-		return err
+		return errors.Wrap(errors.ErrSaveFile, err)
 	}
 	return os.WriteFile(filePath, data, 0600)
 }

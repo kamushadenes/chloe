@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
 )
@@ -14,7 +15,7 @@ func LoadNonSummarizedMessages(ctx context.Context) ([]*Message, error) {
 
 	if err := db.WithContext(ctx).Where("(summary IS NULL OR summary == '') AND " +
 		"(content IS NOT NULL AND content != '')").Find(&messages).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrLoadMessages, err)
 	}
 
 	return messages, nil
@@ -27,7 +28,7 @@ func LoadNonModeratedMessages(ctx context.Context) ([]*Message, error) {
 		"content IS NOT NULL AND "+
 		"content != ''", false).
 		Find(&messages).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrLoadMessages, err)
 	}
 
 	return messages, nil
@@ -115,17 +116,29 @@ func (m *Message) GetAudios() []string {
 }
 
 func (m *Message) SetSummary(ctx context.Context, summary string) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Model(m).
 		Update("summary", summary).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrUpdateMessage, err)
+	}
+
+	return nil
 }
 
 func (m *Message) Save(ctx context.Context) error {
 	if m.Content == "" {
 		return nil
 	}
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Save(m).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrSaveMessage, err)
+	}
+
+	return nil
 }
 
 func (m *Message) GetContent() string {
@@ -143,7 +156,14 @@ func (m *Message) SetContent(content string) {
 }
 
 func BulkChangeMessageOwner(ctx context.Context, oldUser *User, newUser *User) error {
-	return db.Model(&Message{}).
+	err := db.WithContext(ctx).
+		Model(&Message{}).
 		Where("user_id = ?", oldUser.ID).
 		Update("user_id", newUser.ID).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrUpdateMessage, err)
+	}
+
+	return nil
 }

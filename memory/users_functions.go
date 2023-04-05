@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/errors"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,7 @@ func CreateUser(ctx context.Context, firstName, lastName, username string) (*Use
 
 	if err := db.WithContext(ctx).
 		Save(&u).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrCreateUser, err)
 	}
 
 	return &u, nil
@@ -27,6 +28,13 @@ func GetUser(ctx context.Context, id uint) (*User, error) {
 
 	err := db.WithContext(ctx).
 		First(&u, id).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.Wrap(errors.ErrUserNotFound, err)
+		}
+		return nil, errors.Wrap(errors.ErrGetUser, err)
+	}
 
 	return &u, err
 }
@@ -55,22 +63,22 @@ func MergeUsers(ctx context.Context, users ...*User) error {
 		user := users[k+1]
 		eids, err := user.GetExternalIDs()
 		if err != nil {
-			return err
+			return errors.Wrap(errors.ErrGetUser, err)
 		}
 		for kk := range eids {
 			eid := eids[kk]
 			if err := mainUser.AddExternalID(ctx, eid.ExternalID, eid.Interface); err != nil {
-				return err
+				return errors.Wrap(errors.ErrUpdateUser, err)
 			}
 			if err := user.DeleteExternalID(ctx, eid.ExternalID, eid.Interface); err != nil {
-				return err
+				return errors.Wrap(errors.ErrUpdateUser, err)
 			}
 		}
 		if err := BulkChangeMessageOwner(ctx, user, mainUser); err != nil {
-			return err
+			return errors.Wrap(errors.ErrMergeUsers, errors.ErrUpdateMessage, err)
 		}
 		if err := user.Delete(ctx); err != nil {
-			return err
+			return errors.Wrap(errors.ErrMergeUsers, errors.ErrDeleteUser, err)
 		}
 	}
 
@@ -81,7 +89,7 @@ func ListUsers() ([]*User, error) {
 	var users []*User
 	if err := db.
 		Find(&users).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrGetUser, err)
 	}
 
 	return users, nil
@@ -94,22 +102,28 @@ func GetUserByExternalID(ctx context.Context, externalID, interf string) (*User,
 		Where("external_id = ?", externalID).
 		Where("interface = ?", interf).
 		First(&eid).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrGetUser, err)
 	}
 
 	var u User
 
 	if err := db.WithContext(ctx).
 		First(&u, eid.UserID).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrGetUser, err)
 	}
 
 	return &u, nil
 }
 
 func (u *User) Delete(ctx context.Context) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Delete(u).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrDeleteUser, err)
+	}
+
+	return nil
 }
 
 func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID {
@@ -125,10 +139,10 @@ func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID
 		}
 		if err := db.WithContext(ctx).
 			Create(&eid).Error; err != nil {
-			panic(err)
+			panic(errors.Wrap(errors.ErrCreateUser, err))
 		}
 	} else if tx.Error != nil {
-		panic(tx.Error)
+		panic(errors.Wrap(errors.ErrGetUser, tx.Error))
 	}
 
 	return &eid
@@ -148,37 +162,45 @@ func (u *User) AddExternalID(ctx context.Context, externalID, interf string) err
 		}
 		if err := db.WithContext(ctx).
 			Create(&eid).Error; err != nil {
-			return err
+			return errors.Wrap(errors.ErrUpdateUser, err)
 		}
 	} else if tx.Error != nil {
-		return tx.Error
+		return errors.Wrap(errors.ErrGetUser, tx.Error)
 	}
 
 	eid.ExternalID = externalID
 
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Save(&eid).Error
+
+	return errors.Wrap(errors.ErrUpdateUser, err)
 }
 
 func (u *User) DeleteExternalID(ctx context.Context, externalID, interf string) error {
 	var eid ExternalID
 
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Where("user_id = ?", u.ID).
 		Where("interface = ?", interf).
 		Where("external_id = ?", externalID).
 		Delete(&eid).Error
+
+	return errors.Wrap(errors.ErrUpdateUser, err)
 }
 
 func (u *User) SetMode(ctx context.Context, mode string) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Model(u).
 		Update("mode", mode).Error
+
+	return errors.Wrap(errors.ErrUpdateUser, err)
 }
 
 func (u *User) Save(ctx context.Context) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Save(u).Error
+
+	return errors.Wrap(errors.ErrSaveUser, err)
 }
 
 func (u *User) ListMessages(ctx context.Context) ([]*Message, error) {
@@ -187,21 +209,33 @@ func (u *User) ListMessages(ctx context.Context) ([]*Message, error) {
 		Where("user_id = ?", u.ID).
 		Order("created_at ASC").
 		Find(&messages).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrLoadMessages, err)
 	}
 
 	return messages, nil
 }
 
 func (u *User) DeleteMessages(ctx context.Context) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Where("user_id = ?", u.ID).
 		Delete(&Message{}).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrDeleteMessage, err)
+	}
+
+	return nil
 }
 
 func DeleteAllMessages(ctx context.Context) error {
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Delete(&Message{}).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrDeleteMessage, err)
+	}
+
+	return nil
 }
 
 func (u *User) DeleteOldestMessage(ctx context.Context) error {
@@ -210,11 +244,17 @@ func (u *User) DeleteOldestMessage(ctx context.Context) error {
 		Where("user_id = ?", u.ID).
 		Order("created_at").
 		First(&message).Error; err != nil {
-		return err
+		return errors.Wrap(errors.ErrLoadMessages, err)
 	}
 
-	return db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Delete(&message).Error
+
+	if err != nil {
+		return errors.Wrap(errors.ErrDeleteMessage, err)
+	}
+
+	return nil
 }
 
 func (u *User) GetExternalIDs() ([]*ExternalID, error) {
@@ -222,7 +262,7 @@ func (u *User) GetExternalIDs() ([]*ExternalID, error) {
 	if err := db.
 		Where("user_id = ?", u.ID).
 		Find(&eids).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrGetUser, err)
 	}
 
 	return eids, nil
@@ -231,5 +271,11 @@ func (u *User) GetExternalIDs() ([]*ExternalID, error) {
 func (u *User) CreateAPIKey(ctx context.Context) (string, error) {
 	apiKey := NewAPIKey(u)
 
-	return apiKey.Key, db.WithContext(ctx).Save(apiKey).Error
+	err := db.WithContext(ctx).Save(apiKey).Error
+
+	if err != nil {
+		return "", errors.Wrap(errors.ErrCreateAPIKey, err)
+	}
+
+	return apiKey.Key, nil
 }

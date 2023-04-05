@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"os/exec"
@@ -25,7 +26,11 @@ func convertImageToPng(filePath string) (string, error) {
 		filePath, npath)
 	err := cmd.Run()
 
-	return npath, err
+	if err != nil {
+		return npath, errors.Wrap(errors.ErrImageMagickError, err)
+	}
+
+	return npath, nil
 }
 
 func aiAction(ctx context.Context, msg *memory.Message) error {

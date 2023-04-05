@@ -4,24 +4,14 @@ import (
 	"context"
 	"github.com/alecthomas/kong"
 	"github.com/kamushadenes/chloe/flags"
-	"github.com/kamushadenes/chloe/memory"
 )
-
-var user *memory.User
 
 func Handle(ctx context.Context) error {
 	var err error
 
-	user, err = memory.GetUserByExternalID(ctx, "cli", "cli")
+	user, err = getUser(ctx)
 	if err != nil {
-		user, err = memory.CreateUser(ctx, "User", "CLI", "cli")
-		if err != nil {
-			return err
-		}
-		err = user.AddExternalID(ctx, "cli", "cli")
-		if err != nil {
-			return err
-		}
+		return err
 	}
 
 	kongCtx := kong.Parse(&Flags,

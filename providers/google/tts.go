@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -19,7 +20,7 @@ func TTS(request *structs.TTSRequest) error {
 
 	client, err := texttospeech.NewClient(request.Context)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrTTSFailed, err)
 	}
 	defer func(client *texttospeech.Client) {
 		_ = client.Close()
@@ -49,7 +50,7 @@ func TTS(request *structs.TTSRequest) error {
 
 	resp, err := client.SynthesizeSpeech(request.Context, &req)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrTTSFailed, err)
 	}
 
 	var contentType = "application/octet-stream"
@@ -72,7 +73,7 @@ func TTS(request *structs.TTSRequest) error {
 		utils.WriteHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
 
 		if _, err := io.Copy(request.Writers[k], bytes.NewReader(resp.AudioContent)); err != nil {
-			return err
+			return errors.Wrap(errors.ErrTTSFailed, err)
 		}
 	}
 

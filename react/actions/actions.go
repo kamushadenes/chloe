@@ -17,7 +17,6 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/tts"
 	"github.com/kamushadenes/chloe/react/actions/wikipedia"
 	"github.com/kamushadenes/chloe/react/actions/youtube_summarizer"
-	errors2 "github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
@@ -74,7 +73,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	act.SetMessage(request.Message)
 
 	if err = act.RunPreActions(request); err != nil {
-		if errors.Is(err, errors2.ErrNotImplemented) {
+		if errors.Is(err, errors3.ErrNotImplemented) {
 			if err = defaultPreActions(act, request); err != nil {
 				return
 			}
@@ -85,7 +84,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 
 	if !utils2.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
-		if err = utils.StoreChainOfThoughtResult(request, act.GetNotification()); err != nil {
+		if err = utils.StoreActionDetectionResult(request, act.GetNotification()); err != nil {
 			return
 		}
 	}
@@ -93,7 +92,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	logger.Info().Msg("executing action")
 	err = act.Execute(request)
 	if err != nil {
-		if !errors.Is(err, errors2.ErrProceed) {
+		if !errors.Is(err, errors3.ErrProceed) {
 			logger.Error().Err(err).Msg("error executing action")
 		}
 		return
@@ -107,7 +106,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	}
 
 	if err = act.RunPostActions(request); err != nil {
-		if errors.Is(err, errors2.ErrNotImplemented) {
+		if errors.Is(err, errors3.ErrNotImplemented) {
 			err = defaultPostActions(act, request)
 		}
 	}

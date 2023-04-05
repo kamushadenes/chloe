@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -13,6 +14,13 @@ import (
 )
 
 var db *gorm.DB
+
+var toMigrate = []interface{}{
+	&User{},
+	&ExternalID{},
+	&Message{},
+	&APIKey{},
+}
 
 func Setup(ctx context.Context) (*gorm.DB, error) {
 	logger := logging.GetLogger()
@@ -41,7 +49,7 @@ func Setup(ctx context.Context) (*gorm.DB, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrOpenDatabase, err)
 	}
 
 	sqlDB, _ := db.DB()
@@ -50,16 +58,9 @@ func Setup(ctx context.Context) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(config.DB.MaxOpen)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	var toMigrate []interface{}
-
-	toMigrate = append(toMigrate, &User{})
-	toMigrate = append(toMigrate, &ExternalID{})
-	toMigrate = append(toMigrate, &Message{})
-	toMigrate = append(toMigrate, &APIKey{})
-
-	for _, model := range toMigrate {
-		if err := db.AutoMigrate(model); err != nil {
-			return db, err
+	for k := range toMigrate {
+		if err := db.AutoMigrate(toMigrate[k]); err != nil {
+			return db, errors.Wrap(errors.ErrMigrateDatabase, err)
 		}
 	}
 

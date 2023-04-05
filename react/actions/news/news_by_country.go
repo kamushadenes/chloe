@@ -3,12 +3,12 @@ package news
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	structs2 "github.com/kamushadenes/chloe/react/actions/structs"
-	"github.com/kamushadenes/chloe/react/errors"
 	"github.com/kamushadenes/chloe/structs"
 	"io"
 )
@@ -72,7 +72,7 @@ func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) error {
 		res, err := NewsAPITopHeadlines(a.Params)
 		if err != nil {
 			logger.Error().Err(err).Msg("NewsAPI query failed")
-			return err
+			return errors.Wrap(errors.ErrActionFailed, err)
 		}
 
 		cnt := 0

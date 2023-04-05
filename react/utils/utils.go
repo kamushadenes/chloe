@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/utils"
 	"io"
-	"strings"
 )
 
 func StartAndWait(req structs.Request) {
@@ -20,27 +21,33 @@ func StartAndWait(req structs.Request) {
 	}
 }
 
-func NotifyError(req structs.Request, err error) error {
+func NotifyError(req structs.Request, errs ...error) error {
 	logger := logging.GetLogger().With().Str("requestID", req.GetID()).Logger()
-	if err != nil {
-		logger.Error().Err(err).Msg("an error occurred")
+
+	for k := range errs {
+		if errs[k] != nil {
+			logger.Error().Errs("errors", errs).Msg("an error occurred")
+			break
+		}
 	}
+
 	go func() {
 		if req.GetErrorChannel() != nil {
-			req.GetErrorChannel() <- err
+			req.GetErrorChannel() <- errors.Wrap(errs...)
 		}
 	}()
 
-	return err
+	return errors.Wrap(errs...)
 }
 
-func NotifyAndClose(req structs.Request, writer io.WriteCloser, err error) error {
+func NotifyAndClose(req structs.Request, writer io.WriteCloser, errs ...error) error {
 	if !req.GetSkipClose() {
 		if err2 := writer.Close(); err2 != nil {
-			return NotifyError(req, err2)
+			// TODO: we're losing the original error here
+			return NotifyError(req, errors.Wrap(errors.ErrCloseWriter, err2))
 		}
 	}
-	return NotifyError(req, err)
+	return NotifyError(req, errs...)
 }
 
 func WriteResult(req structs.Request, result interface{}) {
@@ -49,16 +56,7 @@ func WriteResult(req structs.Request, result interface{}) {
 	}
 }
 
-func Truncate(s string, n int) string {
-	s = strings.Join(strings.Fields(s), " ")
-
-	if len(s) > n {
-		return s[:n]
-	}
-	return s
-}
-
-func StoreChainOfThoughtResult(request structs.ActionOrCompletionRequest, content string) error {
+func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, content string) error {
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
 	nmsg.Role = "user"
 
@@ -70,25 +68,25 @@ func StoreChainOfThoughtResult(request structs.ActionOrCompletionRequest, conten
 
 	b, err := json.Marshal(params)
 	if err != nil {
-		return err
+		return errors.Wrap(errors.ErrSaveMessage, err)
 	}
 
 	nmsg.SetContent(string(b))
 	nmsg.User = request.GetMessage().User
 
-	return nmsg.Save(request.GetContext())
+	err = nmsg.Save(request.GetContext())
+	if err != nil {
+		return errors.Wrap(errors.ErrSaveMessage, err)
+	}
+
+	return nil
 }
 
 func GetAvailableTokenCount(request *structs.ActionRequest) int {
-	tokenCount := request.CountTokens()
-
-	maxTokens := config.OpenAI.GetModel(config.ChainOfThought).GetContextSize()
-
-	truncateTokenCount := maxTokens - tokenCount - config.OpenAI.GetMinReplyTokens()
-
-	if truncateTokenCount < config.OpenAI.GetMinReplyTokens() {
-		truncateTokenCount = config.OpenAI.GetMinReplyTokens()
-	}
-
-	return truncateTokenCount
+	return utils.SubtractIntWithMinimum(
+		config.OpenAI.GetMinReplyTokens(),
+		config.OpenAI.GetModel(config.ChainOfThought).GetContextSize(),
+		request.CountTokens(),
+		config.OpenAI.GetMinReplyTokens(),
+	)
 }

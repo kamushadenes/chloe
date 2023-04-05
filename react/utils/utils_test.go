@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"errors"
+	"github.com/kamushadenes/chloe/utils"
 	"testing"
 	"time"
 
@@ -37,25 +37,6 @@ func TestStartAndWait(t *testing.T) {
 	}
 }
 
-func TestNotifyError(t *testing.T) {
-	req := structs.CompletionRequest{}
-	err := errors.New("some error")
-
-	// Error Channel not nil
-	errorChannel := make(chan error)
-	req.ErrorChannel = errorChannel
-	go func() {
-		<-errorChannel
-	}()
-	assert.Equal(t, err, NotifyError(&req, err))
-
-	// Error Channel nil
-	req.ErrorChannel = nil
-	assert.Equal(t, err, NotifyError(&req, err))
-
-	assert.Equal(t, nil, NotifyError(&req, nil))
-}
-
 func TestWriteResult(t *testing.T) {
 	req := structs.CompletionRequest{}
 	result := "some result"
@@ -70,6 +51,6 @@ func TestWriteResult(t *testing.T) {
 }
 
 func TestTruncate(t *testing.T) {
-	assert.Equal(t, "abcd", Truncate("abcdefg", 4))
-	assert.Equal(t, "abcdefgh", Truncate("abcdefgh", 10))
+	assert.Equal(t, "abcd", utils.Truncate("abcdefg", 4))
+	assert.Equal(t, "abcdefgh", utils.Truncate("abcdefgh", 10))
 }

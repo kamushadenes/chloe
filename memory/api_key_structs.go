@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"github.com/kamushadenes/chloe/errors"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,7 @@ func GetAPIKey(key string) (*APIKey, error) {
 	hash := hashString(key)
 
 	if err := db.Preload("User").Where("hash = ?", hash).First(&apiKey).Error; err != nil {
-		return nil, err
+		return nil, errors.Wrap(errors.ErrGetAPIKey, err)
 	}
 	return &apiKey, nil
 }

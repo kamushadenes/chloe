@@ -3,6 +3,7 @@ package tts
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
@@ -65,7 +66,10 @@ func (a *TTSAction) Execute(request *structs.ActionRequest) error {
 	for {
 		select {
 		case err := <-errorCh:
-			return err
+			if err != nil {
+				return errors.Wrap(errors.ErrActionFailed, err)
+			}
+			return nil
 		}
 	}
 }
