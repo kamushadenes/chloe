@@ -3,11 +3,10 @@ package openai
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
-	errors2 "github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/logging"
@@ -153,11 +152,10 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 		request.Writer = w.ToTextWriter()
 	}
 
-	// TODO: call CoT outside of this function
 	if len(skipCoT) == 0 || !skipCoT[0] {
 		if err := detectAction(request); err == nil {
 			return utils2.NotifyError(request, err)
-		} else if errors.Is(err, errors2.ErrProceed) {
+		} else if errors.Is(err, errors.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
 			msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
 			msg.ErrorCh = request.Message.ErrorCh
@@ -166,7 +164,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 			msg.Context = request.Message.Context
 			msg.Source = request.Message.Source
 			if err := msg.Save(request.GetContext()); err != nil {
-				return err
+				return errors.Wrap(errors.ErrCompletionFailed, err)
 			}
 			return Complete(request, true)
 		}
@@ -178,15 +176,15 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	stream, err := createChatCompletionWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, errors2.ErrCompletionFailed, err)
+		return utils2.NotifyError(request, errors.ErrCompletionFailed, err)
 	}
 
 	responseMessage, err := processCompletionStream(request, stream)
 	if err != nil {
-		return utils2.NotifyAndClose(request, request.Writer, errors2.ErrCompletionFailed, err)
+		return utils2.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, err)
 	}
 	if responseMessage == "" {
-		return utils2.NotifyAndClose(request, request.Writer, errors2.ErrCompletionFailed, fmt.Errorf("empty response"))
+		return utils2.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, fmt.Errorf("empty response"))
 	}
 	if strings.TrimSpace(responseMessage) == "" {
 		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
@@ -195,7 +193,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	err = recordAssistantResponse(request, responseMessage)
 	if err != nil {
-		err = errors2.Wrap(errors2.ErrCompletionFailed, err)
+		err = errors.Wrap(errors.ErrCompletionFailed, err)
 	}
 
 	return utils2.NotifyAndClose(request, request.Writer, err)

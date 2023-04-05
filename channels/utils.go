@@ -40,7 +40,9 @@ func RunAction(req *structs.ActionRequest) error {
 	ActionRequestsCh <- req
 
 	if err := <-req.ErrorChannel; err != nil {
-		return errors.Wrap(errors.ErrActionFailed, fmt.Errorf("error running action %s", req.Action), err)
+		if !errors.Is(err, errors.ErrProceed) {
+			return errors.Wrap(errors.ErrActionFailed, fmt.Errorf("error running action %s", req.Action), err)
+		}
 	}
 
 	return nil

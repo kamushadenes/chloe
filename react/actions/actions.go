@@ -1,9 +1,8 @@
 package actions
 
 import (
-	"errors"
 	"fmt"
-	errors3 "github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/image"
@@ -65,7 +64,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 
 	actI, ok := actions[request.Action]
 	if !ok {
-		return errors3.Wrap(errors3.ErrInvalidAction, fmt.Errorf("action %s not found", request.Action))
+		return errors.Wrap(errors.ErrInvalidAction, fmt.Errorf("action %s not found", request.Action))
 	}
 	act := actI()
 
@@ -73,7 +72,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	act.SetMessage(request.Message)
 
 	if err = act.RunPreActions(request); err != nil {
-		if errors.Is(err, errors3.ErrNotImplemented) {
+		if errors.Is(err, errors.ErrNotImplemented) {
 			if err = defaultPreActions(act, request); err != nil {
 				return
 			}
@@ -92,7 +91,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	logger.Info().Msg("executing action")
 	err = act.Execute(request)
 	if err != nil {
-		if !errors.Is(err, errors3.ErrProceed) {
+		if !errors.Is(err, errors.ErrProceed) {
 			logger.Error().Err(err).Msg("error executing action")
 		}
 		return
@@ -106,7 +105,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	}
 
 	if err = act.RunPostActions(request); err != nil {
-		if errors.Is(err, errors3.ErrNotImplemented) {
+		if errors.Is(err, errors.ErrNotImplemented) {
 			err = defaultPostActions(act, request)
 		}
 	}

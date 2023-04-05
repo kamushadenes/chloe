@@ -2,12 +2,15 @@ package server
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/channels"
-	errors2 "github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/google"
 	"github.com/kamushadenes/chloe/providers/openai"
+	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/react/actions"
 	"github.com/kamushadenes/chloe/structs"
 )
@@ -36,7 +39,19 @@ func MonitorRequests(ctx context.Context) {
 					req.ErrorChannel <- err
 				}
 				if err != nil {
-					if errors.Is(err, errors2.ErrProceed) {
+					if errors.Is(err, errors.ErrProceed) {
+						// duplicate code
+						msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), req.Message.Interface)
+						msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
+						msg.ErrorCh = req.Message.ErrorCh
+						msg.Role = "user"
+						msg.User = req.Message.User
+						msg.Context = req.Message.Context
+						msg.Source = req.Message.Source
+						if err := msg.Save(req.GetContext()); err != nil {
+							_ = msg.SendError(errors.Wrap(errors.ErrSaveMessage, err))
+						}
+
 						channels.CompletionRequestsCh <- req.ToCompletionRequest()
 					} else {
 						logger.Err(err).Msg("failed to handle action")

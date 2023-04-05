@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
-	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
@@ -18,7 +18,7 @@ import (
 var CheckpointMarker = "###CHECKPOINT###"
 
 func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, error) {
-	logger := zerolog.Ctx(request.Context)
+	logger := logging.GetLogger()
 
 	logger.Info().Msg("detecting action")
 
@@ -95,7 +95,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
 		Float64("estimatedResponseCost",
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(nil, content)).
-		Msg("action dectection finished")
+		Msg("action detection finished")
 
 	return actReq, nil
 }
