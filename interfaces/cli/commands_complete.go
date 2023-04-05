@@ -19,7 +19,7 @@ func (c *CompleteCmd) Run(globals *Globals) error {
 	config.OpenAI.DefaultModel.Completion = models.GetModel(c.Model)
 
 	if len(c.Prompt) > 0 {
-		return Complete(globals.Context, strings.Join(c.Prompt, " "))
+		return Complete(globals.Context, strings.Join(c.Prompt, " "), NewCLIWriter())
 	}
 
 	fmt.Println(colors.BoldGreen("Welcome to Chloe CLI"))
@@ -37,7 +37,7 @@ func (c *CompleteCmd) Run(globals *Globals) error {
 		}
 		fmt.Println()
 
-		if err := Complete(globals.Context, text); err != nil {
+		if err := Complete(globals.Context, text, NewCLIWriter()); err != nil {
 			return err
 		}
 		fmt.Println()

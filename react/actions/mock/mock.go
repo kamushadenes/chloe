@@ -5,27 +5,17 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type MockAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewMockAction() structs.Action {
 	return &MockAction{
 		Name: "mock",
 	}
-}
-
-func (a *MockAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *MockAction) GetWriters() []io.WriteCloser {
-	return a.Writers
 }
 
 func (a *MockAction) GetName() string {
@@ -46,18 +36,18 @@ func (a *MockAction) GetParams() string {
 
 func (a *MockAction) SetMessage(message *memory.Message) {}
 
-func (a *MockAction) Execute(request *structs.ActionRequest) error {
+func (a *MockAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Text)
+
 	if request.Params == "err" {
-		return errors.ErrMock
+		return nil, errors.ErrMock
 	}
 
-	for _, w := range a.Writers {
-		_, err := w.Write([]byte(request.Params))
-		if err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
-		}
+	if _, err := obj.Write([]byte(request.Params)); err != nil {
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
-	return nil
+
+	return []*structs.ResponseObject{obj}, nil
 }
 
 func (a *MockAction) RunPreActions(request *structs.ActionRequest) error {

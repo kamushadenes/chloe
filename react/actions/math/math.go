@@ -6,28 +6,18 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 	"strings"
 )
 
 type CalculateAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewCalculateAction() structs.Action {
 	return &CalculateAction{
 		Name: "calculate",
 	}
-}
-
-func (a *CalculateAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *CalculateAction) GetWriters() []io.WriteCloser {
-	return a.Writers
 }
 
 func (a *CalculateAction) GetName() string {
@@ -48,27 +38,26 @@ func (a *CalculateAction) GetParams() string {
 
 func (a *CalculateAction) SetMessage(message *memory.Message) {}
 
-func (a *CalculateAction) Execute(request *structs.ActionRequest) error {
+func (a *CalculateAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Text)
+
 	expr := strings.ReplaceAll(a.Params, ",", "")
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
-		return errors.Wrap(errors.ErrActionFailed, err)
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	result, err := expression.Evaluate(make(map[string]interface{}))
 	if err != nil {
-		return errors.Wrap(errors.ErrActionFailed, err)
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	for _, w := range a.Writers {
-		_, err := w.Write([]byte(fmt.Sprintf("%v", result)))
-		if err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
-		}
+	if _, err := obj.Write([]byte(fmt.Sprintf("%v", result))); err != nil {
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	return nil
+	return []*structs.ResponseObject{obj}, nil
 }
 
 func (a *CalculateAction) RunPreActions(request *structs.ActionRequest) error {

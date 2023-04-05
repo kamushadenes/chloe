@@ -33,6 +33,7 @@ func MonitorRequests(ctx context.Context) {
 		select {
 		case req := <-channels.ActionRequestsCh:
 			logger := structs.LoggerFromRequest(req)
+
 			go func() {
 				err := actions.HandleAction(req)
 				if req.ErrorChannel != nil {

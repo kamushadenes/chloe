@@ -51,13 +51,16 @@ var actions = map[string]func() structs.Action{
 }
 
 func HandleAction(request *structs.ActionRequest) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = utils2.HandlePanic(r)
-		}
-	}()
-
 	logger := logging.GetLogger().With().Str("action", request.Action).Str("params", request.Params).Logger()
+
+	/*
+		defer func() {
+			if r := recover(); r != nil {
+				err = utils2.HandlePanic(r)
+				logger.Error().Err(err).Msg("panic handling action")
+			}
+		}()
+	*/
 
 	request.Action = strings.ToLower(request.Action)
 
@@ -83,24 +86,30 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	if !utils2.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
 		if err = utils.StoreActionDetectionResult(request, act.GetNotification()); err != nil {
+			logger.Error().Err(err).Msg("error storing action detection result")
 			return
 		}
 	}
 
 	logger.Info().Msg("executing action")
-	err = act.Execute(request)
+	objs, err := act.Execute(request)
 	if err != nil {
 		if !errors.Is(err, errors.ErrProceed) {
 			logger.Error().Err(err).Msg("error executing action")
+			return err
 		}
-		return
 	}
 
-	ws := act.GetWriters()
-	for k := range ws {
-		if err = ws[k].Close(); err != nil {
-			return
+	logger.Info().Msg("writing action results")
+
+	for k := range objs {
+		if err = request.Writer.WriteObject(objs[k]); err != nil {
+			return err
 		}
+	}
+
+	if err = request.Writer.Close(); err != nil {
+		return err
 	}
 
 	if err = act.RunPostActions(request); err != nil {

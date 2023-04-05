@@ -5,25 +5,32 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/rs/zerolog"
-	"io"
 )
 
 type Request interface {
 	GetID() string
 	GetContext() context.Context
-	GetWriters() []io.WriteCloser
+
+	GetWriter() ChloeWriter
+	SetWriter(ChloeWriter)
+
 	GetSkipClose() bool
+
 	GetStartChannel() chan bool
 	GetContinueChannel() chan bool
 	GetErrorChannel() chan error
 	GetResultChannel() chan interface{}
+
 	GetMessage() *memory.Message
 }
 
 type ActionOrCompletionRequest interface {
 	GetID() string
 	GetContext() context.Context
-	GetWriters() []io.WriteCloser
+
+	GetWriter() ChloeWriter
+	SetWriter(ChloeWriter)
+
 	GetSkipClose() bool
 	GetMessage() *memory.Message
 }

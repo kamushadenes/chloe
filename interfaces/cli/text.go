@@ -11,11 +11,10 @@ import (
 	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils/colors"
-	"os"
 	"time"
 )
 
-func Complete(ctx context.Context, text string) error {
+func Complete(ctx context.Context, text string, writer structs.ChloeWriter) error {
 	s := spinner.New(spinner.CharSets[40], 100*time.Millisecond)
 
 	if flags.InteractiveCLI {
@@ -82,7 +81,7 @@ func Complete(ctx context.Context, text string) error {
 
 	req := structs.NewCompletionRequest()
 	req.Context = ctx
-	req.Writer = os.Stdout
+	req.Writer = writer
 	req.SkipClose = true
 	req.StartChannel = startCh
 	req.ContinueChannel = continueCh

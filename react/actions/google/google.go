@@ -12,13 +12,11 @@ import (
 	"github.com/rocketlaunchr/google-search"
 	"google.golang.org/api/customsearch/v1"
 	"google.golang.org/api/option"
-	"io"
 )
 
 type GoogleAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewGoogleAction() structs.Action {
@@ -28,14 +26,6 @@ func NewGoogleAction() structs.Action {
 }
 
 func (a *GoogleAction) SetMessage(message *memory.Message) {}
-
-func (a *GoogleAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *GoogleAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 
 func (a *GoogleAction) GetName() string {
 	return a.Name
@@ -53,10 +43,11 @@ func (a *GoogleAction) GetParams() string {
 	return a.Params
 }
 
-func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
+func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	logger := logging.GetLogger().With().Str("action", a.GetName()).Logger()
 
 	var results []googleResult
+	var objs []*structs.ResponseObject
 
 	fallback := true
 
@@ -94,7 +85,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 	if fallback {
 		res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: config.React.GoogleMaxResults})
 		if err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
+			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
 
 		for k := range res {
@@ -116,13 +107,19 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) error {
 				continue
 			}
 			request.Message.NotifyAction(na.GetNotification())
-			if err := na.Execute(request); err != nil {
+
+			aobjs, err := na.Execute(request)
+			if err != nil {
 				continue
+			}
+
+			for k := range aobjs {
+				objs = append(objs, aobjs[k])
 			}
 		}
 	}
 
-	return errors.ErrProceed
+	return objs, errors.ErrProceed
 }
 
 func (a *GoogleAction) RunPreActions(request *structs.ActionRequest) error {

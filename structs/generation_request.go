@@ -4,14 +4,13 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
-	"io"
 )
 
 type GenerationRequest struct {
 	ID      string
 	Context context.Context
 
-	Writers   []io.WriteCloser
+	Writer    ChloeWriter
 	SkipClose bool
 
 	StartChannel    chan bool
@@ -24,50 +23,11 @@ type GenerationRequest struct {
 	Prompt    string `json:"prompt"`
 	Size      string `json:"size"`
 	ImagePath string `json:"image"`
+	Count     int    `json:"count"`
 }
 
 func NewGenerationRequest() *GenerationRequest {
 	return &GenerationRequest{
 		ID: uuid.Must(uuid.NewV4()).String(),
 	}
-}
-
-func (creq *GenerationRequest) GetID() string {
-	return creq.ID
-}
-
-func (creq *GenerationRequest) GetMessage() *memory.Message {
-	return creq.Message
-}
-
-func (creq *GenerationRequest) GetSize() string {
-	return creq.Size
-}
-
-func (creq *GenerationRequest) GetContext() context.Context {
-	return creq.Context
-}
-
-func (creq *GenerationRequest) GetWriters() []io.WriteCloser {
-	return creq.Writers
-}
-
-func (creq *GenerationRequest) GetSkipClose() bool {
-	return creq.SkipClose
-}
-
-func (creq *GenerationRequest) GetStartChannel() chan bool {
-	return creq.StartChannel
-}
-
-func (creq *GenerationRequest) GetContinueChannel() chan bool {
-	return creq.ContinueChannel
-}
-
-func (creq *GenerationRequest) GetErrorChannel() chan error {
-	return creq.ErrorChannel
-}
-
-func (creq *GenerationRequest) GetResultChannel() chan interface{} {
-	return creq.ResultChannel
 }

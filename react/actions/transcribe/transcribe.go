@@ -5,13 +5,11 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type TranscribeAction struct {
 	Name    string
 	Params  string
-	Writers []io.WriteCloser
 	Message *memory.Message
 }
 
@@ -19,14 +17,6 @@ func NewTranscribeAction() structs.Action {
 	return &TranscribeAction{
 		Name: "audio",
 	}
-}
-
-func (a *TranscribeAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *TranscribeAction) GetWriters() []io.WriteCloser {
-	return a.Writers
 }
 
 func (a *TranscribeAction) GetName() string {
@@ -49,7 +39,9 @@ func (a *TranscribeAction) SetMessage(message *memory.Message) {
 	a.Message = message
 }
 
-func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
+func (a *TranscribeAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Text)
+
 	errorCh := make(chan error)
 
 	req := structs.NewTranscriptionRequest()
@@ -57,7 +49,7 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
 	req.Message = a.Message
 	req.FilePath = a.Params
 	req.ErrorChannel = errorCh
-	req.Writer = a.Writers[0]
+	req.Writer = obj
 
 	channels.TranscribeRequestsCh <- req
 
@@ -65,9 +57,9 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) error {
 		select {
 		case err := <-errorCh:
 			if err != nil {
-				return errors.Wrap(errors.ErrActionFailed, err)
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
-			return nil
+			return []*structs.ResponseObject{obj}, nil
 		}
 	}
 }

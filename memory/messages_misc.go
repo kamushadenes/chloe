@@ -88,7 +88,7 @@ func (m *Message) SendText(text string, notify bool, extraArgs ...interface{}) e
 			msg.DisableWebPagePreview = true
 		}
 
-		if len(extraArgs) > 0 {
+		if len(extraArgs) > 0 && extraArgs[0] != "notify_action" {
 			msg.ReplyToMessageID = extraArgs[0].(int)
 		}
 		_, err := m.Source.Telegram.API.Send(msg)

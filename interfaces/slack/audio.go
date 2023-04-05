@@ -13,7 +13,7 @@ func tts(ctx context.Context, msg *memory.Message) error {
 	req.Params = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
-	req.Writers = append(req.Writers, NewAudioWriter(ctx, req, false))
+	req.Writer = NewSlackWriter(ctx, req, false)
 
 	return channels.RunAction(req)
 }

@@ -9,13 +9,11 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type NewsByCountryAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewNewsByCountryAction() structs.Action {
@@ -25,14 +23,6 @@ func NewNewsByCountryAction() structs.Action {
 }
 
 func (a *NewsByCountryAction) SetMessage(message *memory.Message) {}
-
-func (a *NewsByCountryAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *NewsByCountryAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 
 func (a *NewsByCountryAction) GetName() string {
 	return a.Name
@@ -50,7 +40,9 @@ func (a *NewsByCountryAction) GetParams() string {
 	return a.Params
 }
 
-func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) error {
+func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	var objs []*structs.ResponseObject
+
 	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("query", a.Params).Logger()
 
 	source := config.React.NewsSource
@@ -64,14 +56,13 @@ func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) error {
 		na := google.NewGoogleAction()
 		na.SetParams(fmt.Sprintf("%s news", a.Params))
 		na.SetMessage(request.Message)
-		na.SetWriters(a.Writers)
 		request.Message.NotifyAction(na.GetNotification())
 		return na.Execute(request)
 	case "newsapi":
 		res, err := NewsAPITopHeadlines(a.Params)
 		if err != nil {
 			logger.Error().Err(err).Msg("NewsAPI query failed")
-			return errors.Wrap(errors.ErrActionFailed, err)
+			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
 
 		cnt := 0
@@ -86,13 +77,15 @@ func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) error {
 			if err := na.RunPreActions(request); err != nil {
 				continue
 			}
-			if err := na.Execute(request); err != nil {
+			aobjs, err := na.Execute(request)
+			if err != nil {
 				continue
 			}
+			objs = append(objs, aobjs...)
 		}
 	}
 
-	return errors.ErrProceed
+	return objs, errors.ErrProceed
 }
 
 func (a *NewsByCountryAction) RunPreActions(request *structs.ActionRequest) error {

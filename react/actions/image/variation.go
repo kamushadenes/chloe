@@ -6,27 +6,17 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type VariationAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewVariationAction() structs.Action {
 	return &VariationAction{
 		Name: "image",
 	}
-}
-
-func (a *VariationAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *VariationAction) GetWriters() []io.WriteCloser {
-	return a.Writers
 }
 
 func (a *VariationAction) GetName() string {
@@ -47,7 +37,9 @@ func (a *VariationAction) GetParams() string {
 
 func (a *VariationAction) SetMessage(message *memory.Message) {}
 
-func (a *VariationAction) Execute(request *structs.ActionRequest) error {
+func (a *VariationAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Image)
+
 	errorCh := make(chan error)
 
 	req := structs.NewVariationRequest()
@@ -55,7 +47,7 @@ func (a *VariationAction) Execute(request *structs.ActionRequest) error {
 	req.ImagePath = a.Params
 	req.ErrorChannel = errorCh
 
-	req.Writers = a.Writers
+	req.Writer = obj
 
 	channels.VariationRequestsCh <- req
 
@@ -63,9 +55,9 @@ func (a *VariationAction) Execute(request *structs.ActionRequest) error {
 		select {
 		case err := <-errorCh:
 			if err != nil {
-				return errors.Wrap(errors.ErrActionFailed, err)
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
-			return nil
+			return []*structs.ResponseObject{obj}, nil
 		}
 	}
 }

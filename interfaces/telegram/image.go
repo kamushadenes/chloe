@@ -42,7 +42,7 @@ func aiAction(ctx context.Context, msg *memory.Message) error {
 	req.Action = fields[0]
 	req.Params = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
-	req.Writers = append(req.Writers, NewTextWriter(ctx, req, false))
+	req.Writer = NewTelegramWriter(ctx, req, false)
 
 	return channels.RunAction(req)
 }
@@ -52,7 +52,8 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = "generate"
 	req.Params = promptFromMessage(msg)
-	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
+	req.Message = msg
+	req.Writer = NewTelegramWriter(ctx, req, false)
 
 	return channels.RunAction(req)
 }
@@ -64,7 +65,7 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 		req.Context = ctx
 		req.Action = "variation"
 		req.Params = path
-		req.Writers = append(req.Writers, NewImageWriter(ctx, req, false))
+		req.Writer = NewTelegramWriter(ctx, req, false)
 
 		if err := channels.RunAction(req); err != nil {
 			return err

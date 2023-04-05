@@ -6,13 +6,11 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type ImageAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewImageAction() structs.Action {
@@ -21,13 +19,6 @@ func NewImageAction() structs.Action {
 	}
 }
 
-func (a *ImageAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *ImageAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 func (a *ImageAction) GetName() string {
 	return a.Name
 }
@@ -46,25 +37,32 @@ func (a *ImageAction) GetParams() string {
 
 func (a *ImageAction) SetMessage(message *memory.Message) {}
 
-func (a *ImageAction) Execute(request *structs.ActionRequest) error {
+func (a *ImageAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Image)
+
 	errorCh := make(chan error)
 
 	req := structs.NewGenerationRequest()
 	req.Context = request.GetContext()
 	req.Prompt = a.Params
 	req.ErrorChannel = errorCh
+	req.Count = 1
+	// add count
+	// req.Count = request.Message.??
 
-	req.Writers = a.Writers
+	req.Writer = obj
 
 	channels.GenerationRequestsCh <- req
 
 	for {
 		select {
 		case err := <-errorCh:
+			fmt.Println("eita", err)
 			if err != nil {
-				return errors.Wrap(errors.ErrActionFailed, err)
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
-			return nil
+			fmt.Println(obj.Size())
+			return []*structs.ResponseObject{obj}, nil
 		}
 	}
 }

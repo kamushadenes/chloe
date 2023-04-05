@@ -80,12 +80,7 @@ func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, conte
 	nmsg.SetContent(buf.String())
 	nmsg.User = request.GetMessage().User
 
-	err = nmsg.Save(request.GetContext())
-	if err != nil {
-		return errors.Wrap(errors.ErrSaveMessage, err)
-	}
-
-	return nil
+	return nmsg.Save(request.GetContext())
 }
 
 func GetAvailableTokenCount(request *structs.ActionRequest) int {

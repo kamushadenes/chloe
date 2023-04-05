@@ -13,7 +13,7 @@ func generate(ctx context.Context, msg *memory.Message) error {
 	req.Params = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
-	req.Writers = append(req.Writers, NewImageWriter(ctx, req, false, req.Params))
+	req.Writer = NewSlackWriter(ctx, req, false, req.Params)
 
 	return channels.RunAction(req)
 }

@@ -1,6 +1,9 @@
 package utils
 
-import "net/http"
+import (
+	"github.com/kamushadenes/chloe/structs"
+	"net/http"
+)
 
 type BytesWriter struct {
 	Bytes []byte
@@ -26,6 +29,12 @@ func NewHTTPResponseWriteCloser(w http.ResponseWriter) *HTTPResponseWriteCloser 
 
 func (rwc *HTTPResponseWriteCloser) Write(p []byte) (n int, err error) {
 	return rwc.Writer.Write(p)
+}
+
+func (rwc *HTTPResponseWriteCloser) WriteObject(obj *structs.ResponseObject) error {
+	_, err := rwc.Write(obj.Data)
+
+	return err
 }
 
 func (rwc *HTTPResponseWriteCloser) Close() error {

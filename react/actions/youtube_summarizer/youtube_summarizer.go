@@ -8,9 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
-	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -18,9 +16,8 @@ import (
 )
 
 type YoutubeSummarizerAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewYoutubeSummarizerAction() structs.Action {
@@ -29,13 +26,6 @@ func NewYoutubeSummarizerAction() structs.Action {
 	}
 }
 
-func (a *YoutubeSummarizerAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *YoutubeSummarizerAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 func (a *YoutubeSummarizerAction) GetName() string {
 	return a.Name
 }
@@ -54,16 +44,18 @@ func (a *YoutubeSummarizerAction) GetParams() string {
 
 func (a *YoutubeSummarizerAction) SetMessage(message *memory.Message) {}
 
-func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error {
+func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Text)
+
 	if _, err := exec.LookPath("youtube-dl"); err != nil {
-		return errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandNotFound, err)
+		return nil, errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandNotFound, err)
 	}
 
 	logger := logging.GetLogger().With().Str("action", a.GetName()).Str("url", a.Params).Logger()
 
 	tmpDir, err := os.MkdirTemp(config.Misc.TempDir, "youtube")
 	if err != nil {
-		return errors2.Wrap(errors2.ErrActionFailed, err)
+		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
 	logger.Info().Msg("downloading audio")
@@ -84,35 +76,31 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) error 
 
 	cmd := exec.Command("youtube-dl", args...)
 	if err := cmd.Run(); err != nil {
-		return errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandError, err)
+		return nil, errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandError, err)
 	}
-
-	b := &utils2.BytesWriter{}
 
 	na := transcribe.NewTranscribeAction()
 	na.SetParams(path.Join(tmpDir, "audio.mp3"))
 	na.SetMessage(request.Message)
-	na.SetWriters([]io.WriteCloser{b})
 	request.Message.NotifyAction(na.GetNotification())
-	if err := na.Execute(request); err != nil {
-		return errors2.Wrap(errors2.ErrActionFailed, err)
+
+	tobjs, err := na.Execute(request)
+	if err != nil {
+		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
-	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarizer", string(b.Bytes))
+	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarizer", string(tobjs[0].Data))
 	if err != nil {
-		return errors2.Wrap(errors2.ErrActionFailed, err)
+		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
 
-	for _, w := range a.Writers {
-		if _, err := w.Write([]byte(content)); err != nil {
-			return errors2.Wrap(errors2.ErrActionFailed, err)
-		}
-
+	if _, err := obj.Write([]byte(content)); err != nil {
+		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
-	return nil
+	return []*structs.ResponseObject{obj}, nil
 }
 
 func (a *YoutubeSummarizerAction) RunPreActions(request *structs.ActionRequest) error {

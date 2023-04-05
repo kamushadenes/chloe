@@ -10,7 +10,6 @@ import (
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 	"net/http"
 )
 
@@ -123,7 +122,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	req.Action = "generate"
 	req.Params = params.Prompt
 	req.Message = msg
-	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
+	req.Writer = utils.NewHTTPResponseWriteCloser(w)
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -136,7 +135,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}
@@ -171,7 +170,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	req.Action = "tts"
 	req.Params = params.Content
 	req.Message = msg
-	req.Writers = []io.WriteCloser{utils.NewHTTPResponseWriteCloser(w)}
+	req.Writer = utils.NewHTTPResponseWriteCloser(w)
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -184,7 +183,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}
@@ -238,7 +237,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 	req.Action = params.Action
 	req.Params = params.Params
 	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
-	req.Writers = []io.WriteCloser{&utils.HTTPResponseWriteCloser{Writer: w}}
+	req.Writer = &utils.HTTPResponseWriteCloser{Writer: w}
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -251,7 +250,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writers[0].(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
 			return
 		}
 	}

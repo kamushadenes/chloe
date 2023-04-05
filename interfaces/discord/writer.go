@@ -1,11 +1,11 @@
 package discord
 
 import (
-	"bytes"
 	"context"
 	"github.com/aquilax/truncate"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
 	"time"
 )
@@ -18,12 +18,28 @@ type DiscordWriter struct {
 	Type       string
 	ReplyID    string
 	Request    structs.ActionOrCompletionRequest
-	bufs       []bytes.Buffer
-	bufID      int
-	closedBufs int
-	mainWriter *DiscordWriter
+	objs       []*structs.ResponseObject
 	externalID string
 	lastUpdate *time.Time
+}
+
+func NewDiscordWriter(ctx context.Context, req structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
+	w := &DiscordWriter{
+		Context: ctx,
+		Bot:     req.GetMessage().Source.Discord.API,
+		ChatID:  req.GetMessage().Source.Discord.Message.ChannelID,
+		Request: req,
+	}
+
+	if len(prompt) > 0 {
+		w.Prompt = prompt[0]
+	}
+
+	if reply {
+		w.ReplyID = req.GetMessage().Source.Discord.Message.ID
+	}
+
+	return w
 }
 
 func (w *DiscordWriter) Flush() {
@@ -47,7 +63,7 @@ func (w *DiscordWriter) Flush() {
 
 	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Discord.StreamFlushInterval {
 		_, _ = w.Bot.ChannelMessageEdit(w.ChatID, w.externalID, truncate.Truncate(
-			w.bufs[0].String(),
+			w.objs[0].String(),
 			config.Discord.MaxMessageLength,
 			"...",
 			truncate.PositionEnd,
@@ -58,15 +74,19 @@ func (w *DiscordWriter) Flush() {
 }
 
 func (w *DiscordWriter) Close() error {
-	if (len(w.bufs) > 0 && w.bufs[0].Len() > 0) ||
-		(w.mainWriter != nil && len(w.mainWriter.bufs) > 0 && w.mainWriter.bufs[0].Len() > 0) {
-		switch w.Type {
-		case "text":
-			return w.closeText()
-		case "audio":
-			return w.closeAudio()
-		case "image":
-			return w.closeImage()
+	logger := logging.GetLogger()
+
+	funcs := []func() error{
+		w.closeText,
+		w.closeAudio,
+		w.closeImage,
+	}
+
+	for k := range funcs {
+		logger.Debug().Str("requestID", w.Request.GetID()).Msgf("closing writer %d", k)
+		if err := funcs[k](); err != nil {
+			logger.Error().Err(err).Str("requestID", w.Request.GetID()).Msgf("error closing writer %d", k)
+			return err
 		}
 	}
 
@@ -74,28 +94,22 @@ func (w *DiscordWriter) Close() error {
 }
 
 func (w *DiscordWriter) Write(p []byte) (n int, err error) {
-	if w.mainWriter != nil {
-		return w.mainWriter.bufs[w.bufID].Write(p)
+	if len(w.objs) == 0 {
+		w.objs = append(w.objs, &structs.ResponseObject{
+			Type:   structs.Text,
+			Result: true,
+		})
 	}
 
-	return w.bufs[0].Write(p)
+	w.objs[0].Data = append(w.objs[0].Data, p...)
+
+	return len(p), nil
 }
 
-func (w *DiscordWriter) Subwriter() *DiscordWriter {
-	w.bufs = append(w.bufs, bytes.Buffer{})
+func (w *DiscordWriter) WriteObject(obj *structs.ResponseObject) error {
+	w.objs = append(w.objs, obj)
 
-	return &DiscordWriter{
-		Context:    w.Context,
-		Bot:        w.Bot,
-		ChatID:     w.ChatID,
-		Type:       w.Type,
-		ReplyID:    w.ReplyID,
-		Request:    w.Request,
-		Prompt:     w.Prompt,
-		bufs:       []bytes.Buffer{{}},
-		bufID:      len(w.bufs) - 1,
-		mainWriter: w,
-	}
+	return nil
 }
 
 func (w *DiscordWriter) SetPrompt(prompt string) {

@@ -12,7 +12,6 @@ import (
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/sashabaranov/go-openai"
-	"io"
 	"strings"
 )
 
@@ -96,7 +95,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 	actReq.Action = actResp.Command.Name
 	actReq.Params = actResp.Command.Params
 	actReq.Thought = strings.Join(actResp.Thoughts.ChainOfThought, "\n - ")
-	actReq.Writers = []io.WriteCloser{request.Writer}
+	actReq.Writer = request.Writer
 
 	logger.Info().
 		EmbedObject(actResp).

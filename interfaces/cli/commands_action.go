@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
-	"os"
 	"strings"
 )
 
@@ -20,7 +18,7 @@ func (a *ActionCmd) Run(globals *Globals) error {
 	req.Action = a.Action
 	req.Params = strings.Join(a.Params, " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", a.Action)
-	req.Writers = []io.WriteCloser{os.Stdout}
+	req.Writer = NewCLIWriter()
 
 	return channels.RunAction(req)
 }

@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
@@ -30,7 +31,7 @@ func cloneImageHeaders(resp *http.Response, writer io.Writer) {
 }
 
 // writeImage writes an image from a URL to an io.WriteCloser.
-func writeImage(writer io.WriteCloser, url string) error {
+func writeImage(writer structs.ChloeWriter, url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -47,11 +48,18 @@ func writeImage(writer io.WriteCloser, url string) error {
 
 	putils.WriteStatusCode(writer, resp.StatusCode)
 
-	if _, err := io.Copy(writer, resp.Body); err != nil {
+	var buf bytes.Buffer
+
+	if _, err := io.Copy(&buf, resp.Body); err != nil {
 		return err
 	}
 
-	return nil
+	return writer.WriteObject(&structs.ResponseObject{
+		Name:   url,
+		Data:   buf.Bytes(),
+		Type:   structs.Image,
+		Result: true,
+	})
 }
 
 // getImageSize returns the appropriate image size for the request.
@@ -60,14 +68,7 @@ func getImageSize(request structs.ImageRequest) string {
 		return request.GetSize()
 	}
 
-	switch request.(type) {
-	case *structs.GenerationRequest:
-		return config.OpenAI.DefaultSize.ImageGeneration
-	case *structs.VariationRequest:
-		return config.OpenAI.DefaultSize.ImageVariation
-	}
-
-	return ""
+	return config.OpenAI.DefaultSize.ImageGeneration
 }
 
 // newImageRequest creates a new openai.ImageRequest for image generation.
@@ -76,7 +77,7 @@ func newImageRequest(request *structs.GenerationRequest) openai.ImageRequest {
 
 	return openai.ImageRequest{
 		Prompt: request.Prompt,
-		N:      len(request.GetWriters()),
+		N:      request.Count,
 		Size:   request.Size,
 	}
 }
@@ -104,8 +105,8 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
 	utils2.StartAndWait(request)
 
-	for k := range request.GetWriters() {
-		if err := writeImage(request.Writers[k], response.Data[k].URL); err != nil {
+	for k := range response.Data {
+		if err := writeImage(request.Writer, response.Data[k].URL); err != nil {
 			return err
 		}
 	}
@@ -145,7 +146,7 @@ func newImageEditRequest(request *structs.GenerationRequest) (openai.ImageEditRe
 
 	return openai.ImageEditRequest{
 		Prompt: request.Prompt,
-		N:      len(request.Writers),
+		N:      request.Count,
 		Size:   request.Size,
 		Image:  f,
 	}, nil
@@ -205,7 +206,7 @@ func newImageVariationRequest(request *structs.VariationRequest) (openai.ImageVa
 
 	return openai.ImageVariRequest{
 		Image: f,
-		N:     len(request.Writers),
+		N:     request.Count,
 		Size:  config.OpenAI.DefaultSize.ImageVariation,
 	}, nil
 }
@@ -233,8 +234,8 @@ func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRe
 func processSuccessfulImageVariationRequest(request *structs.VariationRequest, response openai.ImageResponse) error {
 	utils2.StartAndWait(request)
 
-	for k := range request.Writers {
-		if err := writeImage(request.Writers[k], response.Data[k].URL); err != nil {
+	for k := range response.Data {
+		if err := writeImage(request.Writer, response.Data[k].URL); err != nil {
 			return err
 		}
 	}

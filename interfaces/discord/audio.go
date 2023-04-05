@@ -15,7 +15,7 @@ func transcribe(ctx context.Context, msg *memory.Message) error {
 		req.Params = path
 		req.Message = msg
 		req.Context = ctx
-		req.Writers = append(req.Writers, NewTextWriter(ctx, req, true))
+		req.Writer = NewDiscordWriter(ctx, req, true)
 
 		if err := channels.RunAction(req); err != nil {
 			return err
@@ -31,7 +31,7 @@ func tts(ctx context.Context, msg *memory.Message) error {
 	req.Params = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
-	req.Writers = append(req.Writers, NewAudioWriter(ctx, req, false))
+	req.Writer = NewDiscordWriter(ctx, req, false)
 
 	return channels.RunAction(req)
 }

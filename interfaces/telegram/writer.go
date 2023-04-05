@@ -1,7 +1,6 @@
 package telegram
 
 import (
-	"bytes"
 	"context"
 	"github.com/aquilax/truncate"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -18,12 +17,29 @@ type TelegramWriter struct {
 	Type       string
 	ReplyID    int
 	Request    structs.ActionOrCompletionRequest
-	bufs       []bytes.Buffer
-	bufID      int
+	objs       []*structs.ResponseObject
 	closedBufs int
-	mainWriter *TelegramWriter
 	externalID int
 	lastUpdate *time.Time
+}
+
+func NewTelegramWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
+	w := &TelegramWriter{
+		Context: ctx,
+		Bot:     request.GetMessage().Source.Telegram.API,
+		ChatID:  request.GetMessage().Source.Telegram.Update.Message.Chat.ID,
+		Request: request,
+	}
+
+	if len(prompt) > 0 {
+		w.Prompt = prompt[0]
+	}
+
+	if reply {
+		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
+	}
+
+	return w
 }
 
 func (w *TelegramWriter) Flush() {
@@ -47,7 +63,7 @@ func (w *TelegramWriter) Flush() {
 
 	if w.lastUpdate != nil && time.Since(*w.lastUpdate) > config.Telegram.StreamFlushInterval {
 		_, _ = w.Bot.Send(tgbotapi.NewEditMessageText(w.ChatID, w.externalID, truncate.Truncate(
-			w.bufs[0].String(),
+			string(w.objs[0].Data),
 			config.Telegram.MaxMessageLength,
 			"...",
 			truncate.PositionEnd,
@@ -58,15 +74,15 @@ func (w *TelegramWriter) Flush() {
 }
 
 func (w *TelegramWriter) Close() error {
-	if (len(w.bufs) > 0 && w.bufs[0].Len() > 0) ||
-		(w.mainWriter != nil && len(w.mainWriter.bufs) > 0 && w.mainWriter.bufs[0].Len() > 0) {
-		switch w.Type {
-		case "text":
-			return w.closeText()
-		case "audio":
-			return w.closeAudio()
-		case "image":
-			return w.closeImage()
+	funcs := []func() error{
+		w.closeText,
+		w.closeAudio,
+		w.closeImage,
+	}
+
+	for k := range funcs {
+		if err := funcs[k](); err != nil {
+			return err
 		}
 	}
 
@@ -74,30 +90,24 @@ func (w *TelegramWriter) Close() error {
 }
 
 func (w *TelegramWriter) Write(p []byte) (n int, err error) {
-	if w.mainWriter != nil {
-		return w.mainWriter.bufs[w.bufID].Write(p)
+	if len(w.objs) == 0 {
+		w.objs = append(w.objs, &structs.ResponseObject{
+			Type:   structs.Text,
+			Result: true,
+		})
 	}
 
-	return w.bufs[0].Write(p)
+	w.objs[0].Data = append(w.objs[0].Data, p...)
+
+	return len(p), nil
+}
+
+func (w *TelegramWriter) WriteObject(obj *structs.ResponseObject) error {
+	w.objs = append(w.objs, obj)
+
+	return nil
 }
 
 func (w *TelegramWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
-}
-
-func (w *TelegramWriter) Subwriter() *TelegramWriter {
-	w.bufs = append(w.bufs, bytes.Buffer{})
-
-	return &TelegramWriter{
-		Context:    w.Context,
-		Prompt:     w.Prompt,
-		Bot:        w.Bot,
-		ChatID:     w.ChatID,
-		Type:       w.Type,
-		ReplyID:    w.ReplyID,
-		Request:    w.Request,
-		bufs:       []bytes.Buffer{{}},
-		bufID:      len(w.bufs) - 1,
-		mainWriter: w,
-	}
 }

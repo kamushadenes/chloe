@@ -22,7 +22,7 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 
 	request.ResultChannel = ch
 	request.Context = ctx
-	request.Writer = NewTextWriter(ctx, request, false)
+	request.Writer = NewTelegramWriter(ctx, request, false)
 
 	return channels.RunCompletion(request)
 }

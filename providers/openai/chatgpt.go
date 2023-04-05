@@ -7,8 +7,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/interfaces/discord"
-	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
@@ -145,13 +143,6 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 	request := r.Copy()
 	logger := structs.LoggerFromRequest(request)
 
-	switch w := request.Writer.(type) {
-	case *telegram.TelegramWriter:
-		request.Writer = w.ToTextWriter()
-	case *discord.DiscordWriter:
-		request.Writer = w.ToTextWriter()
-	}
-
 	if len(skipCoT) == 0 || !skipCoT[0] {
 		if err := detectAction(request); err == nil {
 			return utils2.NotifyError(request, err)
@@ -167,7 +158,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 				return errors.Wrap(errors.ErrCompletionFailed, err)
 			}
 			return Complete(request, true)
-		} else if !errors.Is(err, errors.ErrActionFailed) {
+		} else if errors.Is(err, errors.ErrActionFailed) {
 			return utils2.NotifyError(request, err)
 		}
 	}

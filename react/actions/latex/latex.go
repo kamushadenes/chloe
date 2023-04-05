@@ -7,13 +7,11 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 )
 
 type LatexAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewLatexAction() structs.Action {
@@ -22,13 +20,6 @@ func NewLatexAction() structs.Action {
 	}
 }
 
-func (a *LatexAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *LatexAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 func (a *LatexAction) GetName() string {
 	return a.Name
 }
@@ -47,15 +38,15 @@ func (a *LatexAction) GetParams() string {
 
 func (a *LatexAction) SetMessage(message *memory.Message) {}
 
-func (a *LatexAction) Execute(request *structs.ActionRequest) error {
-	for _, w := range a.Writers {
-		dst := drawimg.NewRenderer(w)
-		if err := mtex.Render(dst, request.Params, 64, 600, nil); err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
-		}
+func (a *LatexAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Image)
+
+	dst := drawimg.NewRenderer(obj)
+	if err := mtex.Render(dst, request.Params, 64, 600, nil); err != nil {
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	return nil
+	return []*structs.ResponseObject{obj}, nil
 }
 
 func (a *LatexAction) RunPreActions(request *structs.ActionRequest) error {

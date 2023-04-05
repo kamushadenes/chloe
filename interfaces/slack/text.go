@@ -21,7 +21,7 @@ func complete(ctx context.Context, msg *memory.Message) error {
 	request.Message = msg
 
 	request.Context = ctx
-	request.Writer = NewTextWriter(ctx, request, false)
+	request.Writer = NewSlackWriter(ctx, request, false)
 
 	return channels.RunCompletion(request)
 }

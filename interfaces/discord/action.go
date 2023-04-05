@@ -6,7 +6,6 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
-	"io"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req.Action = fields[0]
 	req.Params = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
-	req.Writers = []io.WriteCloser{NewTextWriter(ctx, req, false)}
+	req.Writer = NewDiscordWriter(ctx, req, false)
 
 	return channels.RunAction(req)
 }

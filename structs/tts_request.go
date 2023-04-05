@@ -4,14 +4,13 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/memory"
-	"io"
 )
 
 type TTSRequest struct {
 	ID      string
 	Context context.Context
 
-	Writers   []io.WriteCloser
+	Writer    ChloeWriter
 	SkipClose bool
 
 	StartChannel    chan bool
@@ -28,40 +27,4 @@ func NewTTSRequest() *TTSRequest {
 	return &TTSRequest{
 		ID: uuid.Must(uuid.NewV4()).String(),
 	}
-}
-
-func (creq *TTSRequest) GetID() string {
-	return creq.ID
-}
-
-func (creq *TTSRequest) GetMessage() *memory.Message {
-	return creq.Message
-}
-
-func (creq *TTSRequest) GetContext() context.Context {
-	return creq.Context
-}
-
-func (creq *TTSRequest) GetWriters() []io.WriteCloser {
-	return creq.Writers
-}
-
-func (creq *TTSRequest) GetSkipClose() bool {
-	return creq.SkipClose
-}
-
-func (creq *TTSRequest) GetStartChannel() chan bool {
-	return creq.StartChannel
-}
-
-func (creq *TTSRequest) GetContinueChannel() chan bool {
-	return creq.ContinueChannel
-}
-
-func (creq *TTSRequest) GetErrorChannel() chan error {
-	return creq.ErrorChannel
-}
-
-func (creq *TTSRequest) GetResultChannel() chan interface{} {
-	return creq.ResultChannel
 }

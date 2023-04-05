@@ -1,62 +1,16 @@
 package slack
 
 import (
-	"bytes"
-	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/rs/zerolog"
 	"github.com/slack-go/slack"
 )
 
-func (w *SlackWriter) ToAudioWriter() *SlackWriter {
-	return NewAudioWriter(w.Context, w.Request, w.ReplyID != "", w.Prompt)
-}
-
-func NewAudioWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *SlackWriter {
-	var chatID string
-	var ts string
-
-	if request.GetMessage().Source.Slack.Message != nil {
-		chatID = request.GetMessage().Source.Slack.Message.Channel
-		ts = request.GetMessage().Source.Slack.Message.TimeStamp
-	} else {
-		chatID = request.GetMessage().Source.Slack.SlashCommand.ChannelID
-	}
-
-	w := &SlackWriter{
-		Context: ctx,
-		Bot:     request.GetMessage().Source.Slack.API,
-		ChatID:  chatID,
-		Type:    "audio",
-		Request: request,
-		bufs:    []bytes.Buffer{{}},
-		bufID:   0,
-	}
-	if len(prompt) > 0 {
-		w.Prompt = prompt[0]
-	}
-
-	if reply && ts != "" {
-		w.ReplyID = ts
-	}
-
-	return w
-}
-
 func (w *SlackWriter) closeAudio() error {
 	logger := zerolog.Ctx(w.Context).With().Str("requestID", w.Request.GetID()).Logger()
 
 	logger.Debug().Str("chatID", w.ChatID).Msg("replying with audio")
-	bufs := w.bufs
-
-	if w.mainWriter != nil {
-		bufs = w.mainWriter.bufs
-		w.mainWriter.closedBufs++
-		if w.mainWriter.closedBufs != len(w.mainWriter.bufs) {
-			return nil
-		}
-	}
 
 	content := fmt.Sprintf("Prompt: %s", w.Prompt)
 
@@ -65,17 +19,20 @@ func (w *SlackWriter) closeAudio() error {
 		return err
 	}
 
-	for k := range bufs {
-		if _, err := w.Bot.UploadFileV2(slack.UploadFileV2Parameters{
-			Reader:          bytes.NewReader(bufs[k].Bytes()),
-			FileSize:        len(bufs[k].Bytes()),
-			Filename:        fmt.Sprintf("generated-%s-%d.mp3", ts, k),
-			Title:           content,
-			Channel:         w.ChatID,
-			AltTxt:          content,
-			ThreadTimestamp: ts,
-		}); err != nil {
-			return err
+	for k := range w.objs {
+		obj := w.objs[k]
+		if obj.Type == structs.Audio {
+			if _, err := w.Bot.UploadFileV2(slack.UploadFileV2Parameters{
+				Reader:          obj,
+				FileSize:        obj.Size(),
+				Filename:        fmt.Sprintf("generated-%s-%d.mp3", ts, k),
+				Title:           content,
+				Channel:         w.ChatID,
+				AltTxt:          content,
+				ThreadTimestamp: ts,
+			}); err != nil {
+				logger.Error().Err(err).Msg("failed to upload audio")
+			}
 		}
 	}
 

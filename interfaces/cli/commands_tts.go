@@ -2,7 +2,6 @@ package cli
 
 import (
 	"github.com/kamushadenes/chloe/flags"
-	"os"
 	"strings"
 )
 
@@ -13,21 +12,12 @@ type TTSCmd struct {
 
 func (c *TTSCmd) Run(globals *Globals) error {
 	if len(c.OutputPath) > 0 {
-		f, err := os.Create(c.OutputPath)
-		if err != nil {
-			return err
-		}
-
-		return TTS(globals.Context, strings.Join(c.Prompt, " "), f)
+		return TTS(globals.Context, strings.Join(c.Prompt, " "), NewFileWriter(c.OutputPath))
 	}
 
 	if flags.InteractiveCLI {
-		f, err := os.Create("generated.mp3")
-		if err != nil {
-			return err
-		}
-		return TTS(globals.Context, strings.Join(c.Prompt, " "), f)
+		return TTS(globals.Context, strings.Join(c.Prompt, " "), NewFileWriter("generated.mp3"))
 	}
 
-	return TTS(globals.Context, strings.Join(c.Prompt, " "))
+	return TTS(globals.Context, strings.Join(c.Prompt, " "), NewCLIWriter())
 }

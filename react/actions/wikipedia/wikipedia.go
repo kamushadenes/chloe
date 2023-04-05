@@ -9,13 +9,11 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
 	"github.com/trietmn/go-wiki"
-	"io"
 )
 
 type WikipediaAction struct {
-	Name    string
-	Params  string
-	Writers []io.WriteCloser
+	Name   string
+	Params string
 }
 
 func NewWikipediaAction() structs.Action {
@@ -25,14 +23,6 @@ func NewWikipediaAction() structs.Action {
 }
 
 func (a *WikipediaAction) SetMessage(message *memory.Message) {}
-
-func (a *WikipediaAction) SetWriters(writers []io.WriteCloser) {
-	a.Writers = writers
-}
-
-func (a *WikipediaAction) GetWriters() []io.WriteCloser {
-	return a.Writers
-}
 
 func (a *WikipediaAction) GetName() string {
 	return a.Name
@@ -50,7 +40,9 @@ func (a *WikipediaAction) GetParams() string {
 	return a.Params
 }
 
-func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
+func (a *WikipediaAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	obj := structs.NewResponseObject(structs.Text)
+
 	var truncateTokenCount int
 	if utils2.Testing() {
 		truncateTokenCount = 1000
@@ -60,33 +52,43 @@ func (a *WikipediaAction) Execute(request *structs.ActionRequest) error {
 
 	res, _, err := gowiki.Search(a.Params, config.React.WikipediaMaxResults, false)
 	if err != nil {
-		return errors.Wrap(errors.ErrActionFailed, err)
+		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
 	for _, r := range res {
 		page, err := gowiki.GetPage(r, -1, false, true)
 		if err != nil {
 			if utils2.Testing() {
-				return errors.Wrap(errors.ErrActionFailed, err)
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
 			continue
 		}
 		content, err := page.GetContent()
 		if err != nil {
 			if utils2.Testing() {
-				return errors.Wrap(errors.ErrActionFailed, err)
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
 			}
 			continue
 		}
-		if !utils2.Testing() {
-			msg := fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s", page.URL, page.Title, content)
-			if err := utils.StoreActionDetectionResult(request, utils2.Truncate(msg, truncateTokenCount)); err != nil {
-				return errors.Wrap(errors.ErrActionFailed, err)
-			}
+
+		if _, err := obj.Write([]byte(
+			fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s",
+				page.URL, page.Title, utils2.Truncate(content, truncateTokenCount)))); err != nil {
+			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
+
+		// TODO: store in the main loop outside
+		/*
+			if !utils2.Testing() {
+				msg := fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s", page.URL, page.Title, content)
+				if err := utils.StoreActionDetectionResult(request, utils2.Truncate(msg, truncateTokenCount)); err != nil {
+					return nil, errors.Wrap(errors.ErrActionFailed, err)
+				}
+			}
+		*/
 	}
 
-	return errors.ErrProceed
+	return []*structs.ResponseObject{obj}, errors.ErrProceed
 }
 
 func (a *WikipediaAction) RunPreActions(request *structs.ActionRequest) error {

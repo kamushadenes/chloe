@@ -68,13 +68,11 @@ func TTS(request *structs.TTSRequest) error {
 		contentType = "audio/alaw"
 	}
 
-	for k := range request.Writers {
-		utils.WriteHeader(request.Writers[k], "Content-Type", contentType)
-		utils.WriteHeader(request.Writers[k], "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
+	utils.WriteHeader(request.Writer, "Content-Type", contentType)
+	utils.WriteHeader(request.Writer, "Content-Length", fmt.Sprintf("%d", len(resp.AudioContent)))
 
-		if _, err := io.Copy(request.Writers[k], bytes.NewReader(resp.AudioContent)); err != nil {
-			return errors.Wrap(errors.ErrTTSFailed, err)
-		}
+	if _, err := io.Copy(request.Writer, bytes.NewReader(resp.AudioContent)); err != nil {
+		return errors.Wrap(errors.ErrTTSFailed, err)
 	}
 
 	return nil
