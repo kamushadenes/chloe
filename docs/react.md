@@ -36,4 +36,13 @@ in-context examples.
 ```
 
 This package also includes all the actions, such as `google`, `wikipedia`, `news`, etc. that Chloe
-supports. The documentation for these actions can be found in the [actions](https://github.com/kamushadenes/chloe/blob/main/docs/actions.md) page.
+supports.
+
+The documentation for these actions can be found in
+the [actions](https://github.com/kamushadenes/chloe/blob/main/docs/actions.md) page.
+
+## Configuration
+
+| Environment Variable        | Default Value | Description                                                          | Options        |
+|-----------------------------|---------------|----------------------------------------------------------------------|----------------|
+| CHLOE_REACT_REPORT_THOUGHTS | false         | Whether to report thoughts (the reasoning isn't the best in GPT 3.5) | true<br/>false |

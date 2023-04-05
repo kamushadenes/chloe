@@ -11,6 +11,7 @@ type ReactConfig struct {
 	NewsAPIMaxResults        int
 	NewsAPISortStrategy      string
 	UseAria2                 bool
+	ReportThoughts           bool
 }
 
 var React = &ReactConfig{
@@ -25,5 +26,6 @@ var React = &ReactConfig{
 	NewsAPIToken: envOrDefault("CHLOE_REACT_NEWSAPI_TOKEN", ""),
 	NewsAPISortStrategy: envOrDefaultWithOptions("CHLOE_REACT_NEWSAPI_SORT_STRATEGY", "relevancy",
 		[]string{"relevancy", "popularity", "publishedAt"}),
-	UseAria2: envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
+	UseAria2:       envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
+	ReportThoughts: envOrDefaultBool("CHLOE_REACT_REPORT_THOUGHTS", false),
 }

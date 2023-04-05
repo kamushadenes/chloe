@@ -46,7 +46,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 	resp = respi.(openai.ChatCompletionResponse)
 
 	content := strings.TrimSpace(resp.Choices[0].Message.Content)
-	j := utils.FindJSON(content)
+	j := utils.ExtractJSON(content)
 
 	logger.Debug().Str("content", content).Str("json", j).Msg("action detection response")
 
@@ -63,7 +63,7 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 
 	msgs := memory.MessagesFromOpenAIChatCompletionResponse(request.Message.User, request.Message.Interface, &resp)
 	for _, msg := range msgs {
-		j = utils.FindJSON(msg.Content)
+		j = utils.ExtractJSON(msg.Content)
 		msg.SetContent(j)
 		if err := msg.Save(request.Context); err != nil {
 			return nil, err
@@ -83,10 +83,12 @@ func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, e
 		EmbedObject(actResp).
 		Msg("action detected")
 
-	_ = request.Message.SendText(fmt.Sprintf("*Thought: %s*", actResp.Thoughts.Speak), false)
-	_ = request.Message.SendText(fmt.Sprintf("*Reasoning: %s*", actResp.Thoughts.Reasoning), false)
-	_ = request.Message.SendText(fmt.Sprintf("*Plan:\n  - %s*", strings.Join(actResp.Thoughts.Plan, "\n  - ")), false)
-	_ = request.Message.SendText(fmt.Sprintf("*Criticism: %s*", actResp.Thoughts.Criticism), false)
+	if config.React.ReportThoughts {
+		_ = request.Message.SendText(fmt.Sprintf("*Thought: %s*", actResp.Thoughts.Speak), false)
+		_ = request.Message.SendText(fmt.Sprintf("*Reasoning: %s*", actResp.Thoughts.Reasoning), false)
+		_ = request.Message.SendText(fmt.Sprintf("*Plan:\n  - %s*", strings.Join(actResp.Thoughts.Plan, "\n  - ")), false)
+		_ = request.Message.SendText(fmt.Sprintf("*Criticism: %s*", actResp.Thoughts.Criticism), false)
+	}
 
 	actReq := structs.NewActionRequest()
 	actReq.ID = request.ID

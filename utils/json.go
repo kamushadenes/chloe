@@ -8,7 +8,7 @@ import (
 
 var jsonPtn = regexp.MustCompile(`\{(?:[^{}]|(\{(?:[^{}]|())*}))*}`)
 
-func FindJSON(s string) string {
+func ExtractJSON(s string) string {
 	if s == "" {
 		return ""
 	}
