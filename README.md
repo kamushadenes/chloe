@@ -179,6 +179,11 @@ In this case, you can
 provide [few-shot](https://github.com/openai/openai-python/blob/main/chatml.md#few-shot-prompting)
 examples to improve the responses.
 
+To do that, you need a file named `<prompt_name>.examples`
+at the [prompt folder](https://github.com/kamushadenes/chloe/tree/main/resources/prompts/chatgpt),
+with the same name as
+the prompt file (`<prompt_name>.prompt`).
+
 They have the following format:
 
 ```
