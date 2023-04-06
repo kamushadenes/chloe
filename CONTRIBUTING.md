@@ -62,6 +62,16 @@ pre-commit install
 This will install the pre-commit hook in your local repository. Now, every time you commit, the
 pre-commit hook will run and check your code for linting and formatting errors.
 
+If it fails with the following error:
+
+```bash
+- hook id: end-of-file-fixer
+- exit code: 1
+- files were modified by this hook
+```
+
+Just run `git add -A` and commit again.
+
 ### Pull Request
 
 When you're finished with the changes, create a pull request, also known as a PR.
