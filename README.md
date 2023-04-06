@@ -24,7 +24,8 @@ understand and respond to complex instructions.
 
 ## Features
 
-- Uses Chain of Thought to determine actions, falling back to standard completion if no action is
+- Uses criticism techniques (ReAct, Chain of Thought) to determine actions, falling back to standard
+  completion if no action is
   found
 - Scrapes websites to have them on its context
 - Searches Google for information
@@ -37,9 +38,6 @@ understand and respond to complex instructions.
 - Automatically moderates message using
   OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
 - Many more, check [Actions](docs/actions.md)
-
-Due to the Chain of Thought approach, Chloe can also be extended with additional capabilities by
-simply [adding new actions](https://github.com/kamushadenes/chloe/blob/main/react/react.go#L136).
 
 [complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
 
@@ -168,11 +166,15 @@ Run "chloe <command> --help" for more information on a command.
 
 ## Configuration
 
-See [docs/configuration.md](docs/configuration.md) for more information.
+See [Configuration](docs/configuration.md) for more information.
 
 ## Improving responses
 
 See [Few-shot prompting](https://github.com/kamushadenes/chloe/tree/main/resources/prompts/chatgpt).
+
+## Extending capabilities
+
+See [Extending Chloe](docs/extending.md).
 
 ## Contributing
 
