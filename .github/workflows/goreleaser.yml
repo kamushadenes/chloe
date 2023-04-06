@@ -39,6 +39,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock
+          SKIP_CHANGELOG: false
 
   darwin-amd64:
     needs: [ linux-amd64 ] # wait for the release to be created
@@ -69,6 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock
+          SKIP_CHANGELOG: true
 
   darwin-arm64:
     needs: [ linux-amd64 ] # wait for the release to be created
@@ -100,4 +102,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: mock
+          SKIP_CHANGELOG: true
           TARGET: aarch64-apple-darwin

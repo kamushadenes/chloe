@@ -12,3 +12,5 @@ dist/
 flags/version.txt
 cmd/chloe/panic.log
 server/chloe.db
+
+venv

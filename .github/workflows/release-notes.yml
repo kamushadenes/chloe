@@ -1,0 +1,27 @@
+name: Improve Release Notes
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  imrpove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - run: pip install -r .github/scripts/requirements.txt
+
+      - name: Update Release
+        run: python3 .github/scripts/release-notes.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

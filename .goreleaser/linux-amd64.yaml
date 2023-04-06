@@ -32,10 +32,9 @@ changelog:
   filters:
     exclude:
       - 'docs'
-      - 'style'
-      - 'chore'
-      - 'refactor'
       - 'test'
+release:
+  draft: true
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
