@@ -16,7 +16,7 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/wikipedia"
 	"github.com/kamushadenes/chloe/react/actions/youtube_summarizer"
 	"github.com/kamushadenes/chloe/structs"
-	utils2 "github.com/kamushadenes/chloe/utils"
+	"github.com/kamushadenes/chloe/utils"
 	"strings"
 )
 
@@ -55,7 +55,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	/*
 		defer func() {
 			if r := recover(); r != nil {
-				err = utils2.HandlePanic(r)
+				err = utils.HandlePanic(r)
 				logger.Error().Err(err).Msg("panic handling action")
 			}
 		}()
@@ -82,7 +82,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 		}
 	}
 
-	if !utils2.Testing() {
+	if !utils.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
 		if err = StoreActionDetectionResult(request, act.GetNotification()); err != nil {
 			logger.Error().Err(err).Msg("error storing action detection result")
@@ -117,7 +117,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 			request.Writer.WriteHeader(objs[k].HTTPStatusCode)
 		}
 
-		if !utils2.Testing() {
+		if !utils.Testing() {
 			if err := StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {
 				return errors.Wrap(errors.ErrActionFailed, err)
 			}
