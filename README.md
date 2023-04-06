@@ -170,6 +170,34 @@ Run "chloe <command> --help" for more information on a command.
 
 See [docs/configuration.md](docs/configuration.md) for more information.
 
+## Improving responses
+
+Chloe is already quite smart, especially using GPT-4, but you may feel that it's not as smart as
+you'd like it to be.
+
+In this case, you can
+provide [few-shot](https://github.com/openai/openai-python/blob/main/chatml.md#few-shot-prompting)
+examples to improve the responses.
+
+They have the following format:
+
+```
+<name> <message>
+```
+
+Where name is either `example_user` or `example_assistant`, and `message` is the content of the
+message.
+
+```
+example_user Hello, how are you?
+example_assistant I'm fine, thank you. How are you?
+```
+
+By providing a sample conversation and organizing messages in their chronological order, you can
+gently steer GPT into the right direction.
+
+Be aware though that this will consume additional tokens at every request, so don't go overboard.
+
 ## Contributing
 
 We welcome contributions! If you would like to improve Chloe, please check out
