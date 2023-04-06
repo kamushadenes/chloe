@@ -58,8 +58,9 @@ understand and respond to complex instructions.
 - [ ] Take action when content is flagged by the moderation
 - [x] Add GPT-4 support
 - [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
-- [ ] Add Wolfram Alpha integration
 - [x] Add LaTeX rendering support
+- [ ] Auto mode, where Chloe will be able to decide on a plan of action and follow through it
+  (like [Auto-GPT](https://github.com/Torantulino/Auto-GPT))
 - [ ] Add more
   actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
 
@@ -176,6 +177,10 @@ See [Few-shot prompting](https://github.com/kamushadenes/chloe/tree/main/resourc
 
 See [Extending Chloe](docs/extending.md).
 
+## User management
+
+See [User management](docs/users.md).
+
 ## Contributing
 
 We welcome contributions! If you would like to improve Chloe, please check out
@@ -184,7 +189,7 @@ the [Contributing Guide](CONTRIBUTING.md).
 ### Disclaimer
 
 There are some rushed parts of the code, and some parts that are not very well documented. You can
-also find a lot of TODOs scattered around the codebase and some duplicated code too.
+also find a few TODOs scattered around the codebase and some duplicate code too.
 
 Feel free to open an issue if you have any questions, or even better, open a pull request!
 
