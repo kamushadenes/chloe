@@ -172,7 +172,7 @@ See [docs/configuration.md](docs/configuration.md) for more information.
 
 ## Improving responses
 
-See [Few-shot prompting](https://github.com/kamushadenes/chloe/tree/main/resources/prompts/chatgpt)
+See [Few-shot prompting](https://github.com/kamushadenes/chloe/tree/main/resources/prompts/chatgpt).
 
 ## Contributing
 
