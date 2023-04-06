@@ -229,4 +229,3 @@ Chloe is licensed under the [MIT License](LICENSE.md).
 - [Torantulino](https://github.com/Torantulino/Auto-GPT) for some prompt improving ideas
 - [j178](https://github.com/j178/tiktoken-go) for the tokenizer bindings
 - [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
-- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts) for the personalities
