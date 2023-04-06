@@ -32,11 +32,11 @@ Scrapes a website and adds it to the context.
 
 Transcribes an audio file using Whisper.
 
-### [Wikipedia](https://github.com/kamushadenes/chloe/blob/main/react/wikipedia/README.md)
+### [Wikipedia](https://github.com/kamushadenes/chloe/blob/main/react/actions/wikipedia/README.md)
 
 Searches Wikipedia for information. Results are then scraped and summarized.
 
-### [YouTube Summarizer](https://github.com/kamushadenes/chloe/blob/main/react/youtube_summarizer/README.md)
+### [YouTube Summarizer](https://github.com/kamushadenes/chloe/blob/main/react/actions/youtube_summarizer/README.md)
 
 Summarizes a YouTube video by first downloading it using youtube-dl, then using Whisper to
 transcribe it, and finally using a summarization prompt.
