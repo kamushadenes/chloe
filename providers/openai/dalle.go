@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	putils "github.com/kamushadenes/chloe/providers/utils"
-	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/rs/zerolog"
@@ -103,7 +103,7 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 
 // processSuccessfulImageRequest processes a successful image generation request.
 func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
-	utils2.StartAndWait(request)
+	channels.StartAndWait(request)
 
 	for k := range response.Data {
 		if err := writeImage(request.Writer, response.Data[k].URL); err != nil {
@@ -124,7 +124,7 @@ func Generate(request *structs.GenerationRequest) error {
 
 	response, err := createImageWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
+		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	err = processSuccessfulImageRequest(request, response)
@@ -132,7 +132,7 @@ func Generate(request *structs.GenerationRequest) error {
 		err = errors.Wrap(errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, err)
+	return channels.NotifyError(request, err)
 }
 
 // newImageEditRequest creates a new openai.ImageEditRequest for image editing.
@@ -179,12 +179,12 @@ func Edits(request *structs.GenerationRequest) error {
 
 	req, err := newImageEditRequest(request)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
+		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	response, err := createImageEditWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
+		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	err = processSuccessfulImageRequest(request, response)
@@ -192,7 +192,7 @@ func Edits(request *structs.GenerationRequest) error {
 		err = errors.Wrap(errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, err)
+	return channels.NotifyError(request, err)
 }
 
 // newImageVariationRequest creates a new openai.ImageVariRequest for image variations.
@@ -232,7 +232,7 @@ func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRe
 
 // processSuccessfulImageVariationRequest processes a successful image variation request.
 func processSuccessfulImageVariationRequest(request *structs.VariationRequest, response openai.ImageResponse) error {
-	utils2.StartAndWait(request)
+	channels.StartAndWait(request)
 
 	for k := range response.Data {
 		if err := writeImage(request.Writer, response.Data[k].URL); err != nil {
@@ -251,12 +251,12 @@ func Variations(request *structs.VariationRequest) error {
 
 	req, err := newImageVariationRequest(request)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
+		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	response, err := createImageVariationWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrGenerationFailed, err)
+		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
 	err = processSuccessfulImageVariationRequest(request, response)
@@ -264,5 +264,5 @@ func Variations(request *structs.VariationRequest) error {
 		err = errors.Wrap(errors.ErrGenerationFailed, err)
 	}
 
-	return utils2.NotifyError(request, err)
+	return channels.NotifyError(request, err)
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/tts"
 	"github.com/kamushadenes/chloe/react/actions/wikipedia"
 	"github.com/kamushadenes/chloe/react/actions/youtube_summarizer"
-	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
 	"strings"
@@ -85,7 +84,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 
 	if !utils2.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
-		if err = utils.StoreActionDetectionResult(request, act.GetNotification()); err != nil {
+		if err = StoreActionDetectionResult(request, act.GetNotification()); err != nil {
 			logger.Error().Err(err).Msg("error storing action detection result")
 			return
 		}
@@ -118,8 +117,10 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 			request.Writer.WriteHeader(objs[k].HTTPStatusCode)
 		}
 
-		if err := utils.StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {
-			return errors.Wrap(errors.ErrActionFailed, err)
+		if !utils2.Testing() {
+			if err := StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {
+				return errors.Wrap(errors.ErrActionFailed, err)
+			}
 		}
 	}
 

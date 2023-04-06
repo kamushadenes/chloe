@@ -8,7 +8,6 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"net/http"
 )
@@ -74,7 +73,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	request.Args = params.Args
 
-	request.Writer = utils.NewHTTPResponseWriteCloser(w)
+	request.Writer = NewHTTPResponseWriteCloser(w)
 
 	go func() {
 		if err := channels.RunCompletion(request); err != nil {
@@ -87,7 +86,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-request.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-request.Writer.(*HTTPWriter).CloseCh:
 			return
 		}
 	}
@@ -122,7 +121,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	req.Action = "generate"
 	req.Params = params.Prompt
 	req.Message = msg
-	req.Writer = utils.NewHTTPResponseWriteCloser(w)
+	req.Writer = NewHTTPResponseWriteCloser(w)
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -135,7 +134,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*HTTPWriter).CloseCh:
 			return
 		}
 	}
@@ -170,7 +169,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	req.Action = "tts"
 	req.Params = params.Content
 	req.Message = msg
-	req.Writer = utils.NewHTTPResponseWriteCloser(w)
+	req.Writer = NewHTTPResponseWriteCloser(w)
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -183,7 +182,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*HTTPWriter).CloseCh:
 			return
 		}
 	}
@@ -237,7 +236,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 	req.Action = params.Action
 	req.Params = params.Params
 	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
-	req.Writer = &utils.HTTPResponseWriteCloser{Writer: w}
+	req.Writer = &HTTPWriter{Writer: w}
 
 	go func() {
 		if err := channels.RunAction(req); err != nil {
@@ -250,7 +249,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-req.Writer.(*utils.HTTPResponseWriteCloser).CloseCh:
+		case <-req.Writer.(*HTTPWriter).CloseCh:
 			return
 		}
 	}

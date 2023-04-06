@@ -2,7 +2,9 @@ package actions
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -57,9 +59,9 @@ func TestActions_HandleAction(t *testing.T) {
 		req := structs.NewActionRequest()
 		req.Context = context.Background()
 		req.Params = tt.params
-		// TODO: add test ChloeWriter
-
 		req.Action = "mock"
+		req.Writer = structs.NewMockWriter()
+		req.Message = memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "test")
 
 		err := HandleAction(req)
 		if tt.wantErr {

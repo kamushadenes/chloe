@@ -3,9 +3,9 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"github.com/kamushadenes/chloe/colors"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/models"
-	"github.com/kamushadenes/chloe/utils/colors"
 	"os"
 	"strings"
 )

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
@@ -12,7 +13,6 @@ import (
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/react/actions"
-	utils2 "github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/sashabaranov/go-openai"
@@ -84,7 +84,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 // processCompletionStream processes a ChatCompletionStream and writes the response to the request.Writer.
 // Returns the response message as a string, or an error if there's an issue while processing the stream.
 func processCompletionStream(request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
-	utils2.StartAndWait(request)
+	channels.StartAndWait(request)
 
 	resp := stream.GetResponse()
 	defer resp.Body.Close()
@@ -114,7 +114,7 @@ func processCompletionStream(request *structs.CompletionRequest, stream *openai.
 		putils.Flush(request.Writer)
 	}
 
-	utils2.WriteResult(request, responseMessage)
+	channels.WriteResult(request, responseMessage)
 
 	return strings.TrimSpace(responseMessage), nil
 }
@@ -145,7 +145,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	if len(skipCoT) == 0 || !skipCoT[0] {
 		if err := detectAction(request); err == nil {
-			return utils2.NotifyError(request, err)
+			return channels.NotifyError(request, err)
 		} else if errors.Is(err, errors.ErrProceed) {
 			msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.Message.Interface)
 			msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
@@ -159,7 +159,7 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 			}
 			return Complete(request, true)
 		} else if errors.Is(err, errors.ErrActionFailed) {
-			return utils2.NotifyError(request, err)
+			return channels.NotifyError(request, err)
 		}
 	}
 
@@ -169,15 +169,15 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 
 	stream, err := createChatCompletionWithTimeout(request.GetContext(), req)
 	if err != nil {
-		return utils2.NotifyError(request, errors.ErrCompletionFailed, err)
+		return channels.NotifyError(request, errors.ErrCompletionFailed, err)
 	}
 
 	responseMessage, err := processCompletionStream(request, stream)
 	if err != nil {
-		return utils2.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, err)
+		return channels.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, err)
 	}
 	if responseMessage == "" {
-		return utils2.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, fmt.Errorf("empty response"))
+		return channels.NotifyAndClose(request, request.Writer, errors.ErrCompletionFailed, fmt.Errorf("empty response"))
 	}
 	if strings.TrimSpace(responseMessage) == "" {
 		_ = request.Message.User.DeleteOldestMessage(request.GetContext())
@@ -189,5 +189,5 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 		err = errors.Wrap(errors.ErrCompletionFailed, err)
 	}
 
-	return utils2.NotifyAndClose(request, request.Writer, err)
+	return channels.NotifyAndClose(request, request.Writer, err)
 }

@@ -1,7 +1,6 @@
-package utils
+package channels
 
 import (
-	"github.com/kamushadenes/chloe/utils"
 	"testing"
 	"time"
 
@@ -48,9 +47,4 @@ func TestWriteResult(t *testing.T) {
 		WriteResult(&req, result)
 	}()
 	assert.Equal(t, result, <-resultChannel)
-}
-
-func TestTruncate(t *testing.T) {
-	assert.Equal(t, "abcd", utils.Truncate("abcdefg", 4))
-	assert.Equal(t, "abcdefgh", utils.Truncate("abcdefgh", 10))
 }

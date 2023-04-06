@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/react/utils"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
 )
@@ -41,7 +40,7 @@ func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 func (a *ScrapeAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	obj := structs.NewResponseObject(structs.Text)
 
-	truncateTokenCount := utils.GetAvailableTokenCount(request)
+	truncateTokenCount := structs.GetAvailableTokenCount(request)
 
 	res, err := scrape(a.Params)
 	if err != nil {

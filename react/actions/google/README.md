@@ -8,7 +8,7 @@ further processing.
 By default, the action will scrape Google search results for the given query. If
 both `CHLOE_REACT_GOOGLE_CUSTOM_SEARCH_ID` and `CHLOE_REACT_GOOGLE_CUSTOM_SEARCH_API_KEY` are set,
 the action will use the [Custom Search API](https://developers.google.com/custom-search/v1/overview)
-instead, which is way more stable.
+instead, which is way more stable but may deliver different results.
 
 In order to use the Custom Search API, you need to create
 a [Custom Search Engine](https://cse.google.com/cse/all), which you can set to search specific
