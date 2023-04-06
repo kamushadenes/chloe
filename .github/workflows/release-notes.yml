@@ -7,8 +7,11 @@ on:
     workflows: [ "goreleaser" ]
     types: [ completed ]
 
+permissions:
+  contents: write
+
 jobs:
-  imrpove:
+  improve:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
