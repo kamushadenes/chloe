@@ -3,6 +3,9 @@ name: Improve Release Notes
 on:
   release:
     types: [ created ]
+  workflow_run:
+    workflows: [ "goreleaser" ]
+    types: [ completed ]
 
 jobs:
   imrpove:
