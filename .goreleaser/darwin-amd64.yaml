@@ -27,10 +27,11 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
-  skip: '{{ .Env.SKIP_CHANGELOG }}'
-release:
-  draft: true
-  replace_existing_draft: false
+  sort: asc
+  filters:
+    exclude:
+      - 'docs'
+      - 'test'
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.

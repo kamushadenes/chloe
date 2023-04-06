@@ -1,46 +1,25 @@
 #!/usr/bin/env python3
 
 import os
-from datetime import datetime
 from functools import reduce
-from typing import AnyStr, Tuple, Dict, List
+from typing import AnyStr, Tuple, Dict
 
 import openai
 import requests
 
 
-def list_releases(repository: AnyStr) -> List[Dict]:
-    """List the releases from the GitHub API."""
+def get_latest_release(repository: AnyStr) -> Dict:
+    """Get the release from the GitHub API."""
 
-    print('[*] Listing releases...')
+    print('[*] Getting latest release...')
 
     return requests.get(
-        "https://api.github.com/repos/{}/releases".format(repository),
+        "https://api.github.com/repos/{}/releases/latest".format(repository),
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": "Bearer {}".format(os.environ["GITHUB_TOKEN"])
         },
     ).json()
-
-
-def sort_releases(releases: List[Dict]) -> List[Dict]:
-    """Sort the releases by date."""
-
-    print('[*] Sorting releases...')
-
-    return sorted(releases,
-                  key=lambda d: datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
-                  reverse=True)
-
-
-def get_latest_draft(releases: List[Dict]) -> Dict:
-    """Get the release from the GitHub API."""
-
-    print('[*] Getting latest draft release...')
-
-    for release in releases:
-        if release['draft']:
-            return release
 
 
 def get_improved_release_message(release: Dict) -> Tuple[Dict, AnyStr]:
@@ -100,9 +79,7 @@ if __name__ == '__main__':
 
     reduce(lambda x, f: f(x),
            [
-               list_releases,
-               sort_releases,
-               get_latest_draft,
+               get_latest_release,
                get_improved_release_message,
                update_release_notes,
            ], "kamushadenes/chloe")
