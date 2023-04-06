@@ -1,25 +1,46 @@
 #!/usr/bin/env python3
 
 import os
+from datetime import datetime
 from functools import reduce
-from typing import AnyStr, Tuple, Dict
+from typing import AnyStr, Tuple, Dict, List
 
 import openai
 import requests
 
 
-def get_release(release: AnyStr = "latest") -> Dict:
-    """Get the release message from the GitHub API."""
+def list_releases(repository: AnyStr) -> List[Dict]:
+    """List the releases from the GitHub API."""
 
-    print('[*] Getting release message...')
+    print('[*] Listing releases...')
 
     return requests.get(
-        "https://api.github.com/repos/kamushadenes/chloe/releases/{}".format(release),
+        "https://api.github.com/repos/{}/releases".format(repository),
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": "Bearer {}".format(os.environ["GITHUB_TOKEN"])
         },
     ).json()
+
+
+def sort_releases(releases: List[Dict]) -> List[Dict]:
+    """Sort the releases by date."""
+
+    print('[*] Sorting releases...')
+
+    return sorted(releases,
+                  key=lambda d: datetime.strptime(d['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
+                  reverse=True)
+
+
+def get_latest_draft(releases: List[Dict]) -> Dict:
+    """Get the release from the GitHub API."""
+
+    print('[*] Getting latest draft release...')
+
+    for release in releases:
+        if release['draft']:
+            return release
 
 
 def get_improved_release_message(release: Dict) -> Tuple[Dict, AnyStr]:
@@ -53,7 +74,7 @@ def update_release_notes(args: Tuple[Dict, AnyStr]) -> None:
     print('[*] New content:\n\n{}\n\n'.format(args[1]))
 
     r = requests.patch(
-        "https://api.github.com/repos/kamushadenes/chloe/releases/{}".format(args[0]['id']),
+        args[0]['url'],
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": "Bearer {}".format(os.environ["GITHUB_TOKEN"])
@@ -79,7 +100,9 @@ if __name__ == '__main__':
 
     reduce(lambda x, f: f(x),
            [
-               get_release,
+               list_releases,
+               sort_releases,
+               get_latest_draft,
                get_improved_release_message,
                update_release_notes,
-           ], "latest")
+           ], "kamushadenes/chloe")
