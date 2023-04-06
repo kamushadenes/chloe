@@ -60,6 +60,7 @@ def update_release_notes(args: Tuple[Dict, AnyStr]) -> None:
         },
         json={
             "body": args[1],
+            "draft": False,
         }
     )
 
