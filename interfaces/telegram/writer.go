@@ -114,4 +114,4 @@ func (w *TelegramWriter) SetPrompt(prompt string) {
 }
 
 func (w *TelegramWriter) WriteHeader(statusCode int) {}
-func (w *TelegramWriter) Header() http.Header        { return nil }
+func (w *TelegramWriter) Header() http.Header        { return http.Header{} }

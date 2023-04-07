@@ -44,3 +44,7 @@ func (w *MockWriter) Header() http.Header {
 func (w *MockWriter) WriteHeader(int) {
 	w.HTTPStatusCode = 200
 }
+
+func (w *MockWriter) GetObjects() []*ResponseObject {
+	return w.objs
+}

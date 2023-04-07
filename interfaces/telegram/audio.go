@@ -37,7 +37,7 @@ func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 		req.Message = msg
 		req.Context = ctx
 		req.Action = "transcribe"
-		req.Params = path
+		req.Params["path"] = path
 		req.Writer = NewTelegramWriter(ctx, req, true)
 
 		if err := channels.RunAction(req); err != nil {
@@ -53,7 +53,7 @@ func aiTTS(ctx context.Context, msg *memory.Message) error {
 	req.Message = msg
 	req.Context = ctx
 	req.Action = "tts"
-	req.Params = promptFromMessage(msg)
+	req.Params["text"] = promptFromMessage(msg)
 	req.Writer = NewTelegramWriter(ctx, req, true)
 
 	return channels.RunAction(req)

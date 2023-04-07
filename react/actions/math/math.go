@@ -4,44 +4,23 @@ import (
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"strings"
 )
 
-type CalculateAction struct {
+type MathAction struct {
 	Name   string
-	Params string
+	Params map[string]string
 }
 
-func NewCalculateAction() structs.Action {
-	return &CalculateAction{
-		Name: "calculate",
-	}
+func (a *MathAction) GetNotification() string {
+	return fmt.Sprintf("🧮 Executing calculation: **%s**", strings.ReplaceAll(a.Params["expression"], "*", "\\*"))
 }
 
-func (a *CalculateAction) GetName() string {
-	return a.Name
-}
-
-func (a *CalculateAction) GetNotification() string {
-	return fmt.Sprintf("🧮 Executing calculation: **%s**", strings.ReplaceAll(a.Params, "*", "\\*"))
-}
-
-func (a *CalculateAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *CalculateAction) GetParams() string {
-	return a.Params
-}
-
-func (a *CalculateAction) SetMessage(message *memory.Message) {}
-
-func (a *CalculateAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+func (a *MathAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	obj := structs.NewResponseObject(structs.Text)
 
-	expr := strings.ReplaceAll(a.Params, ",", "")
+	expr := strings.ReplaceAll(a.Params["expression"], ",", "")
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
@@ -58,12 +37,4 @@ func (a *CalculateAction) Execute(request *structs.ActionRequest) ([]*structs.Re
 	}
 
 	return []*structs.ResponseObject{obj}, nil
-}
-
-func (a *CalculateAction) RunPreActions(request *structs.ActionRequest) error {
-	return errors.ErrNotImplemented
-}
-
-func (a *CalculateAction) RunPostActions(request *structs.ActionRequest) error {
-	return errors.ErrNotImplemented
 }

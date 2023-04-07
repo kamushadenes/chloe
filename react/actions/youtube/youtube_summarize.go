@@ -1,11 +1,10 @@
-package youtube_summarizer
+package youtube
 
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
 	reactOpenAI "github.com/kamushadenes/chloe/react/openai"
 	"github.com/kamushadenes/chloe/structs"
@@ -15,37 +14,17 @@ import (
 	"strings"
 )
 
-type YoutubeSummarizerAction struct {
+type YoutubeSummarizeAction struct {
 	Name   string
-	Params string
+	Params map[string]string
 }
 
-func NewYoutubeSummarizerAction() structs.Action {
-	return &YoutubeSummarizerAction{
-		Name: "youtube_summarizer",
-	}
+func (a *YoutubeSummarizeAction) GetNotification() string {
+	return fmt.Sprintf("🎥️ Summarizing video: **%s** (this might take a while)", a.Params["url"])
 }
 
-func (a *YoutubeSummarizerAction) GetName() string {
-	return a.Name
-}
-
-func (a *YoutubeSummarizerAction) GetNotification() string {
-	return fmt.Sprintf("🎥️ Summarizing video: **%s** (this might take a while)", a.Params)
-}
-
-func (a *YoutubeSummarizerAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *YoutubeSummarizerAction) GetParams() string {
-	return a.Params
-}
-
-func (a *YoutubeSummarizerAction) SetMessage(message *memory.Message) {}
-
-func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
-	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("url", a.Params).Logger()
+func (a *YoutubeSummarizeAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("url", a.Params["url"]).Logger()
 
 	obj := structs.NewResponseObject(structs.Text)
 
@@ -72,7 +51,7 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*st
 		"-x", "--audio-format", "mp3",
 		"-f", "worstaudio/bestaudio/worst",
 		"-o", path.Join(tmpDir, "audio.mp3"),
-		a.Params)
+		a.Params["url"])
 
 	cmd := exec.Command("youtube-dl", args...)
 	if err := cmd.Run(); err != nil {
@@ -80,7 +59,7 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*st
 	}
 
 	na := transcribe.NewTranscribeAction()
-	na.SetParams(path.Join(tmpDir, "audio.mp3"))
+	na.SetParam("path", path.Join(tmpDir, "audio.mp3"))
 	na.SetMessage(request.Message)
 	request.Message.NotifyAction(na.GetNotification())
 
@@ -89,7 +68,7 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*st
 		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
 
-	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarizer", string(tobjs[0].Data))
+	resp, err := reactOpenAI.SimpleCompletionRequest(request.Context, "video_summarize", string(tobjs[0].Data))
 	if err != nil {
 		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}
@@ -101,12 +80,4 @@ func (a *YoutubeSummarizerAction) Execute(request *structs.ActionRequest) ([]*st
 	}
 
 	return []*structs.ResponseObject{obj}, nil
-}
-
-func (a *YoutubeSummarizerAction) RunPreActions(request *structs.ActionRequest) error {
-	return errors2.ErrNotImplemented
-}
-
-func (a *YoutubeSummarizerAction) RunPostActions(request *structs.ActionRequest) error {
-	return errors2.ErrNotImplemented
 }

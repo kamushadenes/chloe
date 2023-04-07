@@ -7,14 +7,19 @@ import (
 )
 
 func imagePreActions(a structs.Action, request *structs.ActionRequest) error {
-
 	if config.React.ImproveImagePrompts {
 		na := midjourney_prompt_generator.NewMidjourneyPromptGeneratorAction()
-		na.SetParams(a.GetParams())
+
+		p, err := a.GetParam("prompt")
+		if err != nil {
+			return err
+		}
+
+		na.SetParam("prompt", p)
 		request.Message.NotifyAction(na.GetNotification())
 		objs, err := na.Execute(request)
 		if err == nil {
-			a.SetParams(string(objs[0].Data))
+			a.SetParam("prompt", string(objs[0].Data))
 		}
 	}
 

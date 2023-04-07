@@ -125,4 +125,4 @@ func (w *SlackWriter) SetPrompt(prompt string) {
 }
 
 func (w *SlackWriter) WriteHeader(statusCode int) {}
-func (w *SlackWriter) Header() http.Header        { return nil }
+func (w *SlackWriter) Header() http.Header        { return http.Header{} }

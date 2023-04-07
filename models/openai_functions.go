@@ -93,14 +93,10 @@ func (m Model) GetChatCompletionCost(messages []openai.ChatCompletionMessage, re
 	var totalCost float64
 
 	if m.UsageCost != nil {
-		for k := range messages {
-			totalCost += m.UsageCost.Price * (float64(tokenizer.CountTokens(m.String(), messages[k].Content)) / float64(m.UsageCost.UnitSize))
-		}
+		totalCost += m.UsageCost.Price * float64(m.CountChatCompletionTokens(messages)) / float64(m.UsageCost.UnitSize)
 		totalCost += m.UsageCost.Price * (float64(tokenizer.CountTokens(m.String(), response)) / float64(m.UsageCost.UnitSize))
 	} else if m.CompletionCost != nil && m.PromptCost != nil {
-		for k := range messages {
-			totalCost += m.PromptCost.Price * (float64(tokenizer.CountTokens(m.String(), messages[k].Content)) / float64(m.PromptCost.UnitSize))
-		}
+		totalCost += m.PromptCost.Price * float64(m.CountChatCompletionTokens(messages)) / float64(m.PromptCost.UnitSize)
 		totalCost += m.CompletionCost.Price * (float64(tokenizer.CountTokens(m.String(), response)) / float64(m.CompletionCost.UnitSize))
 	}
 

@@ -44,4 +44,4 @@ func (w *FileWriter) Close() error {
 }
 
 func (w *FileWriter) WriteHeader(statusCode int) {}
-func (w *FileWriter) Header() http.Header        { return nil }
+func (w *FileWriter) Header() http.Header        { return http.Header{} }

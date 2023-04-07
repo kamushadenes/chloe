@@ -17,7 +17,7 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Message = msg
 	req.Action = fields[0]
-	req.Params = strings.Join(fields[1:], " ")
+	req.Params["text"] = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writer = NewDiscordWriter(ctx, req, false)
 	req.Count = config.Discord.ImageCount

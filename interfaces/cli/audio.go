@@ -17,7 +17,7 @@ func TTS(ctx context.Context, text string, writer structs.ChloeWriter) error {
 	req.Writer = writer
 
 	req.Action = "tts"
-	req.Params = text
+	req.Params["text"] = text
 
 	return channels.RunAction(req)
 }

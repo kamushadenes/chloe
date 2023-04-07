@@ -16,7 +16,7 @@ type ActionRequest struct {
 	ErrorChannel chan error
 
 	Action  string
-	Params  string
+	Params  map[string]string
 	Thought string
 
 	Count int
@@ -26,6 +26,7 @@ type ActionRequest struct {
 
 func NewActionRequest() *ActionRequest {
 	return &ActionRequest{
-		ID: uuid.Must(uuid.NewV4()).String(),
+		ID:     uuid.Must(uuid.NewV4()).String(),
+		Params: make(map[string]string),
 	}
 }

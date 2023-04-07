@@ -8,17 +8,22 @@ CONSTRAINTS:
 
 COMMANDS:
 
-1. Calculate a mathematical expression, doesn't support variables and numbers must be spelled out: "calculate", "params": "<expression>"
-2. Search Google: "google", "params": "<search term>"
-3. Search Wikipedia: "wikipedia", "params": "<search term>"
-4. Search news: "news", "params": "<search term>"
-5. Search news by country: "news_by_country", "params": "<country name>"
-6. Generate an image from text: "generate", "params": "<text>"
-7. Scrape a web page: "scrape", "params": "<url>"
-8. Generate an audio from text: "tts", "params": "<text>"
-9. Summarize a YouTube video using youtube-dl to download and Whisper to convert audio to text: "summarize_youtube", "params": "<url>"
-10. Render an image from a LaTeX formula: "latex", "params": "<formula>"
-11. No command found: "none", "params": ""
+1. Calculate a mathematical expression, doesn't support variables and numbers must be spelled out: "calculate", "params": "expression"
+2. Search Google: "google", "params": "query"
+3. Search Wikipedia: "wikipedia", "params": "query"
+4. Search news: "news", "params": "query"
+5. Search news by country: "news_by_country", "params": "query"
+6. Generate an image from text: "generate", "params": "prompt"
+7. Scrape a web page: "scrape", "params": "url"
+8. Generate an audio from text: "tts", "params": "text"
+9. Summarize a YouTube video using youtube-dl to download and Whisper to convert audio to text: "summarize_youtube", "params": "url"
+9. Transcribe a YouTube video using youtube-dl to download and Whisper to convert audio to text: "transcribe_youtube", "params": "url"
+10. Render an image from a LaTeX formula: "latex", "params": "formula"
+11. Append a string to a file: "append", "params": "path,content"
+12. Delete a file: "delete", "params": "path"
+13. Read a file: "read", "params": "path"
+14. Write a string to a file, truncating if it exists: "write", "params": "path,content"
+15. No command found: "none", "params": ""
 
 RESOURCES:
 
@@ -37,7 +42,9 @@ RESPONSE FORMAT:
 {
     "command": {
         "name": "command name",
-        "params": "<command params>"
+        "params": {
+            "param_name": "param_value",
+        }
     },
     "thoughts": {
         "chain_of_thought": ["array of", "thoughts", "that convey the decision making process"],

@@ -15,7 +15,7 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Context = ctx
 	req.Action = fields[0]
-	req.Params = strings.Join(fields[1:], " ")
+	req.Params["text"] = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writer = NewSlackWriter(ctx, req, false)
 

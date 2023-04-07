@@ -9,30 +9,12 @@ import (
 
 type TranscribeAction struct {
 	Name    string
-	Params  string
+	Params  map[string]string
 	Message *memory.Message
-}
-
-func NewTranscribeAction() structs.Action {
-	return &TranscribeAction{
-		Name: "audio",
-	}
-}
-
-func (a *TranscribeAction) GetName() string {
-	return a.Name
 }
 
 func (a *TranscribeAction) GetNotification() string {
 	return "✍️ Transcribing..."
-}
-
-func (a *TranscribeAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *TranscribeAction) GetParams() string {
-	return a.Params
 }
 
 func (a *TranscribeAction) SetMessage(message *memory.Message) {
@@ -47,7 +29,7 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) ([]*structs.R
 	req := structs.NewTranscriptionRequest()
 	req.Context = request.GetContext()
 	req.Message = a.Message
-	req.FilePath = a.Params
+	req.FilePath = a.Params["path"]
 	req.ErrorChannel = errorCh
 	req.Writer = obj
 
@@ -62,10 +44,6 @@ func (a *TranscribeAction) Execute(request *structs.ActionRequest) ([]*structs.R
 			return []*structs.ResponseObject{obj}, nil
 		}
 	}
-}
-
-func (a *TranscribeAction) RunPreActions(request *structs.ActionRequest) error {
-	return errors.ErrNotImplemented
 }
 
 func (a *TranscribeAction) RunPostActions(request *structs.ActionRequest) error {

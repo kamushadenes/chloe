@@ -119,7 +119,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	req.ID = msg.ExternalID
 	req.Context = ctx
 	req.Action = "generate"
-	req.Params = params.Prompt
+	req.Params["prompt"] = params.Prompt
 	req.Message = msg
 	req.Writer = NewHTTPResponseWriteCloser(w)
 
@@ -167,7 +167,7 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	req.ID = msg.ExternalID
 	req.Context = ctx
 	req.Action = "tts"
-	req.Params = params.Content
+	req.Params["text"] = params.Content
 	req.Message = msg
 	req.Writer = NewHTTPResponseWriteCloser(w)
 
@@ -234,7 +234,7 @@ func action(w http.ResponseWriter, r *http.Request) {
 	req.Context = ctx
 	req.Message = msg
 	req.Action = params.Action
-	req.Params = params.Params
+	req.Params["text"] = params.Params
 	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
 	req.Writer = &HTTPWriter{Writer: w}
 

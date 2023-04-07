@@ -11,10 +11,10 @@ import (
 func generate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Action = "generate"
-	req.Params = promptFromMessage(msg)
+	req.Params["prompt"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
-	req.Writer = NewDiscordWriter(ctx, req, false, req.Params)
+	req.Writer = NewDiscordWriter(ctx, req, false, req.Params["prompt"])
 	req.Count = config.Discord.ImageCount
 
 	return channels.RunAction(req)

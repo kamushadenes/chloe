@@ -14,4 +14,4 @@ server/chloe.db
 dist/
 logging.iml
 
-megalinter-reports/
+workspace/

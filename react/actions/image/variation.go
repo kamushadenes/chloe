@@ -4,38 +4,17 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 
 type VariationAction struct {
 	Name   string
-	Params string
-}
-
-func NewVariationAction() structs.Action {
-	return &VariationAction{
-		Name: "image",
-	}
-}
-
-func (a *VariationAction) GetName() string {
-	return a.Name
+	Params map[string]string
 }
 
 func (a *VariationAction) GetNotification() string {
-	return fmt.Sprintf("🖼️ Generating image: **%s**", a.Params)
+	return fmt.Sprintf("🖼️ Generating image: **%s**", a.Params["path"])
 }
-
-func (a *VariationAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *VariationAction) GetParams() string {
-	return a.Params
-}
-
-func (a *VariationAction) SetMessage(message *memory.Message) {}
 
 func (a *VariationAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	obj := structs.NewResponseObject(structs.Image)
@@ -44,7 +23,7 @@ func (a *VariationAction) Execute(request *structs.ActionRequest) ([]*structs.Re
 
 	req := structs.NewVariationRequest()
 	req.Context = request.GetContext()
-	req.ImagePath = a.Params
+	req.ImagePath = a.Params["path"]
 	req.ErrorChannel = errorCh
 	req.Count = request.Count
 
@@ -61,12 +40,4 @@ func (a *VariationAction) Execute(request *structs.ActionRequest) ([]*structs.Re
 			return []*structs.ResponseObject{obj}, nil
 		}
 	}
-}
-
-func (a *VariationAction) RunPreActions(request *structs.ActionRequest) error {
-	return imagePreActions(a, request)
-}
-
-func (a *VariationAction) RunPostActions(request *structs.ActionRequest) error {
-	return nil
 }

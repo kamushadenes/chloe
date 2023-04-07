@@ -41,7 +41,7 @@ func aiAction(ctx context.Context, msg *memory.Message) error {
 	req.Message = msg
 	req.Context = ctx
 	req.Action = fields[0]
-	req.Params = strings.Join(fields[1:], " ")
+	req.Params["text"] = strings.Join(fields[1:], " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", fields[0])
 	req.Writer = NewTelegramWriter(ctx, req, false)
 	req.Count = config.Telegram.ImageCount
@@ -53,7 +53,7 @@ func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Context = ctx
 	req.Action = "generate"
-	req.Params = promptFromMessage(msg)
+	req.Params["prompt"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Writer = NewTelegramWriter(ctx, req, false)
 	req.Count = config.Telegram.ImageCount
@@ -67,7 +67,7 @@ func aiImage(ctx context.Context, msg *memory.Message) error {
 		req.Message = msg
 		req.Context = ctx
 		req.Action = "variation"
-		req.Params = path
+		req.Params["path"] = path
 		req.Writer = NewTelegramWriter(ctx, req, false)
 		req.Count = config.Telegram.ImageCount
 

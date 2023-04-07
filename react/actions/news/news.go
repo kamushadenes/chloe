@@ -5,7 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	"github.com/kamushadenes/chloe/structs"
@@ -13,35 +12,15 @@ import (
 
 type NewsAction struct {
 	Name   string
-	Params string
-}
-
-func NewNewsAction() structs.Action {
-	return &NewsAction{
-		Name: "news",
-	}
-}
-
-func (a *NewsAction) SetMessage(message *memory.Message) {}
-
-func (a *NewsAction) GetName() string {
-	return a.Name
+	Params map[string]string
 }
 
 func (a *NewsAction) GetNotification() string {
-	return fmt.Sprintf("📰 Searching news: **%s**", a.Params)
-}
-
-func (a *NewsAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *NewsAction) GetParams() string {
-	return a.Params
+	return fmt.Sprintf("📰 Searching news: **%s**", a.Params["query"])
 }
 
 func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
-	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("query", a.Params).Logger()
+	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("query", a.Params["query"]).Logger()
 
 	var objs []*structs.ResponseObject
 
@@ -54,13 +33,12 @@ func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.Respons
 	switch source {
 	case "google":
 		na := google.NewGoogleAction()
-		na.SetParams(a.Params)
-		na.SetMessage(request.Message)
+		na.SetParam("query", a.Params["query"])
 		request.Message.NotifyAction(na.GetNotification())
 		return na.Execute(request)
 
 	case "newsapi":
-		res, err := NewsAPIQuery(a.Params)
+		res, err := NewsAPIQuery(a.Params["query"])
 		if err != nil {
 			logger.Error().Err(err).Msg("NewsAPI query failed")
 			return nil, errors.Wrap(errors.ErrActionFailed, err)
@@ -73,8 +51,7 @@ func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.Respons
 			}
 			cnt++
 			na := scrape.NewScrapeAction()
-			na.SetParams(r.URL)
-			na.SetMessage(request.Message)
+			na.SetParam("url", r.URL)
 			if err := na.RunPreActions(request); err != nil {
 				continue
 			}
@@ -87,12 +64,4 @@ func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.Respons
 	}
 
 	return objs, errors.ErrProceed
-}
-
-func (a *NewsAction) RunPreActions(request *structs.ActionRequest) error {
-	return nil
-}
-
-func (a *NewsAction) RunPostActions(request *structs.ActionRequest) error {
-	return errors.ErrProceed
 }

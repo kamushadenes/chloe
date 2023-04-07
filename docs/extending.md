@@ -10,10 +10,24 @@ under [react/actions](https://github.com/kamushadenes/chloe/tree/main/react/acti
 of the action, and implement
 the [Action](https://github.com/kamushadenes/chloe/blob/main/structs/action.go) interface.
 
+To facilitate things and reduce duplicate code, there's
+generator that writes most of the boiler plate. Be sure to add your action there, along with it's
+required parameters, and to set skips for functions you might want to write yourself.
+
+Of everything, only the struct itself, the `Execute` and the `GetNotification` methods are required
+to be implemented manually.
+
 You can use [tts](https://github.com/kamushadenes/chloe/tree/main/react/actions/tts/tts.go) as a
 reference of a simple action, but basically you need to return an array
 of [ResponseObject](https://github.com/kamushadenes/chloe/blob/main/structs/response_object.go#L17)
 in the `Execute` method, which you can create using `structs.NewResponseObject(<OBJECT_TYPE>)`.
+
+### Generating code
+
+In case you aren't aware, to generate files in Go we use `go generate`. To do so, go to the
+root of the project and
+run `go generate ./...` and Go will create several files ending in `_gen.go` with the generated
+code.
 
 # 2. Register the action
 

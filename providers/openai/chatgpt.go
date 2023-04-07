@@ -64,6 +64,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 	logger.Info().
 		Float64("estimatedPromptCost",
 			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(req.Messages, "")).
+		Int("tokenCount", config.OpenAI.GetModel(config.Completion).CountChatCompletionTokens(req.Messages)).
 		Msg("creating chat completion stream")
 
 	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.Completion, func(ch chan interface{}, errCh chan error) {

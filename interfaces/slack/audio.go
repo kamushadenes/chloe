@@ -10,7 +10,7 @@ import (
 func tts(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Action = "tts"
-	req.Params = promptFromMessage(msg)
+	req.Params["text"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
 	req.Writer = NewSlackWriter(ctx, req, false)

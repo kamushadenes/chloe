@@ -117,4 +117,4 @@ func (w *DiscordWriter) SetPrompt(prompt string) {
 }
 
 func (w *DiscordWriter) WriteHeader(statusCode int) {}
-func (w *DiscordWriter) Header() http.Header        { return nil }
+func (w *DiscordWriter) Header() http.Header        { return http.Header{} }

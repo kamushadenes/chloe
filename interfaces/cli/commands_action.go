@@ -16,7 +16,7 @@ func (a *ActionCmd) Run(globals *Globals) error {
 	req := structs.NewActionRequest()
 	req.Context = globals.Context
 	req.Action = a.Action
-	req.Params = strings.Join(a.Params, " ")
+	req.Params["text"] = strings.Join(a.Params, " ")
 	req.Thought = fmt.Sprintf("User wants to run action %s", a.Action)
 	req.Writer = NewCLIWriter()
 

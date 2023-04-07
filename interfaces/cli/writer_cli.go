@@ -36,4 +36,4 @@ func (w *CLIWriter) Close() error {
 }
 
 func (w *CLIWriter) WriteHeader(statusCode int) {}
-func (w *CLIWriter) Header() http.Header        { return nil }
+func (w *CLIWriter) Header() http.Header        { return http.Header{} }

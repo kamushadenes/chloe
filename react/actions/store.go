@@ -10,13 +10,14 @@ import (
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, content string) error {
+func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, role string, content string, summary string) error {
 	logger := logging.FromContext(request.GetContext())
 
 	logger.Debug().Str("content", content).Msg("storing action detection result")
 
 	nmsg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), request.GetMessage().Interface)
-	nmsg.Role = "user"
+	nmsg.Role = role
+	nmsg.Summary = summary
 
 	params := struct {
 		Result string `json:"result"`

@@ -12,6 +12,7 @@ type ReactConfig struct {
 	NewsAPISortStrategy      string
 	UseAria2                 bool
 	ReportThoughts           bool
+	FileWorkspace            string
 }
 
 var React = &ReactConfig{
@@ -28,4 +29,5 @@ var React = &ReactConfig{
 		[]string{"relevancy", "popularity", "publishedAt"}),
 	UseAria2:       envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
 	ReportThoughts: envOrDefaultBool("CHLOE_REACT_REPORT_THOUGHTS", false),
+	FileWorkspace:  envOrDefault("CHLOE_REACT_FILE_WORKSPACE", "workspace/"),
 }

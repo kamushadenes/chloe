@@ -37,6 +37,8 @@ func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) 
 }
 
 func main() {
+	flags.Debug = os.Getenv("DEBUG") == "true"
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	quitCh := make(chan os.Signal, 1)

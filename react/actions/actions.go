@@ -1,9 +1,13 @@
 package actions
 
+//go:generate go run action_generator.go
+
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/react/actions/file"
 	"github.com/kamushadenes/chloe/react/actions/google"
 	"github.com/kamushadenes/chloe/react/actions/image"
 	"github.com/kamushadenes/chloe/react/actions/latex"
@@ -14,7 +18,7 @@ import (
 	"github.com/kamushadenes/chloe/react/actions/transcribe"
 	"github.com/kamushadenes/chloe/react/actions/tts"
 	"github.com/kamushadenes/chloe/react/actions/wikipedia"
-	"github.com/kamushadenes/chloe/react/actions/youtube_summarizer"
+	"github.com/kamushadenes/chloe/react/actions/youtube"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"strings"
@@ -29,8 +33,8 @@ var actions = map[string]func() structs.Action{
 	"news":            news.NewNewsAction,
 	"news_by_country": news.NewNewsByCountryAction,
 
-	"calculate": math.NewCalculateAction,
-	"math":      math.NewCalculateAction,
+	"calculate": math.NewMathAction,
+	"math":      math.NewMathAction,
 
 	"scrape": scrape.NewScrapeAction,
 	"web":    scrape.NewScrapeAction,
@@ -44,13 +48,19 @@ var actions = map[string]func() structs.Action{
 
 	"wikipedia": wikipedia.NewWikipediaAction,
 
-	"summarize_youtube": youtube_summarizer.NewYoutubeSummarizerAction,
+	"summarize_youtube":  youtube.NewYoutubeSummarizeAction,
+	"transcribe_youtube": youtube.NewYoutubeSummarizeAction,
 
 	"latex": latex.NewLatexAction,
+
+	"write_file":  file.NewWriteFileAction,
+	"delete_file": file.NewDeleteFileAction,
 }
 
 func HandleAction(request *structs.ActionRequest) (err error) {
-	logger := logging.GetLogger().With().Str("action", request.Action).Str("params", request.Params).Logger()
+	paramsJson, _ := json.Marshal(request.Params)
+
+	logger := logging.GetLogger().With().Str("action", request.Action).RawJSON("params", paramsJson).Logger()
 
 	/*
 		defer func() {
@@ -69,8 +79,14 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 	}
 	act := actI()
 
-	act.SetParams(request.Params)
+	for k := range request.Params {
+		act.SetParam(k, request.Params[k])
+	}
 	act.SetMessage(request.Message)
+
+	if err = act.CheckRequiredParams(); err != nil {
+		return
+	}
 
 	if err = act.RunPreActions(request); err != nil {
 		if errors.Is(err, errors.ErrNotImplemented) {
@@ -84,7 +100,7 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 
 	if !utils.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
-		if err = StoreActionDetectionResult(request, act.GetNotification()); err != nil {
+		if err = StoreActionDetectionResult(request, "assistant", act.GetNotification(), ""); err != nil {
 			logger.Error().Err(err).Msg("error storing action detection result")
 			return
 		}
@@ -118,7 +134,12 @@ func HandleAction(request *structs.ActionRequest) (err error) {
 		}
 
 		if !utils.Testing() {
-			if err := StoreActionDetectionResult(request, objs[k].GetStorableContent()); err != nil {
+			var summary string
+			switch objs[k].Type {
+			case structs.Image, structs.Audio:
+				summary = objs[k].GetStorableContent()
+			}
+			if err := StoreActionDetectionResult(request, "user", objs[k].GetStorableContent(), summary); err != nil {
 				return errors.Wrap(errors.ErrActionFailed, err)
 			}
 		}

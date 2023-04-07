@@ -17,7 +17,7 @@ func Generate(ctx context.Context, text string, writer structs.ChloeWriter) erro
 	req.Writer = writer
 
 	req.Action = "generate"
-	req.Params = text
+	req.Params["prompt"] = text
 
 	return channels.RunAction(req)
 }

@@ -12,10 +12,12 @@ func TestWikipediaAction(t *testing.T) {
 	req := structs.NewActionRequest()
 	req.Context = context.Background()
 	req.Action = "wikipedia"
-	req.Params = "Barack Obama"
+	req.Params["query"] = "Barack Obama"
 
 	act := NewWikipediaAction()
-	act.SetParams(req.Params)
+	for k := range req.Params {
+		act.SetParam(k, req.Params[k])
+	}
 	_, err := act.Execute(req)
 
 	assert.ErrorIs(t, err, errors.ErrProceed)

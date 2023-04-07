@@ -21,8 +21,10 @@ func TestActions_Metadata(t *testing.T) {
 			assert.True(t, len(act.GetNotification()) > 0)
 
 			assert.True(t, len(act.GetParams()) == 0)
-			act.SetParams("test")
-			assert.True(t, act.GetParams() == "test")
+			act.SetParam("test", "foo")
+			p, err := act.GetParam("test")
+			assert.NoError(t, err)
+			assert.True(t, p == "foo")
 		})
 	}
 }
@@ -58,7 +60,7 @@ func TestActions_HandleAction(t *testing.T) {
 	for _, tt := range tests {
 		req := structs.NewActionRequest()
 		req.Context = context.Background()
-		req.Params = tt.params
+		req.Params["foo"] = tt.params
 		req.Action = "mock"
 		req.Writer = structs.NewMockWriter()
 		req.Message = memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "test")

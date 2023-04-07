@@ -7,6 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/models"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
@@ -73,8 +74,6 @@ func getImageSize(request structs.ImageRequest) string {
 
 // newImageRequest creates a new openai.ImageRequest for image generation.
 func newImageRequest(request *structs.GenerationRequest) openai.ImageRequest {
-	request.Size = getImageSize(request)
-
 	return openai.ImageRequest{
 		Prompt: request.Prompt,
 		N:      request.Count,
@@ -89,7 +88,9 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 	respi, err := timeouts.WaitTimeout(ctx, config.Timeouts.ImageGeneration, func(ch chan interface{}, errCh chan error) {
 		response, err := openAIClient.CreateImage(ctx, req)
 		if err != nil {
-			logger.Error().Err(err).Msg("error generating image")
+			logger.Error().
+				Err(err).
+				Msg("error generating image")
 			errCh <- err
 		}
 		ch <- response
@@ -116,9 +117,14 @@ func processSuccessfulImageRequest(request *structs.GenerationRequest, response 
 
 // Generate generates an image based on a text prompt using the OpenAI API.
 func Generate(request *structs.GenerationRequest) error {
+	request.Size = getImageSize(request)
+
 	logger := structs.LoggerFromRequest(request)
 
-	logger.Info().Msg("generating image")
+	logger.Info().
+		Float64("estimatedCost",
+			models.GetModel(fmt.Sprintf("dall-e-%s", request.Size)).UsageCost.Price*float64(request.Count)).
+		Msg("generating image")
 
 	req := newImageRequest(request)
 
@@ -137,8 +143,6 @@ func Generate(request *structs.GenerationRequest) error {
 
 // newImageEditRequest creates a new openai.ImageEditRequest for image editing.
 func newImageEditRequest(request *structs.GenerationRequest) (openai.ImageEditRequest, error) {
-	request.Size = getImageSize(request)
-
 	f, err := os.Open(request.ImagePath)
 	if err != nil {
 		return openai.ImageEditRequest{}, err
@@ -173,6 +177,8 @@ func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest
 
 // Edits creates a new version of an image based on a text prompt using the OpenAI API.
 func Edits(request *structs.GenerationRequest) error {
+	request.Size = getImageSize(request)
+
 	logger := structs.LoggerFromRequest(request)
 
 	logger.Info().Msg("generating image edits")
@@ -197,8 +203,6 @@ func Edits(request *structs.GenerationRequest) error {
 
 // newImageVariationRequest creates a new openai.ImageVariRequest for image variations.
 func newImageVariationRequest(request *structs.VariationRequest) (openai.ImageVariRequest, error) {
-	request.Size = getImageSize(request)
-
 	f, err := os.Open(request.ImagePath)
 	if err != nil {
 		return openai.ImageVariRequest{}, err
@@ -245,6 +249,8 @@ func processSuccessfulImageVariationRequest(request *structs.VariationRequest, r
 
 // Variations generates variations of an input image using the OpenAI API.
 func Variations(request *structs.VariationRequest) error {
+	request.Size = getImageSize(request)
+
 	logger := structs.LoggerFromRequest(request)
 
 	logger.Info().Msg("generating image variations")

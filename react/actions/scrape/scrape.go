@@ -3,46 +3,25 @@ package scrape
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/structs"
 	utils2 "github.com/kamushadenes/chloe/utils"
 )
 
 type ScrapeAction struct {
 	Name   string
-	Params string
-}
-
-func NewScrapeAction() structs.Action {
-	return &ScrapeAction{
-		Name: "scrape",
-	}
-}
-
-func (a *ScrapeAction) GetName() string {
-	return a.Name
+	Params map[string]string
 }
 
 func (a *ScrapeAction) GetNotification() string {
-	return fmt.Sprintf("🌐 Scraping web page: **%s**", a.Params)
+	return fmt.Sprintf("🌐 Scraping web page: **%s**", a.Params["url"])
 }
-
-func (a *ScrapeAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *ScrapeAction) GetParams() string {
-	return a.Params
-}
-
-func (a *ScrapeAction) SetMessage(message *memory.Message) {}
 
 func (a *ScrapeAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	obj := structs.NewResponseObject(structs.Text)
 
 	truncateTokenCount := structs.GetAvailableTokenCount(request)
 
-	res, err := scrape(a.Params)
+	res, err := scrape(a.Params["url"])
 	if err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
@@ -55,12 +34,12 @@ func (a *ScrapeAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 }
 
 func (a *ScrapeAction) RunPreActions(request *structs.ActionRequest) error {
-	nurl, err := resolveSpecialUrl(a.Params)
+	nurl, err := resolveSpecialUrl(a.Params["url"])
 	if err != nil {
 		return errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	a.SetParams(nurl)
+	a.SetParam("url", nurl)
 
 	return nil
 }

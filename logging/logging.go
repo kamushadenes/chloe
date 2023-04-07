@@ -3,6 +3,7 @@ package logging
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/flags"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
 	"os"
@@ -19,6 +20,11 @@ func GetLogger() zerolog.Logger {
 
 	multi := zerolog.MultiLevelWriter(wr)
 	logger := zerolog.New(multi).With().Timestamp().Logger()
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if flags.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 
 	return logger
 }
@@ -44,6 +50,10 @@ func consoleWriter() ConsoleWriter {
 		zerolog.CallerFieldName,
 		zerolog.LevelFieldName,
 		zerolog.MessageFieldName,
+	}
+
+	writer.FormatMessage = func(i interface{}) string {
+		return fmt.Sprintf("| %-60s|", i)
 	}
 
 	w.ConsoleWriter = writer

@@ -5,7 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/react/actions/scrape"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -16,31 +15,11 @@ import (
 
 type GoogleAction struct {
 	Name   string
-	Params string
-}
-
-func NewGoogleAction() structs.Action {
-	return &GoogleAction{
-		Name: "google",
-	}
-}
-
-func (a *GoogleAction) SetMessage(message *memory.Message) {}
-
-func (a *GoogleAction) GetName() string {
-	return a.Name
+	Params map[string]string
 }
 
 func (a *GoogleAction) GetNotification() string {
-	return fmt.Sprintf("🔍 Searching Google: **%s**", a.Params)
-}
-
-func (a *GoogleAction) SetParams(params string) {
-	a.Params = params
-}
-
-func (a *GoogleAction) GetParams() string {
-	return a.Params
+	return fmt.Sprintf("🔍 Searching Google: **%s**", a.Params["query"])
 }
 
 func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
@@ -59,7 +38,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 			logger.Warn().Err(err).Msg("failed to create custom search service, falling back to google search scraping")
 		} else {
 			s := svc.Cse.List()
-			s.Q(a.Params)
+			s.Q(a.Params["query"])
 			s.Num(int64(config.React.GoogleMaxResults))
 			s.Cx(config.React.GoogleCustomSearchID)
 			search, err := s.Do()
@@ -83,7 +62,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 	}
 
 	if fallback {
-		res, err := googlesearch.Search(request.GetContext(), a.Params, googlesearch.SearchOptions{Limit: config.React.GoogleMaxResults})
+		res, err := googlesearch.Search(request.GetContext(), a.Params["query"], googlesearch.SearchOptions{Limit: config.React.GoogleMaxResults})
 		if err != nil {
 			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
@@ -101,8 +80,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 		for k := range results {
 			r := results[k]
 			na := scrape.NewScrapeAction()
-			na.SetParams(r.URL)
-			na.SetMessage(request.Message)
+			na.SetParam("url", r.URL)
 			if err := na.RunPreActions(request); err != nil {
 				continue
 			}
@@ -121,11 +99,6 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 
 	return objs, errors.ErrProceed
 }
-
-func (a *GoogleAction) RunPreActions(request *structs.ActionRequest) error {
-	return nil
-}
-
 func (a *GoogleAction) RunPostActions(request *structs.ActionRequest) error {
 	return errors.ErrProceed
 }

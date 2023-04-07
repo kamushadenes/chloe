@@ -12,7 +12,7 @@ func transcribe(ctx context.Context, msg *memory.Message) error {
 
 		req := structs.NewActionRequest()
 		req.Action = "transcribe"
-		req.Params = path
+		req.Params["path"] = path
 		req.Message = msg
 		req.Context = ctx
 		req.Writer = NewDiscordWriter(ctx, req, true)
@@ -28,7 +28,7 @@ func transcribe(ctx context.Context, msg *memory.Message) error {
 func tts(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Action = "tts"
-	req.Params = promptFromMessage(msg)
+	req.Params["text"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
 	req.Writer = NewDiscordWriter(ctx, req, false)

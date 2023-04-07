@@ -11,10 +11,12 @@ func TestCalculateAction(t *testing.T) {
 	req := structs.NewActionRequest()
 	req.Context = context.Background()
 	req.Action = "calculate"
-	req.Params = "4 * 7 / 2"
+	req.Params["expression"] = "4 * 7 / 2"
 
-	act := NewCalculateAction()
-	act.SetParams(req.Params)
+	act := NewMathAction()
+	for k := range req.Params {
+		act.SetParam(k, req.Params[k])
+	}
 	objs, err := act.Execute(req)
 
 	assert.NoError(t, err)
