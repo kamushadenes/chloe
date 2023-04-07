@@ -1,7 +1,6 @@
 # ReAct: File
 
-Provides file management actions, such as `create_file`, `delete_file`, `read_file`, etc.
-Image uses Dall-E to generate an image from a text prompt.
+Provides file management actions, namely `append_file`, `delete_file`, `read_file` and `write_file`.
 
 ## Configuration
 
