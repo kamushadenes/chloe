@@ -37,18 +37,18 @@ understand and respond to complex instructions.
 - Automatically summarizes messages in order to have a longer context
 - Automatically moderates message using
   OpenAI's [moderation endpoint](https://platform.openai.com/docs/guides/moderation)
-- Many more, check [Actions](docs/actions.md)
+- Many more, check [Actions](https://github.com/kamushadenes/chloe/wiki/ReAct-Actions)
 
 [complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
 
 ## Supported Interfaces
 
-- [Command Line (CLI)](docs/cli.md)
-- [HTTP REST](docs/http.md)
-- [Discord](docs/discord.md)
-- [Telegram](docs/telegram.md)
-- [Slack](docs/slack.md)
-- [iOS Shortcut](docs/ios.md) (kinda)
+- [Command Line (CLI)](https://github.com/kamushadenes/chloe/wiki/Interface-CLI)
+- [HTTP REST](https://github.com/kamushadenes/chloe/wiki/Interface-HTTP)
+- [Discord](https://github.com/kamushadenes/chloe/wiki/Interface-Discord)
+- [Slack](https://github.com/kamushadenes/chloe/wiki/Interface-Slack)
+- [Telegram](https://github.com/kamushadenes/chloe/wiki/Interface-Telegram)
+- [iOS Shortcut](https://github.com/kamushadenes/chloe/wiki/Interface-iOS) (kinda)
 
 ## Roadmap
 
@@ -153,21 +153,25 @@ Commands:
 Run "chloe <command> --help" for more information on a command.
 ```
 
-## Configuration
+## Documentation
 
-See [Configuration](docs/configuration.md) for more information.
+Check out the [Wiki](https://github.com/kamushadenes/chloe/wiki) for more information.
 
-## Improving responses
+### Configuration
 
-See [Few-shot prompting](https://github.com/kamushadenes/chloe/tree/main/resources/prompts/chatgpt).
+See [Configuration](https://github.com/kamushadenes/chloe/wiki/Configuration) for more information.
 
-## Extending capabilities
+### Improving responses
 
-See [Extending Chloe](docs/extending.md).
+See [Few-shot prompting](https://github.com/kamushadenes/chloe/wiki/Few-shot_Prompting).
 
-## User management
+### Extending capabilities
 
-See [User management](docs/users.md).
+See [Extending Chloe](https://github.com/kamushadenes/chloe/wiki/Extending_Chloe).
+
+### User management
+
+See [User management](https://github.com/kamushadenes/chloe/wiki/User_Management).
 
 ## Contributing
 
