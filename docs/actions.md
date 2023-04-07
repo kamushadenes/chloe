@@ -36,7 +36,7 @@ Transcribes an audio file using Whisper.
 
 Searches Wikipedia for information. Results are then scraped and summarized.
 
-### [YouTube Summarizer](https://github.com/kamushadenes/chloe/blob/main/react/actions/youtube_summarizer/README.md)
+### [YouTube Summarizer](https://github.com/kamushadenes/chloe/blob/main/react/actions/youtube/README.md)
 
 Summarizes a YouTube video by first downloading it using youtube-dl, then using Whisper to
 transcribe it, and finally using a summarization prompt.
