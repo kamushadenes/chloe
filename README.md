@@ -41,6 +41,15 @@ understand and respond to complex instructions.
 
 [complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
 
+## 🌟 Power Chloe's Growth: Lend Your Support!
+
+For the price of a single coffee, you can play a crucial role in advancing Chloe, an exciting
+project that's pushing the boundaries of fully autonomous AI! This labor of love is developed during
+my precious free time, requiring countless hours of dedication. Your generous contributions keep the
+momentum going and are deeply appreciated!
+
+To support Chloe's growth, click [here](https://github.com/sponsors/kamushadenes).
+
 ## Supported Interfaces
 
 - [Command Line (CLI)](https://github.com/kamushadenes/chloe/wiki/Interface-CLI)
