@@ -1,20 +1,32 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: "[FEATURE] "
+about: Suggest an idea for Chloe
+title: "[FEATURE] Short and descriptive title"
 labels: feature
 assignees: kamushadenes
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+### Overview
+Provide a brief summary of the feature request and its purpose.
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+### Motivation
+##### Objective
+Describe the objective this feature aims to achieve.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+##### Impact
+Explain how this feature would benefit users or the project.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### Proposed Solution
+##### Description
+Describe the proposed feature and how it should be implemented.
+
+##### Changes
+List any changes required in the existing code or project structure.
+
+### Considerations (Optional)
+List any challenges, trade-offs, or other considerations related to the implementation of this feature.
+
+### Additional Resources
+- Attach any relevant screenshots, mockups, or links to provide more context about the feature request.
+- Reference any related issues or discussions.
