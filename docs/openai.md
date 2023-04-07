@@ -5,6 +5,12 @@ image generation, summarization, moderation, etc.
 
 The `OPENAI_API_KEY` variable is required for Chloe to work.
 
+### Azure support
+
+Chloe also supports Azure's version of OpenAI. To use it, set the `CHLOE_USE_AZURE` environment
+variable to true, as well as filling `CHLOE_AZURE_API_VERSION`, `CHLOE_AZURE_BASE_URL`
+and `CHLOE_AZURE_ENGINE` appropriately.
+
 ## Configuration
 
 | Environment Variable                | Default Value               | Description                                                                                                                                                                                                                        | Options                                                                                                         |
