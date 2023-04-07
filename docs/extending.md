@@ -11,6 +11,7 @@ of the action, and implement
 the [Action](https://github.com/kamushadenes/chloe/blob/main/structs/action.go) interface.
 
 To facilitate things and reduce duplicate code, there's
+a [action_generator.go](https://github.com/kamushadenes/chloe/blob/main/react/actions/action_generator.go)
 generator that writes most of the boiler plate. Be sure to add your action there, along with it's
 required parameters, and to set skips for functions you might want to write yourself.
 
