@@ -10,7 +10,15 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-var OpenAIClient = openai.NewClient(config.OpenAI.APIKey)
+var OpenAIClient *openai.Client
+
+func init() {
+	if config.OpenAI.UseAzure {
+		OpenAIClient = openai.NewClientWithConfig(openai.DefaultAzureConfig(config.OpenAI.APIKey, config.OpenAI.AzureBaseURL, config.OpenAI.AzureEngine))
+	} else {
+		OpenAIClient = openai.NewClient(config.OpenAI.APIKey)
+	}
+}
 
 func SimpleCompletionRequest(ctx context.Context, prompt string, message string) (openai.ChatCompletionResponse, error) {
 	prompt, err := resources.GetPrompt(prompt, &resources.PromptArgs{

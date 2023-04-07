@@ -40,6 +40,10 @@ type OpenAIConfig struct {
 	APIKey                    string
 	MessagesToKeepFullContent int
 	ModerateMessages          bool
+	UseAzure                  bool
+	AzureAPIVersion           string
+	AzureBaseURL              string
+	AzureEngine               string
 }
 
 var OpenAI = &OpenAIConfig{
@@ -63,4 +67,8 @@ var OpenAI = &OpenAIConfig{
 	APIKey: mustEnv("OPENAI_API_KEY"),
 
 	MessagesToKeepFullContent: envOrDefaultInt("CHLOE_MESSAGES_TO_KEEP_FULL_CONTENT", 4),
+	UseAzure:                  envOrDefaultBool("CHLOE_USE_AZURE", false),
+	AzureAPIVersion:           envOrDefault("CHLOE_AZURE_API_VERSION", "2023-03-15-preview"),
+	AzureBaseURL:              envOrDefault("CHLOE_AZURE_BASE_URL", "https://api.cognitive.microsoft.com"),
+	AzureEngine:               envOrDefault("CHLOE_AZURE_ENGINE", ""),
 }

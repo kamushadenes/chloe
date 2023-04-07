@@ -12,5 +12,9 @@ func init() {
 var openAIClient *openai.Client
 
 func resetClient() {
-	openAIClient = openai.NewClient(config.OpenAI.APIKey)
+	if config.OpenAI.UseAzure {
+		openAIClient = openai.NewClientWithConfig(openai.DefaultAzureConfig(config.OpenAI.APIKey, config.OpenAI.AzureBaseURL, config.OpenAI.AzureEngine))
+	} else {
+		openAIClient = openai.NewClient(config.OpenAI.APIKey)
+	}
 }
