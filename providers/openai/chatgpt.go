@@ -89,10 +89,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 func processCompletionStream(request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
 	channels.StartAndWait(request)
 
-	resp := stream.GetResponse()
-	defer resp.Body.Close()
-
-	putils.WriteStatusCode(request.Writer, resp.StatusCode)
+	putils.WriteStatusCode(request.Writer, 200)
 
 	var responseMessage string
 
