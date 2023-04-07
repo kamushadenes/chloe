@@ -20,13 +20,13 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/mattn/go-isatty v0.0.14
-	github.com/parinpan/pipe v0.0.0-20210213045347-59e385eb4440
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.27.0
 	github.com/sashabaranov/go-openai v1.5.2
 	github.com/slack-go/slack v0.12.1
 	github.com/stretchr/testify v1.8.1
+	github.com/tcolgate/mp3 v0.0.0-20170426193717-e79c5a46d300
 	github.com/trietmn/go-wiki v1.0.0
 	golang.org/x/crypto v0.6.0
 	google.golang.org/api v0.103.0
@@ -72,7 +72,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.0 // indirect

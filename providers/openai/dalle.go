@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/models"
 	putils "github.com/kamushadenes/chloe/providers/utils"
@@ -104,6 +105,10 @@ func createImageWithTimeout(ctx context.Context, req openai.ImageRequest) (opena
 
 // processSuccessfulImageRequest processes a successful image generation request.
 func processSuccessfulImageRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
+	cost.AddCategoryCost(string(config.ImageGeneration),
+		models.GetModel(fmt.Sprintf("dall-e-%s", request.Size)).UsageCost.Price*
+			float64(len(response.Data)))
+
 	channels.StartAndWait(request)
 
 	for k := range response.Data {
@@ -175,6 +180,22 @@ func createImageEditWithTimeout(ctx context.Context, req openai.ImageEditRequest
 	return respi.(openai.ImageResponse), nil
 }
 
+func processSuccessfulImageEditRequest(request *structs.GenerationRequest, response openai.ImageResponse) error {
+	cost.AddCategoryCost(string(config.ImageEdit),
+		models.GetModel(fmt.Sprintf("dall-e-%s", request.Size)).UsageCost.Price*
+			float64(len(response.Data)))
+
+	channels.StartAndWait(request)
+
+	for k := range response.Data {
+		if err := writeImage(request.Writer, response.Data[k].URL); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Edits creates a new version of an image based on a text prompt using the OpenAI API.
 func Edits(request *structs.GenerationRequest) error {
 	request.Size = getImageSize(request)
@@ -193,7 +214,7 @@ func Edits(request *structs.GenerationRequest) error {
 		return channels.NotifyError(request, errors.ErrGenerationFailed, err)
 	}
 
-	err = processSuccessfulImageRequest(request, response)
+	err = processSuccessfulImageEditRequest(request, response)
 	if err != nil {
 		err = errors.Wrap(errors.ErrGenerationFailed, err)
 	}
@@ -236,6 +257,10 @@ func createImageVariationWithTimeout(ctx context.Context, req openai.ImageVariRe
 
 // processSuccessfulImageVariationRequest processes a successful image variation request.
 func processSuccessfulImageVariationRequest(request *structs.VariationRequest, response openai.ImageResponse) error {
+	cost.AddCategoryCost(string(config.ImageVariation),
+		models.GetModel(fmt.Sprintf("dall-e-%s", request.Size)).UsageCost.Price*
+			float64(len(response.Data)))
+
 	channels.StartAndWait(request)
 
 	for k := range response.Data {

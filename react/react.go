@@ -18,7 +18,7 @@ import (
 var CheckpointMarker = "###CHECKPOINT###"
 
 func DetectAction(request *structs.CompletionRequest) (*structs.ActionRequest, error) {
-	logger := logging.FromContext(request.Context)
+	logger := logging.GetLogger()
 
 	logger.Info().Msg("detecting action")
 

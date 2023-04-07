@@ -5,8 +5,10 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/media"
 	"github.com/kamushadenes/chloe/memory"
 	putils "github.com/kamushadenes/chloe/providers/utils"
 	"github.com/kamushadenes/chloe/structs"
@@ -79,7 +81,17 @@ func recordTranscriptionResponse(request *structs.TranscriptionRequest, response
 func Transcribe(request *structs.TranscriptionRequest) error {
 	logger := structs.LoggerFromRequest(request)
 
-	logger.Info().Msg("transcribing file")
+	if duration, err := media.GetMediaDuration(request.FilePath); err != nil {
+		logger.Error().Err(err).Msg("error getting media duration, skipping cost calculation")
+		logger.Info().Msg("transcribing file")
+	} else {
+		price := config.OpenAI.GetModel(config.Transcription).UsageCost.Price
+		totalCost := price * duration.Minutes()
+
+		cost.AddCategoryCost(string(config.Transcription), totalCost)
+
+		logger.Info().Float64("cost", totalCost).Dur("duration", duration).Msg("transcribing file")
+	}
 
 	req := newTranscriptionRequest(request)
 

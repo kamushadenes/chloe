@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/timeouts"
@@ -41,6 +42,13 @@ func SimpleCompletionRequest(ctx context.Context, prompt string, message string)
 	if err != nil {
 		return openai.ChatCompletionResponse{}, errors.Wrap(errors.ErrCompletionFailed, err)
 	}
+
+	promptPrice, promptUnitSize, completionPrice, completionUnitSize := config.OpenAI.GetModelCostInfo(config.Completion)
+
+	promptCost := promptPrice * float64(respi.(openai.ChatCompletionResponse).Usage.PromptTokens) / float64(promptUnitSize)
+	completionCost := completionPrice * float64(respi.(openai.ChatCompletionResponse).Usage.CompletionTokens) / float64(completionUnitSize)
+
+	cost.AddCategoryCost(string(config.ChainOfThought), promptCost+completionCost)
 
 	return respi.(openai.ChatCompletionResponse), nil
 }

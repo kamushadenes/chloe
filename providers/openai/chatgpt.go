@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
@@ -15,6 +16,7 @@ import (
 	"github.com/kamushadenes/chloe/react/actions"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/timeouts"
+	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"strings"
@@ -130,9 +132,20 @@ func recordAssistantResponse(request *structs.CompletionRequest, responseMessage
 	nmsg.Role = "assistant"
 	nmsg.User = request.GetMessage().User
 
+	promptTokenCount := request.CountTokens()
+	responseTokenCount := tokenizer.CountTokens(config.OpenAI.GetModel(config.Completion).String(), responseMessage)
+
+	promptPrice, promptUnitSize, completionPrice, completionUnitSize := config.OpenAI.GetModelCostInfo(config.Completion)
+
+	promptCost := promptPrice * float64(promptTokenCount) / float64(promptUnitSize)
+	completionCost := completionPrice * float64(responseTokenCount) / float64(completionUnitSize)
+
+	cost.AddCategoryCost(string(config.Completion), promptCost+completionCost)
+
 	logger.Info().
-		Float64("estimatedResponseCost",
-			config.OpenAI.GetModel(config.Completion).GetChatCompletionCost(nil, "")).
+		Float64("promptCost", promptCost).
+		Float64("completionCost", completionCost).
+		Int("tokenCount", promptTokenCount+responseTokenCount).
 		Msg("recording assistant response")
 
 	return nmsg.Save(request.GetContext())

@@ -100,11 +100,15 @@ func (m *Message) GetTexts() []string {
 }
 
 func (m *Message) AddAudio(path string) {
-	m.audioPaths = append(m.audioPaths, path)
+	if path != "" {
+		m.audioPaths = append(m.audioPaths, path)
+	}
 }
 
 func (m *Message) AddImage(path string) {
-	m.imagePaths = append(m.imagePaths, path)
+	if path != "" {
+		m.imagePaths = append(m.imagePaths, path)
+	}
 }
 
 func (m *Message) GetImages() []string {

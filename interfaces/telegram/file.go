@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/media"
 	"io"
 	"net/http"
 	"os"
@@ -70,7 +71,7 @@ func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) stri
 	}
 
 	if path.Ext(filePath) == ".ogg" || path.Ext(filePath) == ".oga" {
-		nfilePath, err := convertAudioToMp3(ctx, filePath)
+		nfilePath, err := media.ConvertAudioToMp3(ctx, filePath)
 		defer func(name string) {
 			_ = os.Remove(name)
 		}(filePath)

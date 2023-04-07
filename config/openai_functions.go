@@ -50,3 +50,21 @@ func (c *OpenAIConfig) GetImageSize(purpose ImagePurpose) string {
 		return c.DefaultSize.ImageGeneration
 	}
 }
+
+func (c *OpenAIConfig) GetModelCostInfo(purpose ModelPurpose) (promptPrice float64, promptUnitSize int, completionPrice float64, completionUnitSize int) {
+	model := c.GetModel(purpose)
+
+	if model.UsageCost != nil {
+		promptPrice = model.UsageCost.Price
+		completionPrice = model.UsageCost.Price
+		promptUnitSize = model.UsageCost.UnitSize
+		completionUnitSize = model.UsageCost.UnitSize
+	} else {
+		promptPrice = model.PromptCost.Price
+		completionPrice = model.CompletionCost.Price
+		promptUnitSize = model.PromptCost.UnitSize
+		completionUnitSize = model.CompletionCost.UnitSize
+	}
+
+	return
+}

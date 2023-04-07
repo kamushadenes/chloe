@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/media"
 	"github.com/kamushadenes/chloe/memory"
 )
 
@@ -80,7 +81,7 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 
 	if update.Message.Photo != nil {
 		photo := update.Message.Photo[len(update.Message.Photo)-1]
-		path, err := convertImageToPng(downloadFile(ctx, bot, photo.FileID))
+		path, err := media.ConvertImageToPng(downloadFile(ctx, bot, photo.FileID))
 		if err == nil {
 			msg.AddImage(path)
 		}

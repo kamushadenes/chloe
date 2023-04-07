@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/interfaces/cli"
 	"github.com/kamushadenes/chloe/interfaces/discord"
 	"github.com/kamushadenes/chloe/interfaces/http"
@@ -28,6 +29,8 @@ func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 	}
 
 	go memory.Start(ctx)
+
+	go cost.MonitorCost(ctx)
 
 	go MonitorMessages(ctx)
 	go MonitorRequests(ctx)

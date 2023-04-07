@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/memory"
@@ -65,6 +66,13 @@ func createSummarizationWithTimeout(ctx context.Context, req openai.ChatCompleti
 	if err != nil {
 		return openai.ChatCompletionResponse{}, err
 	}
+
+	promptPrice, promptUnitSize, completionPrice, completionUnitSize := config.OpenAI.GetModelCostInfo(config.Completion)
+
+	promptCost := promptPrice * float64(respi.(openai.ChatCompletionResponse).Usage.PromptTokens) / float64(promptUnitSize)
+	completionCost := completionPrice * float64(respi.(openai.ChatCompletionResponse).Usage.CompletionTokens) / float64(completionUnitSize)
+
+	cost.AddCategoryCost(string(config.Summarization), promptCost+completionCost)
 
 	return respi.(openai.ChatCompletionResponse), err
 }

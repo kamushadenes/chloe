@@ -25,8 +25,8 @@ understand and respond to complex instructions.
 ## Features
 
 - Uses criticism techniques (ReAct, Chain of Thought) to determine actions, falling back to standard
-  completion if no action is
-  found
+  completion if no action is found
+- Calculates and logs the cost of each request as well as the session total cost
 - Scrapes websites to have them on its context
 - Searches Google for information
 - Searches and summarizes news articles
@@ -73,7 +73,7 @@ take quite some time.
 |:------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------|:---------|
 | [aria2](https://aria2.github.io)          | Chloe uses [aria2](https://aria2.github.io/) to speed up the download YouTube videos for transcription. Although highly recommended, this is not a mandatory dependency. If you don't have it installed, Chloe will fall back to using the `youtube-dl` default downloader. | GPL-2.0     | Runtime  |
 | [cargo](https://doc.rust-lang.org/cargo/) | Chloe uses [cargo](https://doc.rust-lang.org/cargo/) to build the tokenizer bindings. This is only necessary during the build process, so if you're using the pre-built binaries you can skip this dependency.                                                              | Apache-2.0  | Build    |
-| [ffmpeg](https://ffmpeg.org)              | Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert audio received from Telegram to an appropriate format for Whisper.                                                                                                         | LGPL-2.1    | Runtime  |
+| [ffmpeg](https://ffmpeg.org)              | Chloe uses [ffmpeg](https://ffmpeg.org/) to convert YouTube videos to audio, and also to convert audio received from Telegram to an appropriate format for Whisper. It is also used to perform cost calculation on Whisper requests.                                        | LGPL-2.1    | Runtime  |
 | [imagemagick](https://imagemagick.org)    | Chloe uses [imagemagick](https://imagemagick.org/index.php) to convert images to the appropriate format for DALL-E.                                                                                                                                                         | Apache-2.0  | Runtime  |
 | [youtube-dl](https://youtube-dl.org)      | Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.                                                                                                                                                                              | Unlicense   | Runtime  |
 
@@ -113,16 +113,16 @@ Setup the required environment variables
 
 ```bash
 # This is the only mandatory variable
-export OPENAI_API_KEY="your_openai_api_key"                       
+export OPENAI_API_KEY="your_openai_api_key"
 
 # Only necessary if you want to use the Telegram interface
-export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"             
+export CHLOE_TELEGRAM_TOKEN="your_telegram_bot_token"
 
 # Only necessary if you want to use the Discord interface
-export CHLOE_DISCORD_TOKEN="your_discord_bot_token"               
+export CHLOE_DISCORD_TOKEN="your_discord_bot_token"
 
 # Only necessary if you want to use the Text-to-Speech engine
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json" 
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json"
 ```
 
 Running the `chloe` binary will start the bot.
