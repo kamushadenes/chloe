@@ -167,11 +167,11 @@ See [Few-shot prompting](https://github.com/kamushadenes/chloe/wiki/Few-shot_Pro
 
 ### Extending capabilities
 
-See [Extending Chloe](https://github.com/kamushadenes/chloe/wiki/Extending_Chloe).
+See [Extending Chloe](https://github.com/kamushadenes/chloe/wiki/How_to_add_a_new_Action).
 
 ### User management
 
-See [User management](https://github.com/kamushadenes/chloe/wiki/User_Management).
+See [User management](https://github.com/kamushadenes/chloe/wiki/Managing_Users).
 
 ## Contributing
 
