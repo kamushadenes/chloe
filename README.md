@@ -187,7 +187,7 @@ Feel free to open an issue if you have any questions, or even better, open a pul
 
 ## License
 
-Chloe is licensed under the [MIT License](LICENSE.md).
+Chloe is licensed under the [GPL-3.0 License](LICENSE.md).
 
 ## References
 
