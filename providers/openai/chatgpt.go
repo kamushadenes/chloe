@@ -19,6 +19,7 @@ import (
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
 	"io"
+	"net/http"
 	"strings"
 )
 
@@ -89,7 +90,7 @@ func createChatCompletionWithTimeout(ctx context.Context, req openai.ChatComplet
 func processCompletionStream(request *structs.CompletionRequest, stream *openai.ChatCompletionStream) (string, error) {
 	channels.StartAndWait(request)
 
-	putils.WriteStatusCode(request.Writer, 200)
+	putils.WriteStatusCode(request.Writer, http.StatusOK)
 
 	var responseMessage string
 

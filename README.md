@@ -26,7 +26,7 @@ understand and respond to complex instructions.
 
 - Uses criticism techniques (ReAct, Chain of Thought) to determine actions, falling back to standard
   completion if no action is found
-- Calculates and logs the cost of each request as well as the session total cost
+- Calculates and logs the cost of each request as well as the total cost of the session
 - Scrapes websites to have them on its context
 - Searches Google for information
 - Searches and summarizes news articles
@@ -52,20 +52,8 @@ understand and respond to complex instructions.
 
 ## Roadmap
 
-- [x] Add additional storage backends
-- [x] Add Discord interface
-- [x] Add Slack interface
-- [ ] Take action when content is flagged by the moderation
-- [x] Add GPT-4 support
-- [ ] Support the newly announced [GPT-4 plugins](https://openai.com/blog/chatgpt-plugins)
-- [x] Add LaTeX rendering support
-- [ ] Auto mode, where Chloe will be able to decide on a plan of action and follow through it
-  (like [Auto-GPT](https://github.com/Torantulino/Auto-GPT))
-- [ ] Add more
-  actions ([give me ideas!](https://github.com/kamushadenes/chloe/issues/new?assignees=kamushadenes&labels=feature&template=feature_request.md&title=%5BFEATURE%5D+))
-
-I also plan to release an Alexa open hardware clone that will be able to run Chloe, but this will
-take quite some time.
+You can track Chloe's progress on
+the [Roadmap project](https://github.com/users/kamushadenes/projects/1).
 
 ## Dependencies
 
