@@ -22,7 +22,7 @@ It offers multiple interfaces and utilizes
 the [Chain of Thought](https://til.simonwillison.net/llms/python-react-pattern) approach to
 understand and respond to complex instructions.
 
-## Features
+## 🚀 Features
 
 - Uses criticism techniques (ReAct, Chain of Thought) to determine actions, falling back to standard
   completion if no action is found
@@ -50,7 +50,7 @@ momentum going and are deeply appreciated!
 
 To support Chloe's growth, click [here](https://github.com/sponsors/kamushadenes).
 
-## Supported Interfaces
+## 📱 Supported Interfaces
 
 - [Command Line (CLI)](https://github.com/kamushadenes/chloe/wiki/Interface-CLI)
 - [HTTP REST](https://github.com/kamushadenes/chloe/wiki/Interface-HTTP)
@@ -59,12 +59,12 @@ To support Chloe's growth, click [here](https://github.com/sponsors/kamushadenes
 - [Telegram](https://github.com/kamushadenes/chloe/wiki/Interface-Telegram)
 - [iOS Shortcut](https://github.com/kamushadenes/chloe/wiki/Interface-iOS) (kinda)
 
-## Roadmap
+## 🛣️ Roadmap
 
 You can track Chloe's progress on
 the [Roadmap project](https://github.com/users/kamushadenes/projects/1).
 
-## Dependencies
+## 🔗 Dependencies
 
 | **Dependency**                            | **Description**                                                                                                                                                                                                                                                             | **License** | **Type** |
 |:------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------|:---------|
@@ -74,7 +74,7 @@ the [Roadmap project](https://github.com/users/kamushadenes/projects/1).
 | [imagemagick](https://imagemagick.org)    | Chloe uses [imagemagick](https://imagemagick.org/index.php) to convert images to the appropriate format for DALL-E.                                                                                                                                                         | Apache-2.0  | Runtime  |
 | [youtube-dl](https://youtube-dl.org)      | Chloe uses [youtube-dl](https://youtube-dl.org/) to download YouTube videos for transcription.                                                                                                                                                                              | Unlicense   | Runtime  |
 
-## Installation
+## 💾 Installation
 
 ### Pre-built binaries
 
@@ -104,7 +104,7 @@ cd chloe
 make
 ```
 
-## Usage
+## ⚙️ Usage
 
 Setup the required environment variables
 
@@ -162,48 +162,48 @@ Commands:
 Run "chloe <command> --help" for more information on a command.
 ```
 
-## Documentation
+## 📚 Documentation
 
 Check out the [Wiki](https://github.com/kamushadenes/chloe/wiki) for more information.
 
-### Configuration
+### 🔧 Configuration
 
 See [Configuration](https://github.com/kamushadenes/chloe/wiki/Configuration) for more information.
 
-### Improving responses
+### 💬 Improving responses
 
 See [Few-shot prompting](https://github.com/kamushadenes/chloe/wiki/Few-shot_Prompting).
 
-### Extending capabilities
+### 🛠️ Extending capabilities
 
 See [Extending Chloe](https://github.com/kamushadenes/chloe/wiki/How_to_add_a_new_Action).
 
-### User management
+### 👥 User management
 
 See [User management](https://github.com/kamushadenes/chloe/wiki/Managing_Users).
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions! If you would like to improve Chloe, please check out
 the [Contributing Guide](CONTRIBUTING.md).
 
-### Disclaimer
+### ⚠️ Disclaimer
 
 There are some rushed parts of the code, and some parts that are not very well documented. You can
 also find a few TODOs scattered around the codebase and some duplicate code too.
 
 Feel free to open an issue if you have any questions, or even better, open a pull request!
 
-## License
+## 📄 License
 
 Chloe is licensed under the [GPL-3.0 License](LICENSE.md).
 
-## References
+## 📚 References
 
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://react-lm.github.io)
 - [A simple Python implementation of the ReAct pattern for LLMs](https://til.simonwillison.net/llms/python-react-pattern)
 
-## Acknowledgements
+## 🙏 Acknowledgements
 
 - [Torantulino](https://github.com/Torantulino/Auto-GPT) for some prompt improving ideas
 - [j178](https://github.com/j178/tiktoken-go) for the tokenizer bindings
