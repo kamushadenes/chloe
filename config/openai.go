@@ -69,6 +69,6 @@ var OpenAI = &OpenAIConfig{
 	MessagesToKeepFullContent: envOrDefaultInt("CHLOE_MESSAGES_TO_KEEP_FULL_CONTENT", 4),
 	UseAzure:                  envOrDefaultBool("CHLOE_USE_AZURE", false),
 	AzureAPIVersion:           envOrDefault("CHLOE_AZURE_API_VERSION", "2023-03-15-preview"),
-	AzureBaseURL:              envOrDefault("CHLOE_AZURE_BASE_URL", "https://api.cognitive.microsoft.com"),
+	AzureBaseURL:              envOrDefault("CHLOE_AZURE_BASE_URL", ""),
 	AzureEngine:               envOrDefault("CHLOE_AZURE_ENGINE", ""),
 }
