@@ -2,16 +2,15 @@ package chat_models
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/langchain/schema"
 	"io"
 )
 
 type Chat interface {
-	Chat(...schema.Message) (schema.ChatResult, error)
-	ChatWithContext(context.Context, ...schema.Message) (schema.ChatResult, error)
-	ChatWithOptions(context.Context, schema.ChatOptions) (schema.ChatResult, error)
+	Chat(...Message) (ChatResult, error)
+	ChatWithContext(context.Context, ...Message) (ChatResult, error)
+	ChatWithOptions(context.Context, ChatOptions) (ChatResult, error)
 
-	ChatStream(io.Writer, ...schema.Message) (schema.ChatResult, error)
-	ChatStreamWithContext(context.Context, io.Writer, ...schema.Message) (schema.ChatResult, error)
-	ChatStreamWithOptions(context.Context, io.Writer, schema.ChatOptions) (schema.ChatResult, error)
+	ChatStream(io.Writer, ...Message) (ChatResult, error)
+	ChatStreamWithContext(context.Context, io.Writer, ...Message) (ChatResult, error)
+	ChatStreamWithOptions(context.Context, io.Writer, ChatOptions) (ChatResult, error)
 }

@@ -1,7 +1,8 @@
-package schema
+package chat_models
 
 import (
 	"github.com/sashabaranov/go-openai"
+	"time"
 )
 
 type ChatOptions interface {
@@ -19,4 +20,6 @@ type ChatOptions interface {
 	WithLogitBias(logitBias map[string]int) ChatOptions
 	WithUser(user string) ChatOptions
 	GetMessages() []Message
+	WithTimeout(time.Duration) ChatOptions
+	GetTimeout() time.Duration
 }

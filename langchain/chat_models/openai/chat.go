@@ -2,111 +2,65 @@ package openai
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/chat_models"
-	"github.com/kamushadenes/chloe/langchain/schema"
-	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
-	"io"
 )
 
 type ChatOpenAI struct {
 	client *openai.Client
-	model  string
+	model  *chat_models.ChatModel
 }
 
-func NewChatOpenAI(token string, model string) chat_models.Chat {
+func NewChatOpenAI(token string, model *chat_models.ChatModel) chat_models.Chat {
 	return &ChatOpenAI{client: openai.NewClient(token), model: model}
 }
 
 func NewChatOpenAIWithDefaultModel(token string) chat_models.Chat {
-	return NewChatOpenAI(token, "gpt-3.5-turbo")
+	return NewChatOpenAI(token, GPT35Turbo)
 }
 
-func (c *ChatOpenAI) Chat(messages ...schema.Message) (schema.ChatResult, error) {
+func (c *ChatOpenAI) Chat(messages ...chat_models.Message) (chat_models.ChatResult, error) {
 	return c.ChatWithContext(context.Background(), messages...)
 }
 
-func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...schema.Message) (schema.ChatResult, error) {
-	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.model)
+func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...chat_models.Message) (chat_models.ChatResult, error) {
+	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.model.Name)
 
 	return c.ChatWithOptions(ctx, opts)
 }
 
-func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts schema.ChatOptions) (schema.ChatResult, error) {
+func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts chat_models.ChatOptions) (chat_models.ChatResult, error) {
+	if opts.GetTimeout() > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, opts.GetTimeout())
+		defer cancel()
+	}
 
 	resp, err := c.client.CreateChatCompletion(ctx, opts.GetRequest())
 	if err != nil {
-		return schema.ChatResult{}, err
+		return chat_models.ChatResult{}, err
 	}
 
-	var res schema.ChatResult
+	var res chat_models.ChatResult
 
 	for k := range resp.Choices {
-		res.Generations = append(res.Generations, schema.ChatGeneration{
+		res.Generations = append(res.Generations, chat_models.ChatGeneration{
 			Text: resp.Choices[k].Message.Content,
-			Message: schema.Message{
+			Message: chat_models.Message{
 				Name:    resp.Choices[k].Message.Name,
-				Role:    schema.Role(resp.Choices[k].Message.Role),
+				Role:    chat_models.Role(resp.Choices[k].Message.Role),
 				Content: resp.Choices[k].Message.Content,
 			},
 		})
 	}
 
-	res.Usage = schema.ChatUsage{
+	res.Usage = chat_models.ChatUsage{
 		PromptTokens:     resp.Usage.PromptTokens,
 		CompletionTokens: resp.Usage.CompletionTokens,
 		TotalTokens:      resp.Usage.TotalTokens,
 	}
 
+	res.CalculateCosts(c.model)
+
 	return res, nil
-}
-
-func (c *ChatOpenAI) ChatStream(w io.Writer, messages ...schema.Message) (schema.ChatResult, error) {
-	return c.ChatStreamWithContext(context.Background(), w, messages...)
-}
-
-func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, messages ...schema.Message) (schema.ChatResult, error) {
-	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.model)
-
-	return c.ChatStreamWithOptions(ctx, w, opts)
-}
-
-func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opts schema.ChatOptions) (schema.ChatResult, error) {
-
-	stream, err := c.client.CreateChatCompletionStream(ctx, opts.GetRequest())
-	if err != nil {
-		return schema.ChatResult{}, err
-	}
-	defer stream.Close()
-
-	var res schema.ChatResult
-	res.Usage = schema.ChatUsage{}
-	res.Generations[0] = schema.ChatGeneration{}
-
-	msgs := opts.GetMessages()
-	for k := range msgs {
-		res.Usage.PromptTokens += tokenizer.CountTokens(c.model, msgs[k].Content)
-	}
-
-	for {
-		resp, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			res.Generations[0].Message = schema.AssistantMessage(res.Generations[0].Text)
-
-			return res, nil
-		}
-
-		if err != nil {
-			return res, err
-		}
-
-		res.Generations[0].Text += resp.Choices[0].Delta.Content
-		res.Usage.CompletionTokens += tokenizer.CountTokens(c.model, resp.Choices[0].Delta.Content)
-		res.Usage.TotalTokens += tokenizer.CountTokens(c.model, resp.Choices[0].Delta.Content)
-
-		if _, err := w.Write([]byte(resp.Choices[0].Delta.Content)); err != nil {
-			return res, err
-		}
-	}
 }

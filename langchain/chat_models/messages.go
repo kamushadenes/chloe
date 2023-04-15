@@ -1,4 +1,4 @@
-package schema
+package chat_models
 
 type Role string
 
