@@ -4,8 +4,10 @@
 name: Tests
 
 on:
-  push:
+  push: 
+    branches: [ main ]
   pull_request:
+    types: [ opened, synchronize, reopened ]
 
 jobs:
 
