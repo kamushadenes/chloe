@@ -1,4 +1,4 @@
-FROM ubuntu:rolling
+FROM ubuntu:22.10
 
 # Install any additional packages you need.
 RUN apt-get update && apt-get install -y --no-install-recommends \
