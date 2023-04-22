@@ -1,4 +1,4 @@
-package llm
+package common
 
 import (
 	"github.com/sashabaranov/go-openai"

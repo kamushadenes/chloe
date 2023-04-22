@@ -1,5 +1,5 @@
-package chat_models
+package common
 
 import "github.com/kamushadenes/chloe/langchain/schema"
 
-type ChatModel schema.Model
+type LLMModel schema.Model

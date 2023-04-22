@@ -1,33 +1,35 @@
-package llm
+package common
 
-import "github.com/kamushadenes/chloe/utils"
+import (
+	"github.com/kamushadenes/chloe/cost"
+	"github.com/kamushadenes/chloe/utils"
+)
 
-type LLMGeneration struct {
-	Text         string
-	Index        int
-	FinishReason string
+type ChatGeneration struct {
+	Text    string
+	Message Message
 }
 
-type LLMUsage struct {
+type ChatUsage struct {
 	PromptTokens     int
 	CompletionTokens int
 	TotalTokens      int
 }
 
-type LLMCost struct {
+type ChatCost struct {
 	PromptCost     float64
 	CompletionCost float64
 	TotalCost      float64
 }
 
-type LLMResult struct {
-	Generations []LLMGeneration
-	Usage       LLMUsage
-	Cost        LLMCost
+type ChatResult struct {
+	Generations []ChatGeneration
+	Usage       ChatUsage
+	Cost        ChatCost
 }
 
-func (c *LLMResult) CalculateCosts(m *LLMModel) {
-	c.Cost = LLMCost{}
+func (c *ChatResult) CalculateCosts(m *ChatModel) {
+	c.Cost = ChatCost{}
 
 	if m.UsageCost != nil {
 		c.Cost.PromptCost = m.UsageCost.Price * float64(c.Usage.PromptTokens) / float64(m.UsageCost.UnitSize)
@@ -40,4 +42,6 @@ func (c *LLMResult) CalculateCosts(m *LLMModel) {
 	c.Cost.PromptCost = utils.RoundFloat(c.Cost.PromptCost, 6)
 	c.Cost.CompletionCost = utils.RoundFloat(c.Cost.CompletionCost, 6)
 	c.Cost.TotalCost = utils.RoundFloat(c.Cost.PromptCost+c.Cost.CompletionCost, 6)
+
+	cost.AddCategoryCost("completion", c.Cost.TotalCost)
 }

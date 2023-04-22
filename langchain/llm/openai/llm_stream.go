@@ -3,31 +3,34 @@ package openai
 import (
 	"context"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/langchain/llm"
+	"github.com/kamushadenes/chloe/langchain/llm/common"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"io"
 )
 
-func (c *LLMOpenAI) GenerateStream(w io.Writer, prompt ...string) (llm.LLMResult, error) {
+func (c *LLMOpenAI) GenerateStream(w io.Writer, prompt ...string) (common.LLMResult, error) {
 	return c.GenerateStreamWithContext(context.Background(), w, prompt...)
 }
 
-func (c *LLMOpenAI) GenerateStreamWithContext(ctx context.Context, w io.Writer, prompt ...string) (llm.LLMResult, error) {
+func (c *LLMOpenAI) GenerateStreamWithContext(ctx context.Context, w io.Writer, prompt ...string) (common.LLMResult, error) {
 	opts := NewLLMOptionsOpenAI().WithPrompt(prompt).WithModel(c.model.Name)
 
 	return c.GenerateStreamWithOptions(ctx, w, opts)
 }
 
-func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, opts llm.LLMOptions) (llm.LLMResult, error) {
+func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, opts common.LLMOptions) (common.LLMResult, error) {
+	logger := logging.GetLogger()
+
 	stream, err := c.client.CreateCompletionStream(ctx, opts.GetRequest())
 	if err != nil {
-		return llm.LLMResult{}, err
+		return common.LLMResult{}, err
 	}
 	defer stream.Close()
 
-	var res llm.LLMResult
-	res.Usage = llm.LLMUsage{}
-	res.Generations[0] = llm.LLMGeneration{}
+	var res common.LLMResult
+	res.Usage = common.LLMUsage{}
+	res.Generations[0] = common.LLMGeneration{}
 
 	msgs := opts.GetPrompt()
 	for k := range msgs {
@@ -41,6 +44,15 @@ func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, 
 				res.Generations[k].FinishReason = resp.Choices[k].FinishReason
 			}
 
+			res.CalculateCosts(c.model)
+
+			logger.Info().
+				Str("provider", "openai").
+				Str("model", c.model.Name).
+				Float64("cost", res.Cost.TotalCost).
+				Int("tokens", res.Usage.TotalTokens).
+				Msg("llm stream done")
+
 			return res, nil
 		}
 
@@ -50,7 +62,7 @@ func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, 
 
 		for k := range resp.Choices {
 			if len(res.Generations) <= k {
-				res.Generations = append(res.Generations, llm.LLMGeneration{})
+				res.Generations = append(res.Generations, common.LLMGeneration{})
 			}
 
 			res.Generations[k].Index = resp.Choices[k].Index

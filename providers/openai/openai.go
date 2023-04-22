@@ -2,19 +2,16 @@ package openai
 
 import (
 	"github.com/kamushadenes/chloe/config"
-	"github.com/sashabaranov/go-openai"
+	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/openai"
 )
 
 func init() {
 	resetClient()
 }
 
-var openAIClient *openai.Client
+var completionClient common.Chat
 
 func resetClient() {
-	if config.OpenAI.UseAzure {
-		openAIClient = openai.NewClientWithConfig(openai.DefaultAzureConfig(config.OpenAI.APIKey, config.OpenAI.AzureBaseURL, config.OpenAI.AzureEngine))
-	} else {
-		openAIClient = openai.NewClient(config.OpenAI.APIKey)
-	}
+	completionClient = openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
 }

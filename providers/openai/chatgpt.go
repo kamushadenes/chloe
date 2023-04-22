@@ -175,6 +175,8 @@ func Complete(r *structs.CompletionRequest, skipCoT ...bool) error {
 		}
 	}
 
+	completionClient.ChatStream(request.Writer, request.ToChatCompletionMessages())
+
 	req := newChatCompletionRequest(request)
 
 	logger.Info().Int("messagesInContext", len(req.Messages)).Msg("requesting completion")

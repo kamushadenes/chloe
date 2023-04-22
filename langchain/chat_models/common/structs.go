@@ -1,4 +1,4 @@
-package chat_models
+package common
 
 import (
 	"context"
