@@ -2,7 +2,7 @@ package structs
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 func (creq *GenerationRequest) GetID() string {

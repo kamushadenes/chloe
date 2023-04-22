@@ -3,8 +3,8 @@ package structs
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/resources"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/langchain/prompts"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"time"
@@ -104,7 +104,7 @@ func (creq *CompletionRequest) getSystemMessages() []openai.ChatCompletionMessag
 	args := creq.getArgs()
 
 	// Load bootstrap values
-	bootstrap, err := resources.GetPrompt("bootstrap", &resources.PromptArgs{
+	bootstrap, err := prompts.GetPrompt("bootstrap", &prompts.PromptArgs{
 		Args: args,
 		Mode: creq.Mode,
 	})
@@ -117,7 +117,7 @@ func (creq *CompletionRequest) getSystemMessages() []openai.ChatCompletionMessag
 	})
 
 	// Load system prompt
-	prompt, err := resources.GetPrompt(creq.Mode, &resources.PromptArgs{Args: args, Mode: creq.Mode})
+	prompt, err := prompts.GetPrompt(creq.Mode, &prompts.PromptArgs{Args: args, Mode: creq.Mode})
 	if err != nil {
 		panic(err)
 	}
@@ -127,7 +127,7 @@ func (creq *CompletionRequest) getSystemMessages() []openai.ChatCompletionMessag
 	})
 
 	// Feed few-shot examples, if any
-	examples, err := resources.GetExamples(prompt, &resources.PromptArgs{
+	examples, err := prompts.GetExamples(prompt, &prompts.PromptArgs{
 		Args: args,
 		Mode: creq.Mode,
 	})

@@ -8,7 +8,7 @@ import (
 )
 
 type ActionCmd struct {
-	Action string   `arg:"" help:"Action to perform" enum:"google,image,latex,math,news,scrape,transcribe,tts,wikipedia,youtube_summarizer"`
+	Action string   `arg:"" help:"Action to perform" enum:"openai,image,latex,math,news,scrape,transcribe,tts,wikipedia,youtube_summarizer"`
 	Params []string `arg:"" help:"Parameters for the action"`
 }
 

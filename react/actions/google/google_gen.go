@@ -5,13 +5,13 @@ package google
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 // NewGoogleAction creates a new GoogleAction with Params initialized
 func NewGoogleAction() structs.Action {
 	return &GoogleAction{
-		Name:   "google",
+		Name:   "openai",
 		Params: make(map[string]string),
 	}
 }

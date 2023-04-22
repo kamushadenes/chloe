@@ -6,6 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
+	"github.com/sashabaranov/go-openai"
 	"io"
 )
 
@@ -22,7 +23,7 @@ func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, mes
 func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opts common.ChatOptions) (common.ChatResult, error) {
 	logger := logging.GetLogger()
 
-	stream, err := c.client.CreateChatCompletionStream(ctx, opts.GetRequest())
+	stream, err := c.client.CreateChatCompletionStream(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
 	if err != nil {
 		return common.ChatResult{}, err
 	}

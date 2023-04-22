@@ -27,11 +27,11 @@ func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.Respons
 	source := config.React.NewsSource
 	if source == "newsapi" && config.React.NewsAPIToken == "" {
 		logger.Warn().Msg("NewsAPI token not set, falling back to Google Search")
-		source = "google"
+		source = "openai"
 	}
 
 	switch source {
-	case "google":
+	case "openai":
 		na := google.NewGoogleAction()
 		na.SetParam("query", a.Params["query"])
 		request.Message.NotifyAction(na.GetNotification())

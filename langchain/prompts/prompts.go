@@ -1,4 +1,4 @@
-package resources
+package prompts
 
 import (
 	"bytes"

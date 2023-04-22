@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/stretchr/testify/assert"
 	"testing"

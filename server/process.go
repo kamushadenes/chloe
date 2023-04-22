@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 )
 
 func ProcessMessage(ctx context.Context, msg *memory.Message) error {

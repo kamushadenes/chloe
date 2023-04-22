@@ -5,7 +5,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/resources"
+	"github.com/kamushadenes/chloe/langchain/prompts"
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/sashabaranov/go-openai"
 )
@@ -21,7 +21,7 @@ func init() {
 }
 
 func SimpleCompletionRequest(ctx context.Context, prompt string, message string) (openai.ChatCompletionResponse, error) {
-	prompt, err := resources.GetPrompt(prompt, &resources.PromptArgs{
+	prompt, err := prompts.GetPrompt(prompt, &prompts.PromptArgs{
 		Args: map[string]interface{}{},
 		Mode: prompt,
 	})

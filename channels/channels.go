@@ -1,7 +1,7 @@
 package channels
 
 import (
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 

@@ -5,7 +5,7 @@ package latex
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 // NewLatexAction creates a new LatexAction with Params initialized

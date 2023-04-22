@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	http2 "github.com/kamushadenes/chloe/interfaces/http"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/phayes/freeport"
 	"github.com/stretchr/testify/assert"
 	"io"

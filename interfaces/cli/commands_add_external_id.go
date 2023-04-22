@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 type AddExternalIDCmd struct {

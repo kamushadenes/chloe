@@ -27,7 +27,9 @@ func (c *ASROpenAI) Transcribe(audioFile string) (common.ASRResult, error) {
 }
 
 func (c *ASROpenAI) TranscribeWithContext(ctx context.Context, audioFile string) (common.ASRResult, error) {
-	opts := NewASROptionsOpenAI().WithAudioFile(audioFile).WithModel(c.model.Name)
+	opts := NewASROptionsOpenAI().
+		WithAudioFile(audioFile).
+		WithModel(c.model.Name)
 
 	return c.TranscribeWithOptions(ctx, opts)
 }

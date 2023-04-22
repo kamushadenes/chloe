@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/go-chi/render"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"net/http"
 	"strings"
 )

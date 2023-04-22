@@ -2,8 +2,8 @@ package google
 
 import (
 	"bytes"
-	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
+	texttospeech "cloud.openai.com/go/texttospeech/apiv1"
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
@@ -14,7 +14,7 @@ import (
 )
 
 func TTS(request *structs.TTSRequest) error {
-	logger := logging.GetLogger().With().Str("provider", "google").Str("action", "tts").Logger()
+	logger := logging.GetLogger().With().Str("provider", "openai").Str("action", "tts").Logger()
 
 	logger.Info().Msg("converting text to speech")
 

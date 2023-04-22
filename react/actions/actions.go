@@ -27,7 +27,7 @@ import (
 var actions = map[string]func() structs.Action{
 	"mock": mock.NewMockAction,
 
-	"google": google.NewGoogleAction,
+	"openai": google.NewGoogleAction,
 	"search": google.NewGoogleAction,
 
 	"news":            news.NewNewsAction,

@@ -15,18 +15,18 @@ func NewTTSOptionsGoogle() common.TTSOptions {
 	return &TTSOptionsGoogle{req: &texttospeechpb.SynthesizeSpeechRequest{}}
 }
 
-func (c *TTSOptionsGoogle) GetRequest() interface{} {
+func (c TTSOptionsGoogle) GetRequest() interface{} {
 	return c.req
 }
 
-func (c *TTSOptionsGoogle) WithText(text string) common.TTSOptions {
+func (c TTSOptionsGoogle) WithText(text string) common.TTSOptions {
 	c.req.Input = &texttospeechpb.SynthesisInput{
 		InputSource: &texttospeechpb.SynthesisInput_Text{Text: text},
 	}
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithVoice(voice string) common.TTSOptions {
+func (c TTSOptionsGoogle) WithVoice(voice string) common.TTSOptions {
 	if c.req.Voice == nil {
 		c.req.Voice = &texttospeechpb.VoiceSelectionParams{}
 	}
@@ -36,7 +36,7 @@ func (c *TTSOptionsGoogle) WithVoice(voice string) common.TTSOptions {
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithAudioEncoding(encoding string) common.TTSOptions {
+func (c TTSOptionsGoogle) WithAudioEncoding(encoding string) common.TTSOptions {
 	if c.req.AudioConfig == nil {
 		c.req.AudioConfig = &texttospeechpb.AudioConfig{}
 	}
@@ -46,7 +46,7 @@ func (c *TTSOptionsGoogle) WithAudioEncoding(encoding string) common.TTSOptions 
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithSpeakingRate(rate float64) common.TTSOptions {
+func (c TTSOptionsGoogle) WithSpeakingRate(rate float64) common.TTSOptions {
 	if c.req.AudioConfig == nil {
 		c.req.AudioConfig = &texttospeechpb.AudioConfig{}
 	}
@@ -56,7 +56,7 @@ func (c *TTSOptionsGoogle) WithSpeakingRate(rate float64) common.TTSOptions {
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithPitch(pitch float64) common.TTSOptions {
+func (c TTSOptionsGoogle) WithPitch(pitch float64) common.TTSOptions {
 	if c.req.AudioConfig == nil {
 		c.req.AudioConfig = &texttospeechpb.AudioConfig{}
 	}
@@ -66,7 +66,7 @@ func (c *TTSOptionsGoogle) WithPitch(pitch float64) common.TTSOptions {
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithVolumeGain(gain float64) common.TTSOptions {
+func (c TTSOptionsGoogle) WithVolumeGain(gain float64) common.TTSOptions {
 	if c.req.AudioConfig == nil {
 		c.req.AudioConfig = &texttospeechpb.AudioConfig{}
 	}
@@ -76,7 +76,7 @@ func (c *TTSOptionsGoogle) WithVolumeGain(gain float64) common.TTSOptions {
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithLanguage(language string) common.TTSOptions {
+func (c TTSOptionsGoogle) WithLanguage(language string) common.TTSOptions {
 	if c.req.Voice == nil {
 		c.req.Voice = &texttospeechpb.VoiceSelectionParams{}
 	}
@@ -86,11 +86,11 @@ func (c *TTSOptionsGoogle) WithLanguage(language string) common.TTSOptions {
 	return c
 }
 
-func (c *TTSOptionsGoogle) WithTimeout(timeout time.Duration) common.TTSOptions {
+func (c TTSOptionsGoogle) WithTimeout(timeout time.Duration) common.TTSOptions {
 	c.timeout = timeout
 	return c
 }
 
-func (c *TTSOptionsGoogle) GetTimeout() time.Duration {
+func (c TTSOptionsGoogle) GetTimeout() time.Duration {
 	return c.timeout
 }

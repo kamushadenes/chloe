@@ -10,6 +10,7 @@ const (
 
 	ContextUnitToken ContextUnit = "token"
 	ContextUnitByte  ContextUnit = "byte"
+	ContextUnitChar  ContextUnit = "char"
 )
 
 type CostObject struct {

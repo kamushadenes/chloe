@@ -5,7 +5,7 @@ package file
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 // NewDeleteFileAction creates a new DeleteFileAction with Params initialized

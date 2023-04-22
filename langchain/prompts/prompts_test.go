@@ -1,4 +1,4 @@
-package resources
+package prompts
 
 import (
 	"github.com/kamushadenes/chloe/utils"

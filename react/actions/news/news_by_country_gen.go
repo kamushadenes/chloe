@@ -5,7 +5,7 @@ package news
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
 // NewNewsByCountryAction creates a new NewsByCountryAction with Params initialized

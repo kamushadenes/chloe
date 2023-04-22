@@ -11,7 +11,7 @@ import (
 func TestGoogleAction(t *testing.T) {
 	req := structs.NewActionRequest()
 	req.Context = context.Background()
-	req.Action = "google"
+	req.Action = "openai"
 	req.Params["query"] = "Barack Obama"
 
 	act := NewGoogleAction()

@@ -1,6 +1,6 @@
 package cli
 
-import "github.com/kamushadenes/chloe/memory"
+import "github.com/kamushadenes/chloe/langchain/memory"
 
 type DeleteUserCmd struct {
 	UserID uint `short:"u" long:"user-id" description:"User ID"`

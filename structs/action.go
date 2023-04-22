@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/kamushadenes/chloe/memory"
+import "github.com/kamushadenes/chloe/langchain/memory"
 
 type Action interface {
 	// GetName Get the name of the action

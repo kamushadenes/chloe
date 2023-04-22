@@ -48,8 +48,8 @@ var actionsToGenerate = []*generatedAction{
 		RequiredParams: []string{"path", "content"},
 	},
 	{
-		Name:               "google",
-		Package:            "google",
+		Name:               "openai",
+		Package:            "openai",
 		RequiredParams:     []string{"query"},
 		SkipRunPostActions: true,
 	},
@@ -173,7 +173,7 @@ package {{ .Action.Package }}
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
-	{{ if not .Action.SkipSetMessage -}}"github.com/kamushadenes/chloe/memory"{{- end }}
+	{{ if not .Action.SkipSetMessage -}}"github.com/kamushadenes/chloe/langchain/memory"{{- end }}
 	"github.com/kamushadenes/chloe/structs"
 )
 

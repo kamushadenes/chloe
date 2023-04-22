@@ -85,7 +85,7 @@ func resolveSpecialUrl(url string) (string, error) {
 	}
 
 	// Handle special cases
-	if strings.HasSuffix(u.Hostname(), "news.google.com") && strings.HasPrefix(u.Path, "/rss/articles") {
+	if strings.HasSuffix(u.Hostname(), "news.openai.com") && strings.HasPrefix(u.Path, "/rss/articles") {
 		fields := strings.Split(u.Path, "/")
 		encodedUrl := fields[len(fields)-1]
 		decodedUrl, err := base64.StdEncoding.DecodeString(encodedUrl)

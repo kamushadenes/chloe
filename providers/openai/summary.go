@@ -5,9 +5,9 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/langchain/prompts"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/resources"
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/sashabaranov/go-openai"
@@ -16,14 +16,14 @@ import (
 // getSummarizationPrompt retrieves a summarization prompt for the given message.
 // Returns an error if there's an issue during the process.
 func getSummarizationPrompt(msg *memory.Message) (string, error) {
-	promptSize, err := resources.GetPromptSize("summarize")
+	promptSize, err := prompts.GetPromptSize("summarize")
 	if err != nil {
 		return "", err
 	}
 
 	maxTokens := config.OpenAI.GetModel(config.Summarization).GetContextSize()
 
-	return resources.GetPrompt("summarize", &resources.PromptArgs{
+	return prompts.GetPrompt("summarize", &prompts.PromptArgs{
 		Args: map[string]interface{}{
 			"text": utils.Truncate(msg.Content, maxTokens-promptSize),
 		},

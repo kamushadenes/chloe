@@ -3,7 +3,7 @@ package slack
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"strings"
