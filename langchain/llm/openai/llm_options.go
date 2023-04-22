@@ -26,7 +26,7 @@ func (c *LLMOptionsOpenAI) GetPrompt() []string {
 	return nil
 }
 
-func (c *LLMOptionsOpenAI) GetRequest() openai.CompletionRequest {
+func (c *LLMOptionsOpenAI) GetRequest() interface{} {
 	return c.req
 }
 

@@ -1,12 +1,11 @@
 package common
 
 import (
-	"github.com/sashabaranov/go-openai"
 	"time"
 )
 
 type LLMOptions interface {
-	GetRequest() openai.CompletionRequest
+	GetRequest() interface{}
 	WithPrompt(any) LLMOptions
 	WithModel(model string) LLMOptions
 	WithMaxTokens(maxTokens int) LLMOptions

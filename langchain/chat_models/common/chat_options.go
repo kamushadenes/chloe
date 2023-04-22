@@ -1,12 +1,11 @@
 package common
 
 import (
-	"github.com/sashabaranov/go-openai"
 	"time"
 )
 
 type ChatOptions interface {
-	GetRequest() openai.ChatCompletionRequest
+	GetRequest() interface{}
 	WithMessages(messages []Message) ChatOptions
 	WithModel(model string) ChatOptions
 	WithMaxTokens(maxTokens int) ChatOptions

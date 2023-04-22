@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/sashabaranov/go-openai"
@@ -25,7 +26,10 @@ func (c *ChatOpenAI) Chat(messages ...common.Message) (common.ChatResult, error)
 }
 
 func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...common.Message) (common.ChatResult, error) {
-	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.model.Name)
+	opts := NewChatOptionsOpenAI().
+		WithMessages(messages).
+		WithModel(c.model.Name).
+		WithTimeout(config.Timeouts.Completion)
 
 	return c.ChatWithOptions(ctx, opts)
 }
@@ -39,7 +43,7 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 		defer cancel()
 	}
 
-	resp, err := c.client.CreateChatCompletion(ctx, opts.GetRequest())
+	resp, err := c.client.CreateChatCompletion(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
 	if err != nil {
 		return common.ChatResult{}, err
 	}

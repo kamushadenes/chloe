@@ -29,7 +29,7 @@ func (c *ChatOptionsOpenAI) GetMessages() []common.Message {
 	return msgs
 }
 
-func (c *ChatOptionsOpenAI) GetRequest() openai.ChatCompletionRequest {
+func (c *ChatOptionsOpenAI) GetRequest() interface{} {
 	return c.req
 }
 

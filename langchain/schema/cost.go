@@ -1,11 +1,15 @@
 package schema
 
 type CostUnit string
+type ContextUnit string
 
 const (
-	Token  CostUnit = "token"
-	Image  CostUnit = "image"
-	Minute CostUnit = "minute"
+	CostUnitToken  CostUnit = "token"
+	CostUnitImage  CostUnit = "image"
+	CostUnitMinute CostUnit = "minute"
+
+	ContextUnitToken ContextUnit = "token"
+	ContextUnitByte  ContextUnit = "byte"
 )
 
 type CostObject struct {

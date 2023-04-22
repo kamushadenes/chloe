@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/llm/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/sashabaranov/go-openai"
@@ -25,7 +26,10 @@ func (c *LLMOpenAI) Generate(prompt ...string) (common.LLMResult, error) {
 }
 
 func (c *LLMOpenAI) GenerateWithContext(ctx context.Context, prompt ...string) (common.LLMResult, error) {
-	opts := NewLLMOptionsOpenAI().WithPrompt(prompt).WithModel(c.model.Name)
+	opts := NewLLMOptionsOpenAI().
+		WithPrompt(prompt).
+		WithModel(c.model.Name).
+		WithTimeout(config.Timeouts.Completion)
 
 	return c.GenerateWithOptions(ctx, opts)
 }
@@ -39,7 +43,7 @@ func (c *LLMOpenAI) GenerateWithOptions(ctx context.Context, opts common.LLMOpti
 		defer cancel()
 	}
 
-	resp, err := c.client.CreateCompletion(ctx, opts.GetRequest())
+	resp, err := c.client.CreateCompletion(ctx, opts.GetRequest().(openai.CompletionRequest))
 	if err != nil {
 		return common.LLMResult{}, err
 	}
