@@ -6,8 +6,15 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
+	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/openai"
+	common2 "github.com/kamushadenes/chloe/langchain/diffusion_models/common"
+	openai2 "github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
 	"github.com/kamushadenes/chloe/langchain/memory"
+	common3 "github.com/kamushadenes/chloe/langchain/tts/common"
+	"github.com/kamushadenes/chloe/langchain/tts/google"
 	"github.com/kamushadenes/chloe/structs"
 	"net/http"
 )
@@ -62,33 +69,14 @@ func complete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request := structs.NewCompletionRequest()
-	request.Message = msg
-	request.ID = msg.ExternalID
-	request.Context = ctx
+	writer := NewHTTPResponseWriteCloser(w)
 
-	if request.Mode == "" {
-		request.Mode = request.GetMessage().User.Mode
-	}
+	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
 
-	request.Args = params.Args
-
-	request.Writer = NewHTTPResponseWriteCloser(w)
-
-	go func() {
-		if err := channels.RunCompletion(request); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-request.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(params.Content))
+	if err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 }
 
@@ -115,29 +103,17 @@ func generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := structs.NewActionRequest()
-	req.ID = msg.ExternalID
-	req.Context = ctx
-	req.Action = "generate"
-	req.Params["prompt"] = params.Prompt
-	req.Message = msg
-	req.Writer = NewHTTPResponseWriteCloser(w)
+	dif := openai2.NewDiffusionOpenAI(config.OpenAI.APIKey)
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-req.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	res, err := dif.GenerateWithContext(ctx, common2.DiffusionMessage{Prompt: params.Prompt})
+	if err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
+
+	writer := NewHTTPResponseWriteCloser(w)
+
+	_, _ = writer.Write(res.Images[0])
 }
 
 func tts(w http.ResponseWriter, r *http.Request) {
@@ -163,29 +139,17 @@ func tts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := structs.NewActionRequest()
-	req.ID = msg.ExternalID
-	req.Context = ctx
-	req.Action = "tts"
-	req.Params["text"] = params.Content
-	req.Message = msg
-	req.Writer = NewHTTPResponseWriteCloser(w)
+	t := google.NewTTSGoogle()
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-req.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	res, err := t.TTS(common3.TTSMessage{Text: params.Content})
+	if err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
+
+	writer := NewHTTPResponseWriteCloser(w)
+
+	_, _ = writer.Write(res.Audio)
 }
 
 func forget(w http.ResponseWriter, r *http.Request) {

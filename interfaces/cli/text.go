@@ -2,14 +2,15 @@ package cli
 
 import (
 	"context"
-	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/colors"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
+	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	openai2 "github.com/kamushadenes/chloe/langchain/chat_models/openai"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/structs"
 	"time"
 )
@@ -38,48 +39,13 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 		return err
 	}
 
-	req := structs.NewCompletionRequest()
-	req.Context = ctx
-	req.Writer = writer
-	req.SkipClose = true
-	req.StartChannel = make(chan bool)
-	req.ContinueChannel = make(chan bool)
-	req.ErrorChannel = make(chan error)
-	req.Mode = "default"
-	req.Message = msg
+	chat := openai2.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
 
-	go func() {
-		for {
-			select {
-			case <-msg.Source.CLI.PauseSpinnerCh:
-				if flags.InteractiveCLI {
-					s.Stop()
-				}
-			case <-msg.Source.CLI.ResumeSpinnerCh:
-				if flags.InteractiveCLI {
-					s.Start()
-				}
-			case <-ctx.Done():
-				return
-			case <-req.StartChannel:
-				if flags.InteractiveCLI {
-					s.Stop()
-					fmt.Println()
-					fmt.Print(s.Prefix)
-				}
-				req.ContinueChannel <- true
-				return
-			case err := <-req.ErrorChannel:
-				if flags.InteractiveCLI {
-					s.Stop()
-					fmt.Println()
-					fmt.Print(s.Prefix)
-				}
-				fmt.Println(colors.BoldRed(err.Error()))
-				return
-			}
-		}
-	}()
+	if flags.InteractiveCLI {
+		s.Stop()
+	}
 
-	return openai.Complete(req)
+	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(text))
+
+	return err
 }

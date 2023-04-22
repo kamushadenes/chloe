@@ -2,36 +2,29 @@ package discord
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/langchain/tts/common"
+	"github.com/kamushadenes/chloe/langchain/tts/google"
 	"github.com/kamushadenes/chloe/structs"
 )
 
-func transcribe(ctx context.Context, msg *memory.Message) error {
-	for _, path := range msg.GetAudios() {
+func tts(ctx context.Context, msg *memory.Message) error {
+	t := google.NewTTSGoogle()
 
-		req := structs.NewActionRequest()
-		req.Action = "transcribe"
-		req.Params["path"] = path
-		req.Message = msg
-		req.Context = ctx
-		req.Writer = NewDiscordWriter(ctx, req, true)
-
-		if err := channels.RunAction(req); err != nil {
-			return err
-		}
+	res, err := t.TTSWithContext(ctx, common.TTSMessage{Text: promptFromMessage(msg)})
+	if err != nil {
+		return err
 	}
 
-	return nil
-}
-
-func tts(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
-	req.Action = "tts"
-	req.Params["text"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Context = ctx
 	req.Writer = NewDiscordWriter(ctx, req, false)
 
-	return channels.RunAction(req)
+	_, err = req.Writer.Write(res.Audio)
+	if err != nil {
+		return err
+	}
+
+	return req.Writer.Close()
 }

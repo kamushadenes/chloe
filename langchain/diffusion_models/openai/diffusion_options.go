@@ -13,7 +13,9 @@ type DiffusionOptionsOpenAI struct {
 }
 
 func NewDiffusionOptionsOpenAI() common.DiffusionOptions {
-	return &DiffusionOptionsOpenAI{req: openai.ImageRequest{}}
+	opts := DiffusionOptionsOpenAI{req: openai.ImageRequest{}}
+
+	return opts.WithCount(1).WithModel(DallE512X512)
 }
 
 func (c DiffusionOptionsOpenAI) GetRequest() interface{} {

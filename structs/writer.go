@@ -1,6 +1,8 @@
 package structs
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type ChloeWriter interface {
 	WriteObject(*ResponseObject) error

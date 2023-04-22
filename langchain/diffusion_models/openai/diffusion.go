@@ -24,9 +24,7 @@ func (d *DiffusionOpenAI) Generate(message common.DiffusionMessage) (common.Diff
 
 func (d *DiffusionOpenAI) GenerateWithContext(ctx context.Context, message common.DiffusionMessage) (common.DiffusionResult, error) {
 	opts := NewDiffusionOptionsOpenAI().
-		WithPrompt(message.Prompt).
-		WithModel(DallE512X512).
-		WithCount(1)
+		WithPrompt(message.Prompt)
 
 	return d.GenerateWithOptions(ctx, opts)
 }

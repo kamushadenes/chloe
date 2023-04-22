@@ -2,8 +2,8 @@ package google
 
 import (
 	"bytes"
+	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
-	texttospeech "cloud.openai.com/go/texttospeech/apiv1"
 	"context"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"

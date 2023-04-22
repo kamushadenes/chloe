@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"strings"
@@ -28,13 +29,32 @@ func aiAction(ctx context.Context, msg *memory.Message) error {
 func aiGenerate(ctx context.Context, msg *memory.Message) error {
 	req := structs.NewActionRequest()
 	req.Context = ctx
-	req.Action = "generate"
-	req.Params["prompt"] = promptFromMessage(msg)
 	req.Message = msg
 	req.Writer = NewTelegramWriter(ctx, req, false)
 	req.Count = config.Telegram.ImageCount
 
-	return channels.RunAction(req)
+	dif := openai.NewDiffusionOpenAI(config.OpenAI.APIKey)
+
+	opts := openai.NewDiffusionOptionsOpenAI()
+
+	res, err := dif.GenerateWithOptions(ctx, opts.
+		WithPrompt(promptFromMessage(msg)).
+		WithCount(config.Telegram.ImageCount))
+	if err != nil {
+		return err
+	}
+
+	for _, v := range res.Images {
+		obj := structs.ResponseObject{}
+
+		_, _ = obj.Write(v)
+		err = req.Writer.WriteObject(&obj)
+		if err != nil {
+			return err
+		}
+	}
+
+	return req.Writer.Close()
 }
 
 func aiImage(ctx context.Context, msg *memory.Message) error {
