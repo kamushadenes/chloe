@@ -71,7 +71,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	writer := NewHTTPResponseWriteCloser(w)
 
-	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
+	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
 
 	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(params.Content))
 	if err != nil {

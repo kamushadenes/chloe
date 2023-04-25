@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/sashabaranov/go-openai"
+	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"strings"
 	"text/template"
 )
@@ -19,11 +19,21 @@ type PromptArgs struct {
 	Mode string                 `json:"mode"`
 }
 
-func GetPrompt(prompt string, args *PromptArgs) (string, error) {
+type BootstrapArgs struct {
+	Date          string
+	Time          string
+	Interface     string
+	UserID        uint
+	UserFirstName string
+	UserLastName  string
+}
+
+func GetPrompt(prompt string, args interface{}) (string, error) {
 	tmpl, err := template.ParseFS(
 		prompts,
 		fmt.Sprintf("prompts/chatgpt/%s.prompt", prompt),
 	)
+
 	if err != nil {
 		return "", errors.Wrap(errors.ErrPromptError, err)
 	}
@@ -37,7 +47,7 @@ func GetPrompt(prompt string, args *PromptArgs) (string, error) {
 	return buf.String(), nil
 }
 
-func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessage, error) {
+func GetExamples(prompt string, args interface{}) ([]common.Message, error) {
 	tmpl, err := template.ParseFS(
 		prompts,
 		fmt.Sprintf("prompts/chatgpt/%s.prompt.examples", prompt),
@@ -52,7 +62,7 @@ func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessag
 		return nil, errors.Wrap(errors.ErrPromptError, err)
 	}
 
-	var examples []openai.ChatCompletionMessage
+	var examples []common.Message
 
 	for _, line := range strings.Split(buf.String(), "\n") {
 		line = strings.TrimSpace(line)
@@ -65,9 +75,9 @@ func GetExamples(prompt string, args *PromptArgs) ([]openai.ChatCompletionMessag
 			name := fields[0]
 			example := strings.Join(fields[1:], " ")
 
-			examples = append(examples, openai.ChatCompletionMessage{
+			examples = append(examples, common.Message{
 				Content: example,
-				Role:    "system",
+				Role:    common.System,
 				Name:    name,
 			})
 		}

@@ -1,9 +1,7 @@
-We introduce Extreme TLDR generation, a new form of extreme summarization for paragraphs. TLDR generation involves high source compression, removes stop words and summarizes the paragraph whilst retaining meaning. The result is the shortest possible summary that retains all of the original meaning and context of the paragraph.
+Write a concise summary of the following:
 
-Example
 
-Paragraph:
+"{{ .Text }}"
 
-{{.Args.text}}
 
-Extreme TLDR:
+CONCISE SUMMARY:

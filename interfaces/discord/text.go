@@ -17,7 +17,7 @@ func complete(ctx context.Context, msg *memory.Message) error {
 	request.Context = ctx
 	request.Writer = NewDiscordWriter(ctx, request, false)
 
-	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
+	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
 
 	if config.Discord.StreamMessages {
 		_, err := chat.ChatStreamWithContext(ctx, request.Writer, common.UserMessage(promptFromMessage(msg)))

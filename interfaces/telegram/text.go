@@ -18,7 +18,7 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 	request.Context = ctx
 	request.Writer = NewTelegramWriter(ctx, request, false)
 
-	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
+	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
 
 	if config.Slack.StreamMessages {
 		_, err := chat.ChatStreamWithContext(ctx, request.Writer, common.UserMessage(promptFromMessage(msg)))

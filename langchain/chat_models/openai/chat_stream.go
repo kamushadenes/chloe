@@ -2,8 +2,10 @@ package openai
 
 import (
 	"context"
+	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
@@ -23,6 +25,16 @@ func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, mes
 func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opts common.ChatOptions) (common.ChatResult, error) {
 	logger := logging.GetLogger()
 
+	msgs, err := c.LoadUserMessages(ctx)
+	if err != nil {
+		return common.ChatResult{}, err
+	}
+
+	msgs = append(msgs, opts.GetMessages()...)
+	msgs = c.ReduceTokens(opts.GetSystemMessages(), msgs)
+
+	opts = opts.WithMessages(msgs)
+
 	stream, err := c.client.CreateChatCompletionStream(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
 	if err != nil {
 		return common.ChatResult{}, err
@@ -33,7 +45,6 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 	res.Usage = common.ChatUsage{}
 	res.Generations[0] = common.ChatGeneration{}
 
-	msgs := opts.GetMessages()
 	for k := range msgs {
 		res.Usage.PromptTokens += tokenizer.CountTokens(c.model.Name, msgs[k].Content)
 	}
@@ -42,6 +53,15 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 		resp, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
 			for k := range res.Generations {
+				m := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
+				m.Context = ctx
+				m.Role = string(common.Assistant)
+				m.User = c.user
+				m.SetContent(res.Generations[k].Text)
+				if err := m.Save(ctx); err != nil {
+					return common.ChatResult{}, err
+				}
+
 				res.Generations[k].Message = common.AssistantMessage(res.Generations[k].Text)
 			}
 

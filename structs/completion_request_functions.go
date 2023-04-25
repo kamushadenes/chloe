@@ -126,14 +126,16 @@ func (creq *CompletionRequest) getSystemMessages() []openai.ChatCompletionMessag
 		Content: prompt,
 	})
 
-	// Feed few-shot examples, if any
-	examples, err := prompts.GetExamples(prompt, &prompts.PromptArgs{
-		Args: args,
-		Mode: creq.Mode,
-	})
-	if err == nil {
-		messages = append(messages, examples...)
-	}
+	/*
+		// Feed few-shot examples, if any
+		examples, err := prompts.GetExamples(prompt, &prompts.PromptArgs{
+			Args: args,
+			Mode: creq.Mode,
+		})
+		if err == nil {
+			messages = append(messages, examples...)
+		}
+	*/
 
 	return messages
 }

@@ -18,7 +18,11 @@ type ChatOptions interface {
 	WithFrequencyPenalty(frequencyPenalty float32) ChatOptions
 	WithLogitBias(logitBias map[string]int) ChatOptions
 	WithUser(user string) ChatOptions
+	GetSystemMessages() []Message
 	GetMessages() []Message
 	WithTimeout(time.Duration) ChatOptions
 	GetTimeout() time.Duration
+	WithSystemPrompt(promptName string) ChatOptions
+	WithBootstrap(args interface{}) ChatOptions
+	WithExamples(promptName string) ChatOptions
 }

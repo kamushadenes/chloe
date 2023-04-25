@@ -1,6 +1,6 @@
-Current Date: {{.Args.Date}}
-Current Time: {{.Args.Time}}
-User Interface: {{.Args.Interface}}
-User ID: {{.Args.User.ID}}
-User First Name: {{.Args.User.FirstName}}
-User Last Name: {{.Args.User.LastName}}
+Current Date: {{ .Date }}
+Current Time: {{ .Time }}
+User Interface: {{ .Interface }}
+User ID: {{ .UserID }}
+User First Name: {{ .UserFirstName }}
+User Last Name: {{ .UserLastName }}

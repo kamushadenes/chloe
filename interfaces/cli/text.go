@@ -39,7 +39,7 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 		return err
 	}
 
-	chat := openai2.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey)
+	chat := openai2.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
 
 	if flags.InteractiveCLI {
 		s.Stop()

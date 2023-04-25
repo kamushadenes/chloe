@@ -8,8 +8,6 @@ import (
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/providers/google"
-	"github.com/kamushadenes/chloe/providers/openai"
 	"github.com/kamushadenes/chloe/react"
 	"github.com/kamushadenes/chloe/react/actions"
 	"github.com/kamushadenes/chloe/structs"
@@ -59,72 +57,74 @@ func MonitorRequests(ctx context.Context) {
 					}
 				}
 			}()
-		case req := <-channels.CompletionRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := openai.Complete(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to complete text")
-				}
-			}()
-		case req := <-channels.TranscribeRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := openai.Transcribe(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to transcribe audio")
-				}
-			}()
-		case req := <-channels.GenerationRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := openai.Generate(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to generate image")
-				}
-			}()
-		case req := <-channels.EditRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := openai.Edits(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to edit image")
-				}
-			}()
-		case req := <-channels.VariationRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := openai.Variations(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to create image variations")
-				}
-			}()
-		case req := <-channels.TTSRequestsCh:
-			logger := structs.LoggerFromRequest(req)
-			go func() {
-				err := google.TTS(req)
-				if req.ErrorChannel != nil {
-					req.ErrorChannel <- err
-				}
-				if err != nil {
-					logger.Err(err).Msg("failed to generate audio")
-				}
-			}()
+			/*
+				case req := <-channels.CompletionRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := openai.Complete(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to complete text")
+						}
+					}()
+				case req := <-channels.TranscribeRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := openai.Transcribe(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to transcribe audio")
+						}
+					}()
+				case req := <-channels.GenerationRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := openai.Generate(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to generate image")
+						}
+					}()
+				case req := <-channels.EditRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := openai.Edits(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to edit image")
+						}
+					}()
+				case req := <-channels.VariationRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := openai.Variations(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to create image variations")
+						}
+					}()
+				case req := <-channels.TTSRequestsCh:
+					logger := structs.LoggerFromRequest(req)
+					go func() {
+						err := google.TTS(req)
+						if req.ErrorChannel != nil {
+							req.ErrorChannel <- err
+						}
+						if err != nil {
+							logger.Err(err).Msg("failed to generate audio")
+						}
+					}()
+			*/
 		}
 	}
 }
