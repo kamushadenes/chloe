@@ -11,17 +11,18 @@ import (
 )
 
 type TelegramWriter struct {
-	Context    context.Context
-	Prompt     string
-	Bot        *tgbotapi.BotAPI
-	ChatID     int64
-	Type       string
-	ReplyID    int
-	Request    structs.ActionOrCompletionRequest
-	objs       []*structs.ResponseObject
-	closedBufs int
-	externalID int
-	lastUpdate *time.Time
+	Context          context.Context
+	Prompt           string
+	Bot              *tgbotapi.BotAPI
+	ChatID           int64
+	Type             string
+	ReplyID          int
+	Request          structs.ActionOrCompletionRequest
+	objs             []*structs.ResponseObject
+	closedBufs       int
+	externalID       int
+	lastUpdate       *time.Time
+	preWriteCallback func()
 }
 
 func NewTelegramWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
@@ -91,6 +92,10 @@ func (w *TelegramWriter) Close() error {
 }
 
 func (w *TelegramWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	if len(w.objs) == 0 {
 		w.objs = append(w.objs, &structs.ResponseObject{
 			Type:   structs.Text,
@@ -115,3 +120,6 @@ func (w *TelegramWriter) SetPrompt(prompt string) {
 
 func (w *TelegramWriter) WriteHeader(statusCode int) {}
 func (w *TelegramWriter) Header() http.Header        { return http.Header{} }
+func (w *TelegramWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}

@@ -8,8 +8,9 @@ import (
 )
 
 type FileWriter struct {
-	Path string
-	f    io.WriteCloser
+	Path             string
+	f                io.WriteCloser
+	preWriteCallback func()
 }
 
 func NewFileWriter(path string) *FileWriter {
@@ -28,6 +29,10 @@ func NewFileWriter(path string) *FileWriter {
 }
 
 func (w *FileWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	return w.f.Write(p)
 }
 
@@ -45,3 +50,6 @@ func (w *FileWriter) Close() error {
 
 func (w *FileWriter) WriteHeader(statusCode int) {}
 func (w *FileWriter) Header() http.Header        { return http.Header{} }
+func (w *FileWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}

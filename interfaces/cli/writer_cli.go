@@ -8,7 +8,8 @@ import (
 )
 
 type CLIWriter struct {
-	w *bufio.Writer
+	w        *bufio.Writer
+	callback func()
 }
 
 func NewCLIWriter() *CLIWriter {
@@ -18,6 +19,9 @@ func NewCLIWriter() *CLIWriter {
 }
 
 func (w *CLIWriter) Write(p []byte) (n int, err error) {
+	if w.callback != nil {
+		w.callback()
+	}
 	return w.w.Write(p)
 }
 
@@ -37,3 +41,6 @@ func (w *CLIWriter) Close() error {
 
 func (w *CLIWriter) WriteHeader(statusCode int) {}
 func (w *CLIWriter) Header() http.Header        { return http.Header{} }
+func (w *CLIWriter) SetPreWriteCallback(fn func()) {
+	w.callback = fn
+}

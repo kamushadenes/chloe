@@ -8,8 +8,8 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
+	"github.com/kamushadenes/chloe/langchain/chat_models"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
-	"github.com/kamushadenes/chloe/langchain/chat_models/openai"
 	common2 "github.com/kamushadenes/chloe/langchain/diffusion_models/common"
 	openai2 "github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
 	"github.com/kamushadenes/chloe/langchain/memory"
@@ -71,7 +71,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	writer := NewHTTPResponseWriteCloser(w)
 
-	chat := openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
+	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(params.Content))
 	if err != nil {

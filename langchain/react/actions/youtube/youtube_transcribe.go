@@ -5,7 +5,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	errors2 "github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/react/actions/transcribe"
+	"github.com/kamushadenes/chloe/langchain/react/actions/transcribe"
 	"github.com/kamushadenes/chloe/structs"
 	"os"
 	"os/exec"

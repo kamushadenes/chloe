@@ -11,4 +11,5 @@ type ChloeWriter interface {
 	Flush()
 	Header() http.Header
 	WriteHeader(int)
+	SetPreWriteCallback(func())
 }

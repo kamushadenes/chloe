@@ -2,14 +2,16 @@ package openai
 
 import (
 	"context"
+	"io"
+
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
-	"io"
 )
 
 func (c *ChatOpenAI) ChatStream(w io.Writer, messages ...common.Message) (common.ChatResult, error) {
@@ -43,7 +45,6 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 
 	var res common.ChatResult
 	res.Usage = common.ChatUsage{}
-	res.Generations[0] = common.ChatGeneration{}
 
 	for k := range msgs {
 		res.Usage.PromptTokens += tokenizer.CountTokens(c.model.Name, msgs[k].Content)
@@ -92,6 +93,8 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 
 			if _, err := w.Write([]byte(resp.Choices[k].Delta.Content)); err != nil {
 				return res, err
+			} else {
+				w.(structs.ChloeWriter).Flush()
 			}
 		}
 	}

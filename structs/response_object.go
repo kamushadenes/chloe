@@ -15,13 +15,14 @@ const (
 )
 
 type ResponseObject struct {
-	Name           string             `json:"name"`
-	Data           []byte             `json:"payload"`
-	Type           ResponseObjectType `json:"type"`
-	Result         bool               `json:"result"`
-	readIdx        int64
-	HTTPHeader     http.Header
-	HTTPStatusCode int
+	Name             string             `json:"name"`
+	Data             []byte             `json:"payload"`
+	Type             ResponseObjectType `json:"type"`
+	Result           bool               `json:"result"`
+	readIdx          int64
+	HTTPHeader       http.Header
+	HTTPStatusCode   int
+	preWriteCallback func()
 }
 
 func NewResponseObject(objectType ResponseObjectType) *ResponseObject {
@@ -46,6 +47,9 @@ func (ro *ResponseObject) WriteObject(object *ResponseObject) error {
 }
 
 func (ro *ResponseObject) Write(p []byte) (int, error) {
+	if ro.preWriteCallback != nil {
+		ro.preWriteCallback()
+	}
 	ro.Data = append(ro.Data, p...)
 
 	return len(p), nil
@@ -106,4 +110,7 @@ func (ro *ResponseObject) WriteHeader(statusCode int) {
 }
 func (ro *ResponseObject) Header() http.Header {
 	return ro.HTTPHeader
+}
+func (ro *ResponseObject) SetPreWriteCallback(fn func()) {
+	ro.preWriteCallback = fn
 }

@@ -12,16 +12,17 @@ import (
 )
 
 type DiscordWriter struct {
-	Context    context.Context
-	Prompt     string
-	Bot        *discordgo.Session
-	ChatID     string
-	Type       string
-	ReplyID    string
-	Request    structs.ActionOrCompletionRequest
-	objs       []*structs.ResponseObject
-	externalID string
-	lastUpdate *time.Time
+	Context          context.Context
+	Prompt           string
+	Bot              *discordgo.Session
+	ChatID           string
+	Type             string
+	ReplyID          string
+	Request          structs.ActionOrCompletionRequest
+	objs             []*structs.ResponseObject
+	externalID       string
+	lastUpdate       *time.Time
+	preWriteCallback func()
 }
 
 func NewDiscordWriter(ctx context.Context, req structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
@@ -94,6 +95,10 @@ func (w *DiscordWriter) Close() error {
 }
 
 func (w *DiscordWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	if len(w.objs) == 0 {
 		w.objs = append(w.objs, &structs.ResponseObject{
 			Type:   structs.Text,
@@ -118,3 +123,6 @@ func (w *DiscordWriter) SetPrompt(prompt string) {
 
 func (w *DiscordWriter) WriteHeader(statusCode int) {}
 func (w *DiscordWriter) Header() http.Header        { return http.Header{} }
+func (w *DiscordWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}

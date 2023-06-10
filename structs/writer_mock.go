@@ -3,9 +3,10 @@ package structs
 import "net/http"
 
 type MockWriter struct {
-	objs           []*ResponseObject
-	HTTPHeader     http.Header
-	HTTPStatusCode int
+	objs             []*ResponseObject
+	HTTPHeader       http.Header
+	HTTPStatusCode   int
+	preWriteCallback func()
 }
 
 func NewMockWriter() *MockWriter {
@@ -22,6 +23,10 @@ func (w *MockWriter) WriteObject(obj *ResponseObject) error {
 }
 
 func (w *MockWriter) Write(b []byte) (int, error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	if len(w.objs) == 0 {
 		w.objs = append(w.objs, &ResponseObject{})
 	}
@@ -47,4 +52,7 @@ func (w *MockWriter) WriteHeader(int) {
 
 func (w *MockWriter) GetObjects() []*ResponseObject {
 	return w.objs
+}
+func (w *MockWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
 }

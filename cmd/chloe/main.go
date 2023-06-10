@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/kamushadenes/chloe/flags"
-	"github.com/kamushadenes/chloe/interfaces/cli"
-	"github.com/kamushadenes/chloe/server"
-	"github.com/mattn/go-isatty"
-	"github.com/rs/zerolog"
 	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/kamushadenes/chloe/flags"
+	"github.com/kamushadenes/chloe/interfaces/cli"
+	"github.com/kamushadenes/chloe/logging"
+	"github.com/kamushadenes/chloe/server"
+	"github.com/mattn/go-isatty"
+	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -58,11 +60,15 @@ func main() {
 	if len(os.Args) > 1 {
 		flags.InteractiveCLI = isatty.IsTerminal(os.Stdout.Fd())
 
-		zerolog.SetGlobalLevel(zerolog.Disabled)
+		if flags.InteractiveCLI {
+			logging.Disable()
+		}
 
 		go server.InitServer(ctx, true, readyCh)
 
 		<-readyCh
+
+		zerolog.SetGlobalLevel(zerolog.Disabled)
 
 		errorCh <- cli.Handle(ctx)
 	} else {

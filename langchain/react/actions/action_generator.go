@@ -75,11 +75,6 @@ var actionsToGenerate = []*generatedAction{
 		RequiredParams: []string{"expression"},
 	},
 	{
-		Name:           "midjourney_prompt_generator",
-		Package:        "midjourney_prompt_generator",
-		RequiredParams: []string{"prompt"},
-	},
-	{
 		Name:               "mock",
 		Package:            "mock",
 		RequiredParams:     []string{"foo"},

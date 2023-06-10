@@ -10,10 +10,7 @@ import (
 	"net/http"
 )
 
-type CLIMessageSource struct {
-	PauseSpinnerCh  chan bool
-	ResumeSpinnerCh chan bool
-}
+type CLIMessageSource struct{}
 
 type TelegramMessageSource struct {
 	API    *tgbotapi.BotAPI

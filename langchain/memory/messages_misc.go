@@ -62,11 +62,7 @@ func (m *Message) SendError(err error) error {
 
 			result := markdown.Render(text, width, 0)
 
-			m.Source.CLI.PauseSpinnerCh <- true
-
 			fmt.Printf("%s %s\n", colors.BoldRed("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
-
-			m.Source.CLI.ResumeSpinnerCh <- false
 		}
 	}
 
@@ -138,11 +134,7 @@ func (m *Message) SendText(text string, notify bool, extraArgs ...interface{}) e
 
 			result := markdown.Render(text, width, 0)
 
-			m.Source.CLI.PauseSpinnerCh <- true
-
 			fmt.Printf("%s %s\n", colors.Yellow("Chloe:"), strings.Trim(strings.TrimSpace(string(result)), "*"))
-
-			m.Source.CLI.ResumeSpinnerCh <- false
 		}
 	}
 

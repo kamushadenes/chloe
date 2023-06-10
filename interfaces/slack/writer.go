@@ -11,16 +11,17 @@ import (
 )
 
 type SlackWriter struct {
-	Context    context.Context
-	Prompt     string
-	Bot        *slack.Client
-	ChatID     string
-	Type       string
-	ReplyID    string
-	Request    structs.ActionOrCompletionRequest
-	objs       []*structs.ResponseObject
-	externalID string
-	lastUpdate *time.Time
+	Context          context.Context
+	Prompt           string
+	Bot              *slack.Client
+	ChatID           string
+	Type             string
+	ReplyID          string
+	Request          structs.ActionOrCompletionRequest
+	objs             []*structs.ResponseObject
+	externalID       string
+	lastUpdate       *time.Time
+	preWriteCallback func()
 }
 
 func NewSlackWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *SlackWriter {
@@ -102,6 +103,9 @@ func (w *SlackWriter) Close() error {
 }
 
 func (w *SlackWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
 	if len(w.objs) == 0 {
 		w.objs = append(w.objs, &structs.ResponseObject{
 			Type:   structs.Text,
@@ -126,3 +130,6 @@ func (w *SlackWriter) SetPrompt(prompt string) {
 
 func (w *SlackWriter) WriteHeader(statusCode int) {}
 func (w *SlackWriter) Header() http.Header        { return http.Header{} }
+func (w *SlackWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}

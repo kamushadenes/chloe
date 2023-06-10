@@ -8,8 +8,8 @@ import (
 	"github.com/kamushadenes/chloe/colors"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
+	"github.com/kamushadenes/chloe/langchain/chat_models"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
-	openai2 "github.com/kamushadenes/chloe/langchain/chat_models/openai"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 	"time"
@@ -20,6 +20,7 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 
 	if flags.InteractiveCLI {
 		s.Prefix = colors.BoldCyan("Chloe: ")
+		s.FinalMSG = s.Prefix
 		s.Start()
 	}
 
@@ -27,10 +28,7 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 	msg.Role = "user"
 	msg.User = user
 	msg.Source = &memory.MessageSource{
-		CLI: &memory.CLIMessageSource{
-			PauseSpinnerCh:  make(chan bool),
-			ResumeSpinnerCh: make(chan bool),
-		},
+		CLI: &memory.CLIMessageSource{},
 	}
 
 	msg.SetContent(text)
@@ -39,10 +37,12 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 		return err
 	}
 
-	chat := openai2.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, msg.User)
+	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if flags.InteractiveCLI {
-		s.Stop()
+		writer.SetPreWriteCallback(func() {
+			s.Stop()
+		})
 	}
 
 	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(text))

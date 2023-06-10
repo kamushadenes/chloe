@@ -5,21 +5,21 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/react/actions/google"
-	"github.com/kamushadenes/chloe/react/actions/scrape"
+	"github.com/kamushadenes/chloe/langchain/react/actions/google"
+	"github.com/kamushadenes/chloe/langchain/react/actions/scrape"
 	"github.com/kamushadenes/chloe/structs"
 )
 
-type NewsAction struct {
+type NewsByCountryAction struct {
 	Name   string
 	Params map[string]string
 }
 
-func (a *NewsAction) GetNotification() string {
-	return fmt.Sprintf("📰 Searching news: **%s**", a.Params["query"])
+func (a *NewsByCountryAction) GetNotification() string {
+	return fmt.Sprintf("📰 Searching country news: **%s**", a.Params)
 }
 
-func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
+func (a *NewsByCountryAction) Execute(request *structs.ActionRequest) ([]*structs.ResponseObject, error) {
 	logger := logging.FromContext(request.Context).With().Str("action", a.GetName()).Str("query", a.Params["query"]).Logger()
 
 	var objs []*structs.ResponseObject
@@ -33,12 +33,11 @@ func (a *NewsAction) Execute(request *structs.ActionRequest) ([]*structs.Respons
 	switch source {
 	case "openai":
 		na := google.NewGoogleAction()
-		na.SetParam("query", a.Params["query"])
+		na.SetParam("query", fmt.Sprintf("%s news", a.Params["query"]))
 		request.Message.NotifyAction(na.GetNotification())
 		return na.Execute(request)
-
 	case "newsapi":
-		res, err := NewsAPIQuery(a.Params["query"])
+		res, err := NewsAPITopHeadlines(a.Params["query"])
 		if err != nil {
 			logger.Error().Err(err).Msg("NewsAPI query failed")
 			return nil, errors.Wrap(errors.ErrActionFailed, err)

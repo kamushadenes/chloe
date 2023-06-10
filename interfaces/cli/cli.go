@@ -2,11 +2,15 @@ package cli
 
 import (
 	"context"
+
 	"github.com/alecthomas/kong"
 	"github.com/kamushadenes/chloe/flags"
+	"github.com/rs/zerolog"
 )
 
 func Handle(ctx context.Context) error {
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+
 	var err error
 
 	user, err = getUser(ctx)

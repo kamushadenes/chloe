@@ -5,7 +5,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/react/actions/scrape"
+	"github.com/kamushadenes/chloe/langchain/react/actions/scrape"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
 	"github.com/rocketlaunchr/google-search"
