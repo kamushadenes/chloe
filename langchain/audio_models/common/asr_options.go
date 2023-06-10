@@ -12,4 +12,5 @@ type ASROptions interface {
 	WithLanguage(language string) ASROptions
 	WithTimeout(time.Duration) ASROptions
 	GetTimeout() time.Duration
+	WithOutputFormat(format string) ASROptions
 }

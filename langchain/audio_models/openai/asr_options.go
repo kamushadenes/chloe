@@ -6,53 +6,58 @@ import (
 	"time"
 )
 
-type ASROptionsOpenAI struct {
+type ASROptionsGPT4All struct {
 	req     openai.AudioRequest
 	timeout time.Duration
 }
 
-func NewASROptionsOpenAI() common.ASROptions {
-	return &ASROptionsOpenAI{req: openai.AudioRequest{}}
+func NewASROptionsGPT4All() common.ASROptions {
+	return &ASROptionsGPT4All{req: openai.AudioRequest{}}
 }
 
-func (c ASROptionsOpenAI) GetRequest() interface{} {
+func (c ASROptionsGPT4All) GetRequest() interface{} {
 	return c.req
 }
 
-func (c ASROptionsOpenAI) GetAudioFile() string {
+func (c ASROptionsGPT4All) GetAudioFile() string {
 	return c.req.FilePath
 }
 
-func (c ASROptionsOpenAI) WithAudioFile(audioFile string) common.ASROptions {
+func (c ASROptionsGPT4All) WithAudioFile(audioFile string) common.ASROptions {
 	c.req.FilePath = audioFile
 	return c
 }
 
-func (c ASROptionsOpenAI) WithModel(model string) common.ASROptions {
+func (c ASROptionsGPT4All) WithModel(model string) common.ASROptions {
 	c.req.Model = model
 	return c
 }
 
-func (c ASROptionsOpenAI) WithPrompt(prompt string) common.ASROptions {
+func (c ASROptionsGPT4All) WithPrompt(prompt string) common.ASROptions {
 	c.req.Prompt = prompt
 	return c
 }
 
-func (c ASROptionsOpenAI) WithTemperature(temperature float32) common.ASROptions {
+func (c ASROptionsGPT4All) WithTemperature(temperature float32) common.ASROptions {
 	c.req.Temperature = temperature
 	return c
 }
 
-func (c ASROptionsOpenAI) WithLanguage(language string) common.ASROptions {
+func (c ASROptionsGPT4All) WithLanguage(language string) common.ASROptions {
 	c.req.Language = language
 	return c
 }
 
-func (c ASROptionsOpenAI) WithTimeout(timeout time.Duration) common.ASROptions {
+func (c ASROptionsGPT4All) WithTimeout(timeout time.Duration) common.ASROptions {
 	c.timeout = timeout
 	return c
 }
 
-func (c ASROptionsOpenAI) GetTimeout() time.Duration {
+func (c ASROptionsGPT4All) GetTimeout() time.Duration {
 	return c.timeout
+}
+
+func (c ASROptionsGPT4All) WithOutputFormat(format string) common.ASROptions {
+	c.req.Format = openai.AudioResponseFormat(format)
+	return c
 }

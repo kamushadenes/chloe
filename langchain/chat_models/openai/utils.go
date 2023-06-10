@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/tokenizer"
@@ -10,7 +11,7 @@ import (
 func (c *ChatOpenAI) LoadUserMessages(ctx context.Context) ([]common.Message, error) {
 	var messages []common.Message
 
-	msgs, err := c.user.ListMessages(ctx)
+	msgs, err := c.User.ListMessages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -33,17 +34,22 @@ func (c *ChatOpenAI) LoadUserMessages(ctx context.Context) ([]common.Message, er
 }
 
 func (c *ChatOpenAI) ReduceTokens(systemMessages []common.Message, messages []common.Message) []common.Message {
+	modelName := c.Model.Tokenizer
+	if c.Model.Tokenizer == "" {
+		modelName = c.Model.Name
+	}
+
 	for {
 		var tokenCount int
 		for k := range systemMessages {
-			tokenCount += tokenizer.CountTokens(c.model.Name, systemMessages[k].Content)
+			tokenCount += tokenizer.CountTokens(modelName, systemMessages[k].Content)
 		}
 
 		for k := range messages {
-			tokenCount += tokenizer.CountTokens(c.model.Name, messages[k].Content)
+			tokenCount += tokenizer.CountTokens(modelName, messages[k].Content)
 		}
 
-		if tokenCount > c.model.ContextSize {
+		if tokenCount > c.Model.ContextSize {
 			messages = messages[1:]
 			continue
 		}

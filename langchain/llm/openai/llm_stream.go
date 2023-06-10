@@ -32,9 +32,14 @@ func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, 
 	res.Usage = common.LLMUsage{}
 	res.Generations[0] = common.LLMGeneration{}
 
+	modelName := c.Model.Tokenizer
+	if c.Model.Tokenizer == "" {
+		modelName = c.Model.Name
+	}
+
 	msgs := opts.GetPrompt()
 	for k := range msgs {
-		res.Usage.PromptTokens += tokenizer.CountTokens(c.model.Name, msgs[k])
+		res.Usage.PromptTokens += tokenizer.CountTokens(modelName, msgs[k])
 	}
 
 	for {
@@ -68,8 +73,8 @@ func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, 
 			res.Generations[k].Index = resp.Choices[k].Index
 			res.Generations[k].Text += resp.Choices[k].Text
 
-			res.Usage.CompletionTokens += tokenizer.CountTokens(c.model.Name, resp.Choices[k].Text)
-			res.Usage.TotalTokens += tokenizer.CountTokens(c.model.Name, resp.Choices[k].Text)
+			res.Usage.CompletionTokens += tokenizer.CountTokens(modelName, resp.Choices[k].Text)
+			res.Usage.TotalTokens += tokenizer.CountTokens(modelName, resp.Choices[k].Text)
 
 			if _, err := w.Write([]byte(resp.Choices[k].Text)); err != nil {
 				return res, err

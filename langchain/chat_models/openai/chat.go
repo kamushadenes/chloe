@@ -11,13 +11,13 @@ import (
 )
 
 type ChatOpenAI struct {
-	client *openai.Client
-	model  *common.ChatModel
-	user   *memory.User
+	Client *openai.Client
+	Model  *common.ChatModel
+	User   *memory.User
 }
 
 func NewChatOpenAI(token string, model *common.ChatModel, user *memory.User) common.Chat {
-	return &ChatOpenAI{client: openai.NewClient(token), model: model, user: user}
+	return &ChatOpenAI{Client: openai.NewClient(token), Model: model, User: user}
 }
 
 func NewChatOpenAIWithDefaultModel(token string, user *memory.User) common.Chat {
@@ -32,7 +32,7 @@ func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...common.Mes
 
 	opts := NewChatOptionsOpenAI().
 		WithMessages(messages).
-		WithModel(c.model.Name).
+		WithModel(c.Model.Name).
 		WithTimeout(config.Timeouts.Completion)
 
 	return c.ChatWithOptions(ctx, opts)
@@ -49,6 +49,12 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 
 	msgs, err := c.LoadUserMessages(ctx)
 	if err != nil {
+		logger.Error().
+			Str("provider", "openai").
+			Str("model", c.Model.Name).
+			Err(err).
+			Msg("chat completion error")
+
 		return common.ChatResult{}, err
 	}
 
@@ -57,8 +63,13 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 
 	opts = opts.WithMessages(msgs)
 
-	resp, err := c.client.CreateChatCompletion(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
+	resp, err := c.Client.CreateChatCompletion(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
 	if err != nil {
+		logger.Error().
+			Str("provider", "openai").
+			Str("model", c.Model.Name).
+			Err(err).
+			Msg("chat completion error")
 		return common.ChatResult{}, err
 	}
 
@@ -68,7 +79,7 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 		m := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
 		m.Context = ctx
 		m.Role = string(common.Assistant)
-		m.User = c.user
+		m.User = c.User
 		m.SetContent(resp.Choices[k].Message.Content)
 		if err := m.Save(ctx); err != nil {
 			return common.ChatResult{}, err
@@ -90,11 +101,11 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 		TotalTokens:      resp.Usage.TotalTokens,
 	}
 
-	res.CalculateCosts(c.model)
+	res.CalculateCosts(c.Model)
 
 	logger.Info().
 		Str("provider", "openai").
-		Str("model", c.model.Name).
+		Str("model", c.Model.Name).
 		Float64("cost", res.Cost.TotalCost).
 		Int("tokens", res.Usage.TotalTokens).
 		Msg("chat completion done")

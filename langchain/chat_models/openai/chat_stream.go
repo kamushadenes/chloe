@@ -19,7 +19,7 @@ func (c *ChatOpenAI) ChatStream(w io.Writer, messages ...common.Message) (common
 }
 
 func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, messages ...common.Message) (common.ChatResult, error) {
-	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.model.Name)
+	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.Model.Name)
 
 	return c.ChatStreamWithOptions(ctx, w, opts)
 }
@@ -37,7 +37,7 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 
 	opts = opts.WithMessages(msgs)
 
-	stream, err := c.client.CreateChatCompletionStream(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
+	stream, err := c.Client.CreateChatCompletionStream(ctx, opts.GetRequest().(openai.ChatCompletionRequest))
 	if err != nil {
 		return common.ChatResult{}, err
 	}
@@ -46,8 +46,13 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 	var res common.ChatResult
 	res.Usage = common.ChatUsage{}
 
+	modelName := c.Model.Tokenizer
+	if c.Model.Tokenizer == "" {
+		modelName = c.Model.Name
+	}
+
 	for k := range msgs {
-		res.Usage.PromptTokens += tokenizer.CountTokens(c.model.Name, msgs[k].Content)
+		res.Usage.PromptTokens += tokenizer.CountTokens(modelName, msgs[k].Content)
 	}
 
 	for {
@@ -57,7 +62,7 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 				m := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
 				m.Context = ctx
 				m.Role = string(common.Assistant)
-				m.User = c.user
+				m.User = c.User
 				m.SetContent(res.Generations[k].Text)
 				if err := m.Save(ctx); err != nil {
 					return common.ChatResult{}, err
@@ -66,11 +71,11 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 				res.Generations[k].Message = common.AssistantMessage(res.Generations[k].Text)
 			}
 
-			res.CalculateCosts(c.model)
+			res.CalculateCosts(c.Model)
 
 			logger.Info().
 				Str("provider", "openai").
-				Str("model", c.model.Name).
+				Str("model", c.Model.Name).
 				Float64("cost", res.Cost.TotalCost).
 				Int("tokens", res.Usage.TotalTokens).
 				Msg("chat stream done")
@@ -88,8 +93,8 @@ func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opt
 			}
 
 			res.Generations[k].Text += resp.Choices[k].Delta.Content
-			res.Usage.CompletionTokens += tokenizer.CountTokens(c.model.Name, resp.Choices[k].Delta.Content)
-			res.Usage.TotalTokens += tokenizer.CountTokens(c.model.Name, resp.Choices[k].Delta.Content)
+			res.Usage.CompletionTokens += tokenizer.CountTokens(modelName, resp.Choices[k].Delta.Content)
+			res.Usage.TotalTokens += tokenizer.CountTokens(modelName, resp.Choices[k].Delta.Content)
 
 			if _, err := w.Write([]byte(resp.Choices[k].Delta.Content)); err != nil {
 				return res, err

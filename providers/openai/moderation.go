@@ -47,7 +47,7 @@ func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error)
 
 	req := openai.ModerationRequest{
 		Input: content,
-		Model: &model,
+		Model: model,
 	}
 
 	return req, nil

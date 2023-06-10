@@ -9,4 +9,5 @@ type Model struct {
 	UsageCost        *CostObject
 	PromptCost       *CostObject
 	CompletionCost   *CostObject
+	Tokenizer        string
 }
