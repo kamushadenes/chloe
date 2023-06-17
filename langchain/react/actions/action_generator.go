@@ -48,12 +48,6 @@ var actionsToGenerate = []*generatedAction{
 		RequiredParams: []string{"path", "content"},
 	},
 	{
-		Name:               "openai",
-		Package:            "openai",
-		RequiredParams:     []string{"query"},
-		SkipRunPostActions: true,
-	},
-	{
 		Name:              "image",
 		Package:           "image",
 		RequiredParams:    []string{"prompt"},

@@ -10,7 +10,6 @@ import (
 type ChatOptionsOpenAI struct {
 	req       openai.ChatCompletionRequest
 	timeout   time.Duration
-	messages  []common.Message
 	bootstrap common.Message
 	system    common.Message
 	examples  []common.Message

@@ -9,12 +9,12 @@ import (
 )
 
 type LLMOpenAI struct {
-	client *openai.Client
-	model  *common.LLMModel
+	Client *openai.Client
+	Model  *common.LLMModel
 }
 
 func NewLLMOpenAI(token string, model *common.LLMModel) common.LLM {
-	return &LLMOpenAI{client: openai.NewClient(token), model: model}
+	return &LLMOpenAI{Client: openai.NewClient(token), Model: model}
 }
 
 func NewLLMOpenAIWithDefaultModel(token string) common.LLM {
@@ -28,7 +28,7 @@ func (c *LLMOpenAI) Generate(prompt ...string) (common.LLMResult, error) {
 func (c *LLMOpenAI) GenerateWithContext(ctx context.Context, prompt ...string) (common.LLMResult, error) {
 	opts := NewLLMOptionsOpenAI().
 		WithPrompt(prompt).
-		WithModel(c.model.Name).
+		WithModel(c.Model.Name).
 		WithTimeout(config.Timeouts.Completion)
 
 	return c.GenerateWithOptions(ctx, opts)
@@ -43,7 +43,7 @@ func (c *LLMOpenAI) GenerateWithOptions(ctx context.Context, opts common.LLMOpti
 		defer cancel()
 	}
 
-	resp, err := c.client.CreateCompletion(ctx, opts.GetRequest().(openai.CompletionRequest))
+	resp, err := c.Client.CreateCompletion(ctx, opts.GetRequest().(openai.CompletionRequest))
 	if err != nil {
 		return common.LLMResult{}, err
 	}
@@ -64,11 +64,11 @@ func (c *LLMOpenAI) GenerateWithOptions(ctx context.Context, opts common.LLMOpti
 		TotalTokens:      resp.Usage.TotalTokens,
 	}
 
-	res.CalculateCosts(c.model)
+	res.CalculateCosts(c.Model)
 
 	logger.Info().
 		Str("provider", "openai").
-		Str("model", c.model.Name).
+		Str("model", c.Model.Name).
 		Float64("cost", res.Cost.TotalCost).
 		Int("tokens", res.Usage.TotalTokens).
 		Msg("llm completion done")

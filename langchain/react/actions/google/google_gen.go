@@ -8,6 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs"
 )
+
 // NewGoogleAction creates a new GoogleAction with Params initialized
 func NewGoogleAction() structs.Action {
 	return &GoogleAction{

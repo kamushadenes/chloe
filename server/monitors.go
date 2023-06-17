@@ -7,9 +7,9 @@ import (
 	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/langchain/react"
 	"github.com/kamushadenes/chloe/langchain/react/actions"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
 )
 

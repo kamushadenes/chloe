@@ -2,11 +2,13 @@ package openai
 
 import (
 	"context"
+	"io"
+
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/llm/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
-	"io"
+	"github.com/sashabaranov/go-openai"
 )
 
 func (c *LLMOpenAI) GenerateStream(w io.Writer, prompt ...string) (common.LLMResult, error) {
@@ -14,7 +16,7 @@ func (c *LLMOpenAI) GenerateStream(w io.Writer, prompt ...string) (common.LLMRes
 }
 
 func (c *LLMOpenAI) GenerateStreamWithContext(ctx context.Context, w io.Writer, prompt ...string) (common.LLMResult, error) {
-	opts := NewLLMOptionsOpenAI().WithPrompt(prompt).WithModel(c.model.Name)
+	opts := NewLLMOptionsOpenAI().WithPrompt(prompt).WithModel(c.Model.Name)
 
 	return c.GenerateStreamWithOptions(ctx, w, opts)
 }
@@ -22,7 +24,7 @@ func (c *LLMOpenAI) GenerateStreamWithContext(ctx context.Context, w io.Writer, 
 func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, opts common.LLMOptions) (common.LLMResult, error) {
 	logger := logging.GetLogger()
 
-	stream, err := c.client.CreateCompletionStream(ctx, opts.GetRequest())
+	stream, err := c.Client.CreateCompletionStream(ctx, opts.GetRequest().(openai.CompletionRequest))
 	if err != nil {
 		return common.LLMResult{}, err
 	}
@@ -49,11 +51,11 @@ func (c *LLMOpenAI) GenerateStreamWithOptions(ctx context.Context, w io.Writer, 
 				res.Generations[k].FinishReason = resp.Choices[k].FinishReason
 			}
 
-			res.CalculateCosts(c.model)
+			res.CalculateCosts(c.Model)
 
 			logger.Info().
 				Str("provider", "openai").
-				Str("model", c.model.Name).
+				Str("model", c.Model.Name).
 				Float64("cost", res.Cost.TotalCost).
 				Int("tokens", res.Usage.TotalTokens).
 				Msg("llm stream done")

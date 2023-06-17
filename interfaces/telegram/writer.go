@@ -19,7 +19,6 @@ type TelegramWriter struct {
 	ReplyID          int
 	Request          structs.ActionOrCompletionRequest
 	objs             []*structs.ResponseObject
-	closedBufs       int
 	externalID       int
 	lastUpdate       *time.Time
 	preWriteCallback func()
