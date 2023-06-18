@@ -22,11 +22,12 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/mattn/go-isatty v0.0.18
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
+	github.com/pkoukk/tiktoken-go v0.1.3
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.29.0
 	github.com/sashabaranov/go-openai v1.11.2
 	github.com/slack-go/slack v0.12.1
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/trietmn/go-wiki v1.0.0
 	golang.org/x/crypto v0.7.0
 	google.golang.org/api v0.116.0
