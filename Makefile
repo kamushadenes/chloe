@@ -2,17 +2,14 @@ ifdef TARGET
 	target := --target ${TARGET}
 endif
 
-.PHONY: all tokenizer generate build clean
+.PHONY: all generate build clean
 
-all: tokenizer build
-
-tokenizer:
-	cd tokenizer && cargo -C tiktoken-cffi build ${target} --release -Z unstable-options --out-dir .
+all: build
 
 generate:
 	go generate ./...
 
-build: tokenizer generate
+build: generate
 	CGO_ENABLED=1 go build -o ./cmd/chloe/chloe ./cmd/chloe/main.go
 
 clean:

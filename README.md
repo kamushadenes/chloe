@@ -203,6 +203,5 @@ Chloe is licensed under the [GPL-3.0 License](LICENSE.md).
 
 ## 🙏 Acknowledgements
 
-- [Torantulino](https://github.com/Torantulino/Auto-GPT) for some prompt improving ideas
-- [j178](https://github.com/j178/tiktoken-go) for the tokenizer bindings
+- [pkoukk](https://github.com/pkoukk/tiktoken-go) for the Pure-Go tokenizer
 - [sashabaranov](https://github.com/sashabaranov/go-openai) for the Go OpenAI SDK
