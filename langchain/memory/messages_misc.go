@@ -2,6 +2,9 @@ package memory
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	markdown "github.com/MichaelMure/go-term-markdown"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/colors"
@@ -9,9 +12,7 @@ import (
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/slack-go/slack"
-	"golang.org/x/crypto/ssh/terminal"
-	"os"
-	"strings"
+	"golang.org/x/term"
 )
 
 // SendError TODO: this is in the wrong place
@@ -55,7 +56,7 @@ func (m *Message) SendError(err error) error {
 		return nil
 	case "cli":
 		if flags.InteractiveCLI {
-			width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+			width, _, err := term.GetSize(int(os.Stdout.Fd()))
 			if err != nil {
 				width = 80
 			}
@@ -127,7 +128,7 @@ func (m *Message) SendText(text string, notify bool, extraArgs ...interface{}) e
 		}
 	case "cli":
 		if flags.InteractiveCLI {
-			width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+			width, _, err := term.GetSize(int(os.Stdout.Fd()))
 			if err != nil {
 				width = 80
 			}

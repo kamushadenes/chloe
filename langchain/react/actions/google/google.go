@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/react/actions/scrape"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/utils"
-	"github.com/rocketlaunchr/google-search"
+	googlesearch "github.com/rocketlaunchr/google-search"
 	"google.golang.org/api/customsearch/v1"
 	"google.golang.org/api/option"
 )
@@ -91,9 +92,7 @@ func (a *GoogleAction) Execute(request *structs.ActionRequest) ([]*structs.Respo
 				continue
 			}
 
-			for k := range aobjs {
-				objs = append(objs, aobjs[k])
-			}
+			objs = append(objs, aobjs...)
 		}
 	}
 

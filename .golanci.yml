@@ -1,0 +1,39 @@
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - goconst
+    - godot
+    - gocritic
+    - gofmt
+    - goimports
+    - gosec
+    - musttag
+    - unconvert
+    - wastedassign
+    - prealloc
+    - predeclared
+    - staticcheck
+    - usestdlibvars
+
+issues:
+  exclude-rules:
+    - path: '(.+)_test\.go'
+      linters:
+        - gosec
+        - funlen
+        - goconst

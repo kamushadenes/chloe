@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/interfaces/cli"
@@ -16,10 +14,6 @@ import (
 	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) {
 	for {

@@ -37,7 +37,7 @@ func (c EmbeddingOptionsOpenAI) WithText(text []string) common.EmbeddingOptions 
 }
 
 func (c EmbeddingOptionsOpenAI) GetText() []string {
-	return c.req.Input
+	return c.req.Input.([]string)
 }
 
 func (c EmbeddingOptionsOpenAI) WithChunkSize(size int) common.EmbeddingOptions {

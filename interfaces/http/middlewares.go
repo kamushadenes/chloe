@@ -3,11 +3,12 @@ package http
 import (
 	"context"
 	"errors"
+	"net/http"
+	"strings"
+
 	"github.com/go-chi/render"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"net/http"
-	"strings"
 )
 
 type userCtxKey struct{}
@@ -30,7 +31,7 @@ func UserAPIKeyAuthMiddleware(next http.Handler) http.Handler {
 
 		// Verify that the Authorization header is present and starts with "Bearer "
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			render.Render(w, r, ErrUnauthorized(errors.New("missing or invalid Authorization header")))
+			_ = render.Render(w, r, ErrUnauthorized(errors.New("missing or invalid Authorization header")))
 			return
 		}
 
@@ -39,7 +40,7 @@ func UserAPIKeyAuthMiddleware(next http.Handler) http.Handler {
 
 		apiKey, err := memory.GetAPIKey(token)
 		if err != nil {
-			render.Render(w, r, ErrUnauthorized(errors.New("invalid API key")))
+			_ = render.Render(w, r, ErrUnauthorized(errors.New("invalid API key")))
 			return
 		}
 
