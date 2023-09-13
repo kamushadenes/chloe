@@ -3,11 +3,12 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/kamushadenes/chloe/colors"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/models"
-	"os"
-	"strings"
 )
 
 type CompleteCmd struct {

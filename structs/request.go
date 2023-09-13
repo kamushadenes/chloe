@@ -2,8 +2,10 @@ package structs
 
 import (
 	"context"
+
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/structs/writer_structs"
 	"github.com/rs/zerolog"
 )
 
@@ -11,8 +13,8 @@ type Request interface {
 	GetID() string
 	GetContext() context.Context
 
-	GetWriter() ChloeWriter
-	SetWriter(ChloeWriter)
+	GetWriter() writer_structs.ChloeWriter
+	SetWriter(writer_structs.ChloeWriter)
 
 	GetSkipClose() bool
 
@@ -28,8 +30,8 @@ type ActionOrCompletionRequest interface {
 	GetID() string
 	GetContext() context.Context
 
-	GetWriter() ChloeWriter
-	SetWriter(ChloeWriter)
+	GetWriter() writer_structs.ChloeWriter
+	SetWriter(writer_structs.ChloeWriter)
 
 	GetSkipClose() bool
 	GetMessage() *memory.Message

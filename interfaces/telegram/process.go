@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 func processText(ctx context.Context, msg *memory.Message, ch chan interface{}) error {

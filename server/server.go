@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/cost"
 	"github.com/kamushadenes/chloe/interfaces/cli"
@@ -9,8 +10,8 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/http"
 	"github.com/kamushadenes/chloe/interfaces/slack"
 	"github.com/kamushadenes/chloe/interfaces/telegram"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/providers/openai"
 )
 

@@ -10,15 +10,24 @@ import (
 	"time"
 )
 
+var disabled = false
+
 func GetLogger() zerolog.Logger {
 	zerolog.DurationFieldUnit = time.Second
 	zerolog.TimeFieldFormat = time.RFC3339
 
-	wr := diode.NewWriter(consoleWriter(), 1000, 10*time.Millisecond, func(missed int) {
-		fmt.Printf("Dropped %d messages", missed)
-	})
+	var multi zerolog.LevelWriter
 
-	multi := zerolog.MultiLevelWriter(wr)
+	if disabled {
+		multi = zerolog.MultiLevelWriter(zerolog.Nop())
+	} else {
+		wr := diode.NewWriter(consoleWriter(), 1000, 10*time.Millisecond, func(missed int) {
+			fmt.Printf("Dropped %d messages", missed)
+		})
+
+		multi = zerolog.MultiLevelWriter(wr)
+	}
+
 	logger := zerolog.New(multi).With().Timestamp().Logger()
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -27,6 +36,16 @@ func GetLogger() zerolog.Logger {
 	}
 
 	return logger
+}
+
+func Disable() {
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+	disabled = true
+}
+
+func Enable() {
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	disabled = false
 }
 
 func FromContext(ctx context.Context) *zerolog.Logger {

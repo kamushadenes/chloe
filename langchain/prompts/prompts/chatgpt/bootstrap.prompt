@@ -1,0 +1,6 @@
+Current Date: {{ .Date }}
+Current Time: {{ .Time }}
+User Interface: {{ .Interface }}
+User ID: {{ .UserID }}
+User First Name: {{ .UserFirstName }}
+User Last Name: {{ .UserLastName }}

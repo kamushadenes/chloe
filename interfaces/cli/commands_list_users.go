@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"os"
 )
 

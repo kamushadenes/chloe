@@ -3,8 +3,8 @@ package telegram
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 )
 
 func tryAndRespond(ctx context.Context, msg *memory.Message, successText, errorText string, err error, reply bool) {

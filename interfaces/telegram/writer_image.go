@@ -3,7 +3,7 @@ package telegram
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 func (w *TelegramWriter) closeImage() error {
@@ -12,7 +12,7 @@ func (w *TelegramWriter) closeImage() error {
 	var files []interface{}
 	for k := range w.objs {
 		obj := w.objs[k]
-		if obj.Type == structs.Image {
+		if obj.Type == response_object_structs.Image {
 			files = append(files, tgbotapi.NewInputMediaPhoto(
 				tgbotapi.FileReader{
 					Name:   obj.Name,

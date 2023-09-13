@@ -1,6 +1,6 @@
 package cli
 
-import "github.com/kamushadenes/chloe/memory"
+import "github.com/kamushadenes/chloe/langchain/memory"
 
 type MergeUsersCmd struct {
 	Users []uint `arg:"" help:"Users to merge"`

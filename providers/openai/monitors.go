@@ -2,10 +2,11 @@ package openai
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"time"
+
+	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/logging"
 )
 
 func MonitorModeration(ctx context.Context) {
@@ -44,16 +45,18 @@ func MonitorSummary(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			messages, err := memory.LoadNonSummarizedMessages(ctx)
-			if err != nil {
-				logger.Error().Err(err).Msg("failed to load non summarized messages")
-				continue
-			}
-			for k := range messages {
-				err := Summarize(ctx, messages[k])
+			if config.OpenAI.SummarizeMessages {
+				messages, err := memory.LoadNonSummarizedMessages(ctx)
 				if err != nil {
-					logger.Error().Err(err).Msg("failed to summarize message")
+					logger.Error().Err(err).Msg("failed to load non summarized messages")
 					continue
+				}
+				for k := range messages {
+					err := Summarize(ctx, messages[k])
+					if err != nil {
+						logger.Error().Err(err).Msg("failed to summarize message")
+						continue
+					}
 				}
 			}
 		}

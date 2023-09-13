@@ -2,7 +2,6 @@ package cost
 
 var sessionCost = map[string]float64{
 	"completion":       0,
-	"chain_of_thought": 0,
 	"transcription":    0,
 	"moderation":       0,
 	"summarization":    0,

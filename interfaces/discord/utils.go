@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"strings"
 )
 

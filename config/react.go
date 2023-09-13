@@ -11,8 +11,8 @@ type ReactConfig struct {
 	NewsAPIMaxResults        int
 	NewsAPISortStrategy      string
 	UseAria2                 bool
-	ReportThoughts           bool
 	FileWorkspace            string
+	OpenWeatherMapAPIKey     string
 }
 
 var React = &ReactConfig{
@@ -22,12 +22,12 @@ var React = &ReactConfig{
 	GoogleCustomSearchID:     envOrDefault("CHLOE_REACT_GOOGLE_CUSTOM_SEARCH_ID", ""),
 	WikipediaMaxResults:      envOrDefaultInt("CHLOE_REACT_WIKIPEDIA_MAX_RESULTS", 3),
 	NewsAPIMaxResults:        envOrDefaultInt("CHLOE_REACT_NEWSAPI_MAX_RESULTS", 5),
-	NewsSource: envOrDefaultWithOptions("CHLOE_REACT_NEWS_SOURCE", "google",
-		[]string{"google", "newsapi"}),
+	NewsSource: envOrDefaultWithOptions("CHLOE_REACT_NEWS_SOURCE", "openai",
+		[]string{"openai", "newsapi"}),
 	NewsAPIToken: envOrDefault("CHLOE_REACT_NEWSAPI_TOKEN", ""),
 	NewsAPISortStrategy: envOrDefaultWithOptions("CHLOE_REACT_NEWSAPI_SORT_STRATEGY", "relevancy",
 		[]string{"relevancy", "popularity", "publishedAt"}),
-	UseAria2:       envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
-	ReportThoughts: envOrDefaultBool("CHLOE_REACT_REPORT_THOUGHTS", false),
-	FileWorkspace:  envOrDefault("CHLOE_REACT_FILE_WORKSPACE", "workspace/"),
+	UseAria2:             envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
+	FileWorkspace:        envOrDefault("CHLOE_REACT_FILE_WORKSPACE", "workspace/"),
+	OpenWeatherMapAPIKey: envOrDefault("CHLOE_REACT_OPENWEATHERMAP_API_KEY", ""),
 }

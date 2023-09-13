@@ -2,22 +2,21 @@ package cli
 
 import (
 	"context"
-	"github.com/gofrs/uuid"
-	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
+
+	"github.com/kamushadenes/chloe/langchain/tts/common"
+	"github.com/kamushadenes/chloe/langchain/tts/google"
+	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 
-func TTS(ctx context.Context, text string, writer structs.ChloeWriter) error {
-	req := structs.NewActionRequest()
-	req.Context = ctx
-	req.Message = memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "cli")
-	req.Message.User = user
+func TTS(ctx context.Context, text string, writer writer_structs.ChloeWriter) error {
+	tts := google.NewTTSGoogle()
 
-	req.Writer = writer
+	res, err := tts.TTSWithContext(ctx, common.TTSMessage{Text: text})
+	if err != nil {
+		return err
+	}
 
-	req.Action = "tts"
-	req.Params["text"] = text
+	_, err = writer.Write(res.Audio)
 
-	return channels.RunAction(req)
+	return err
 }

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/memory"
 	"github.com/kamushadenes/chloe/timeouts"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
@@ -47,7 +47,7 @@ func newModerationRequest(msg *memory.Message) (openai.ModerationRequest, error)
 
 	req := openai.ModerationRequest{
 		Input: content,
-		Model: &model,
+		Model: model,
 	}
 
 	return req, nil

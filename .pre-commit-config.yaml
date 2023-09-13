@@ -17,4 +17,4 @@ repos:
     rev: v3.11.0
     hooks:
       - id: markdown-link-check
-        args: [ -q ]
+        args: [-q]

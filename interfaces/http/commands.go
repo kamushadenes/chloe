@@ -3,13 +3,17 @@ package http
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/kamushadenes/chloe/channels"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
-	"net/http"
+	"github.com/kamushadenes/chloe/langchain/actions"
+	"github.com/kamushadenes/chloe/langchain/chat_models"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
 var msgCtxKey = struct{}{}
@@ -57,38 +61,19 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	msg.SetContent(params.Content)
 
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	request := structs.NewCompletionRequest()
-	request.Message = msg
-	request.ID = msg.ExternalID
-	request.Context = ctx
+	writer := NewHTTPResponseWriteCloser(w)
 
-	if request.Mode == "" {
-		request.Mode = request.GetMessage().User.Mode
-	}
+	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
-	request.Args = params.Args
-
-	request.Writer = NewHTTPResponseWriteCloser(w)
-
-	go func() {
-		if err := channels.RunCompletion(request); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-request.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	_, err := chat.ChatStreamWithContext(ctx, writer, msg, messages.UserMessage(params.Content))
+	if err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 }
 
@@ -110,33 +95,23 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Prompt)
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	req := structs.NewActionRequest()
-	req.ID = msg.ExternalID
+	req := action_structs.NewActionRequest()
 	req.Context = ctx
+	req.Message = msg
 	req.Action = "generate"
 	req.Params["prompt"] = params.Prompt
-	req.Message = msg
 	req.Writer = NewHTTPResponseWriteCloser(w)
+	req.Count = config.Telegram.ImageCount
+	req.SkipClose = true
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-req.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	if err := actions.HandleAction(req); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 }
 
@@ -158,33 +133,22 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Content)
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	req := structs.NewActionRequest()
-	req.ID = msg.ExternalID
+	req := action_structs.NewActionRequest()
+	req.Message = msg
 	req.Context = ctx
 	req.Action = "tts"
 	req.Params["text"] = params.Content
-	req.Message = msg
 	req.Writer = NewHTTPResponseWriteCloser(w)
+	req.SkipClose = true
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
-			_ = render.Render(w, r, ErrInvalidRequest(err))
-			return
-		}
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-req.Writer.(*HTTPWriter).CloseCh:
-			return
-		}
+	if err := actions.HandleAction(req); err != nil {
+		_ = render.Render(w, r, ErrInvalidRequest(err))
+		return
 	}
 }
 
@@ -225,25 +189,24 @@ func action(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(fmt.Sprintf("%s %s", params.Action, params.Params))
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	req := structs.NewActionRequest()
+	req := action_structs.NewActionRequest()
 	req.Context = ctx
 	req.Message = msg
 	req.Action = params.Action
 	req.Params["text"] = params.Params
-	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
 	req.Writer = &HTTPWriter{Writer: w}
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
+	/*go func() {
+		if err := structs.RunAction(req); err != nil {
 			_ = render.Render(w, r, ErrInvalidRequest(err))
 			return
 		}
-	}()
+	}()*/
 
 	for {
 		select {

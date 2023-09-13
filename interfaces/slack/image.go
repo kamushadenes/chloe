@@ -2,20 +2,21 @@ package slack
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/channels"
+
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/langchain/actions"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
 func generate(ctx context.Context, msg *memory.Message) error {
-	req := structs.NewActionRequest()
+	req := action_structs.NewActionRequest()
+	req.Context = ctx
+	req.Message = msg
 	req.Action = "generate"
 	req.Params["prompt"] = promptFromMessage(msg)
-	req.Message = msg
-	req.Context = ctx
-	req.Writer = NewSlackWriter(ctx, req, false, req.Params["prompt"])
+	req.Writer = NewSlackWriter(ctx, req, false, promptFromMessage(msg))
 	req.Count = config.Slack.ImageCount
 
-	return channels.RunAction(req)
+	return actions.HandleAction(req)
 }

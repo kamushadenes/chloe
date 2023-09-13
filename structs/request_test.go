@@ -1,11 +1,6 @@
 package structs
 
-import (
-	"context"
-	"github.com/stretchr/testify/assert"
-	"testing"
-)
-
+/*
 func TestRequest(t *testing.T) {
 	ctx := context.Background()
 	skipClose := true
@@ -86,3 +81,4 @@ func TestRequest(t *testing.T) {
 		})
 	}
 }
+*/

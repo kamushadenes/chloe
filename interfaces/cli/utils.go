@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kamushadenes/chloe/i18n"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 func Forget(ctx context.Context, all bool) error {

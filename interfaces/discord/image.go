@@ -2,20 +2,21 @@ package discord
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/channels"
+
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/langchain/actions"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
 func generate(ctx context.Context, msg *memory.Message) error {
-	req := structs.NewActionRequest()
-	req.Action = "generate"
-	req.Params["prompt"] = promptFromMessage(msg)
+	req := action_structs.NewActionRequest()
 	req.Message = msg
 	req.Context = ctx
+	req.Action = "generate"
+	req.Params["prompt"] = promptFromMessage(msg)
 	req.Writer = NewDiscordWriter(ctx, req, false, req.Params["prompt"])
 	req.Count = config.Discord.ImageCount
 
-	return channels.RunAction(req)
+	return actions.HandleAction(req)
 }

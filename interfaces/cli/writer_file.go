@@ -1,15 +1,17 @@
 package cli
 
 import (
-	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type FileWriter struct {
-	Path string
-	f    io.WriteCloser
+	Path             string
+	f                io.WriteCloser
+	preWriteCallback func()
 }
 
 func NewFileWriter(path string) *FileWriter {
@@ -28,10 +30,14 @@ func NewFileWriter(path string) *FileWriter {
 }
 
 func (w *FileWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	return w.f.Write(p)
 }
 
-func (w *FileWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *FileWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	_, err := w.Write(obj.Data)
 
 	return err
@@ -45,3 +51,10 @@ func (w *FileWriter) Close() error {
 
 func (w *FileWriter) WriteHeader(statusCode int) {}
 func (w *FileWriter) Header() http.Header        { return http.Header{} }
+func (w *FileWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}
+
+func (w *FileWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return nil
+}

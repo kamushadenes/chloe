@@ -2,7 +2,7 @@ package slack
 
 import (
 	"context"
-	"fmt"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/slack-go/slack"
@@ -10,14 +10,10 @@ import (
 )
 
 func newBot(ctx context.Context, token string, appLevelToken string) (*slack.Client, error) {
-	logger := logging.FromContext(ctx)
-
 	api := slack.New(
 		token,
 		slack.OptionAppLevelToken(appLevelToken),
 	)
-
-	logger.Info().Msg("slack bot created")
 
 	return api, nil
 }
@@ -40,7 +36,7 @@ func Start(ctx context.Context) {
 		return
 	}
 
-	logger.Info().Str("account", fmt.Sprintf("%s", auth.User)).Msg("slack bot created")
+	logger.Info().Str("account", auth.User).Msg("slack bot created")
 
 	go HandleUpdates(ctx, socketMode, api, auth)
 

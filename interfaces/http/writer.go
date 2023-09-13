@@ -1,13 +1,15 @@
 package http
 
 import (
-	"github.com/kamushadenes/chloe/structs"
 	"net/http"
+
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type HTTPWriter struct {
-	Writer  http.ResponseWriter
-	CloseCh chan bool
+	Writer           http.ResponseWriter
+	CloseCh          chan bool
+	preWriteCallback func()
 }
 
 func NewHTTPResponseWriteCloser(w http.ResponseWriter) *HTTPWriter {
@@ -15,10 +17,13 @@ func NewHTTPResponseWriteCloser(w http.ResponseWriter) *HTTPWriter {
 }
 
 func (rwc *HTTPWriter) Write(p []byte) (n int, err error) {
+	if rwc.preWriteCallback != nil {
+		rwc.preWriteCallback()
+	}
 	return rwc.Writer.Write(p)
 }
 
-func (rwc *HTTPWriter) WriteObject(obj *structs.ResponseObject) error {
+func (rwc *HTTPWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	_, err := rwc.Write(obj.Data)
 
 	return err
@@ -39,4 +44,11 @@ func (rwc *HTTPWriter) WriteHeader(statusCode int) {
 
 func (rwc *HTTPWriter) Flush() {
 	rwc.Writer.(http.Flusher).Flush()
+}
+func (w *HTTPWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}
+
+func (w *HTTPWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return nil
 }

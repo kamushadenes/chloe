@@ -2,26 +2,28 @@ package telegram
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/aquilax/truncate"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
-	"net/http"
-	"time"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type TelegramWriter struct {
-	Context    context.Context
-	Prompt     string
-	Bot        *tgbotapi.BotAPI
-	ChatID     int64
-	Type       string
-	ReplyID    int
-	Request    structs.ActionOrCompletionRequest
-	objs       []*structs.ResponseObject
-	closedBufs int
-	externalID int
-	lastUpdate *time.Time
+	Context          context.Context
+	Prompt           string
+	Bot              *tgbotapi.BotAPI
+	ChatID           int64
+	Type             string
+	ReplyID          int
+	Request          structs.ActionOrCompletionRequest
+	objs             []*response_object_structs.ResponseObject
+	externalID       int
+	lastUpdate       *time.Time
+	preWriteCallback func()
 }
 
 func NewTelegramWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
@@ -91,9 +93,13 @@ func (w *TelegramWriter) Close() error {
 }
 
 func (w *TelegramWriter) Write(p []byte) (n int, err error) {
+	if w.preWriteCallback != nil {
+		w.preWriteCallback()
+	}
+
 	if len(w.objs) == 0 {
-		w.objs = append(w.objs, &structs.ResponseObject{
-			Type:   structs.Text,
+		w.objs = append(w.objs, &response_object_structs.ResponseObject{
+			Type:   response_object_structs.Text,
 			Result: true,
 		})
 	}
@@ -103,7 +109,7 @@ func (w *TelegramWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (w *TelegramWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *TelegramWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	w.objs = append(w.objs, obj)
 
 	return nil
@@ -115,3 +121,10 @@ func (w *TelegramWriter) SetPrompt(prompt string) {
 
 func (w *TelegramWriter) WriteHeader(statusCode int) {}
 func (w *TelegramWriter) Header() http.Header        { return http.Header{} }
+func (w *TelegramWriter) SetPreWriteCallback(fn func()) {
+	w.preWriteCallback = fn
+}
+
+func (w *TelegramWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return w.objs
+}

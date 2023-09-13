@@ -2,36 +2,19 @@ package discord
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/memory"
-	"github.com/kamushadenes/chloe/structs"
+
+	"github.com/kamushadenes/chloe/langchain/actions"
+	"github.com/kamushadenes/chloe/langchain/memory"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
-func transcribe(ctx context.Context, msg *memory.Message) error {
-	for _, path := range msg.GetAudios() {
-
-		req := structs.NewActionRequest()
-		req.Action = "transcribe"
-		req.Params["path"] = path
-		req.Message = msg
-		req.Context = ctx
-		req.Writer = NewDiscordWriter(ctx, req, true)
-
-		if err := channels.RunAction(req); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func tts(ctx context.Context, msg *memory.Message) error {
-	req := structs.NewActionRequest()
-	req.Action = "tts"
-	req.Params["text"] = promptFromMessage(msg)
+	req := action_structs.NewActionRequest()
 	req.Message = msg
 	req.Context = ctx
+	req.Action = "tts"
+	req.Params["text"] = promptFromMessage(msg)
 	req.Writer = NewDiscordWriter(ctx, req, false)
 
-	return channels.RunAction(req)
+	return actions.HandleAction(req)
 }

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/kamushadenes/chloe/memory"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 type CreateUserCmd struct {
