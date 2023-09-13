@@ -4,10 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/structs/action_structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
-	utils2 "github.com/kamushadenes/chloe/utils"
 )
 
 func (a *ScrapeAction) GetNotification() string {
@@ -17,14 +15,19 @@ func (a *ScrapeAction) GetNotification() string {
 func (a *ScrapeAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	truncateTokenCount := structs.GetAvailableTokenCount(request)
+	//truncateTokenCount := structs.GetAvailableTokenCount(request)
 
 	res, err := scrape(a.MustGetParam("url"))
 	if err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	if _, err := obj.Write([]byte(utils2.Truncate(res.GetStorableContent(), truncateTokenCount))); err != nil {
+	/*
+		if _, err := obj.Write([]byte(utils2.Truncate(res.GetResponse(), truncateTokenCount))); err != nil {
+			return nil, errors.Wrap(errors.ErrActionFailed, err)
+		}
+	*/
+	if _, err := obj.Write([]byte(res.GetResponse())); err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 

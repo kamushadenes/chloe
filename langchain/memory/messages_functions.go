@@ -134,9 +134,10 @@ func (m *Message) SetSummary(ctx context.Context, summary string) error {
 }
 
 func (m *Message) Save(ctx context.Context) error {
-	if m.Content == "" {
+	if m.Content == "" && m.FunctionCallName == "" {
 		return nil
 	}
+
 	err := db.WithContext(ctx).
 		Save(m).Error
 

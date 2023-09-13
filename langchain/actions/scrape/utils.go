@@ -2,12 +2,13 @@ package scrape
 
 import (
 	"encoding/base64"
+	url2 "net/url"
+	"strings"
+
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
 	"github.com/kamushadenes/chloe/logging"
 	"mvdan.cc/xurls/v2"
-	url2 "net/url"
-	"strings"
 )
 
 func clean(c *colly.Collector) {
@@ -85,7 +86,7 @@ func resolveSpecialUrl(url string) (string, error) {
 	}
 
 	// Handle special cases
-	if strings.HasSuffix(u.Hostname(), "news.openai.com") && strings.HasPrefix(u.Path, "/rss/articles") {
+	if strings.HasSuffix(u.Hostname(), "news.google.com") && strings.HasPrefix(u.Path, "/rss/articles") {
 		fields := strings.Split(u.Path, "/")
 		encodedUrl := fields[len(fields)-1]
 		decodedUrl, err := base64.StdEncoding.DecodeString(encodedUrl)

@@ -1,7 +1,7 @@
 package scrape
 
 import (
-	"fmt"
+	"encoding/json"
 	"strings"
 )
 
@@ -54,13 +54,17 @@ func (s *ScrapeResult) AddImage(url string, alt string) {
 	s.Images = append(s.Images, &Image{URL: strings.TrimSpace(url), Alt: strings.TrimSpace(alt)})
 }
 
-func (s *ScrapeResult) GetStorableContent() string {
+func (s *ScrapeResult) GetResponse() string {
 	if s.News != nil {
-		return s.News.GetStorableContent()
+		return s.News.GetResponse()
 	}
-	msg := fmt.Sprintf("URL: %s", s.URL)
-	msg += fmt.Sprintf("\nTitle: %s", s.Title)
-	msg += fmt.Sprintf("\nContent: %s", s.Content)
 
-	return msg
+	var resm = make(map[string]string)
+	resm["URL"] = s.URL
+	resm["Title"] = s.Title
+	resm["Content"] = s.Content
+
+	resb, _ := json.Marshal(resm)
+
+	return string(resb)
 }

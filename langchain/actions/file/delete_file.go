@@ -24,7 +24,7 @@ func (a *DeleteFileAction) Execute(request *action_structs.ActionRequest) ([]*re
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	if _, err := obj.Write([]byte(fmt.Sprintf("File deleted: **%s**", fname))); err != nil {
+	if _, err := obj.Write(action_structs.SuccessMessage); err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 

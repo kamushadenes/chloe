@@ -12,6 +12,7 @@ const (
 )
 
 type Message struct {
+	ID           uint                    `json:"-"`
 	Name         string                  `json:"name"`
 	Role         Role                    `json:"role"`
 	Content      string                  `json:"content"`

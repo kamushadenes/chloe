@@ -12,8 +12,9 @@ type ActionRequest struct {
 	ID      string
 	Context context.Context
 
-	Writer    writer_structs.ChloeWriter
-	SkipClose bool
+	Writer              writer_structs.ChloeWriter
+	SkipClose           bool
+	AutomaticallyCalled bool
 
 	ErrorChannel chan error
 
@@ -31,3 +32,5 @@ func NewActionRequest() *ActionRequest {
 		Params: make(map[string]string),
 	}
 }
+
+var SuccessMessage = []byte(`{"success":true}`)

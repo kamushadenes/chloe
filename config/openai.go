@@ -43,6 +43,7 @@ type OpenAIConfig struct {
 	AzureAPIVersion           string
 	AzureBaseURL              string
 	AzureEngine               string
+	UseFunctions              bool
 }
 
 var OpenAI = &OpenAIConfig{
@@ -71,4 +72,5 @@ var OpenAI = &OpenAIConfig{
 	AzureAPIVersion:           envOrDefault("CHLOE_AZURE_API_VERSION", "2023-03-15-preview"),
 	AzureBaseURL:              envOrDefault("CHLOE_AZURE_BASE_URL", ""),
 	AzureEngine:               envOrDefault("CHLOE_AZURE_ENGINE", ""),
+	UseFunctions:              envOrDefaultBool("CHLOE_USE_FUNCTIONS", true),
 }

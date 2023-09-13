@@ -28,11 +28,11 @@ func (a *GoogleAction) Execute(request *action_structs.ActionRequest) ([]*respon
 	fallback := true
 
 	if config.React.GoogleCustomSearchID != "" && config.React.GoogleCustomSearchAPIKey != "" {
-		logger.Info().Msg("using openai custom search api")
+		logger.Info().Msg("using custom search api")
 
 		svc, err := customsearch.NewService(request.Context, option.WithAPIKey(config.React.GoogleCustomSearchAPIKey))
 		if err != nil {
-			logger.Warn().Err(err).Msg("failed to create custom search service, falling back to openai search scraping")
+			logger.Warn().Err(err).Msg("failed to create custom search service, falling back to search scraping")
 		} else {
 			s := svc.Cse.List()
 			s.Q(a.MustGetParam("query"))
@@ -40,7 +40,7 @@ func (a *GoogleAction) Execute(request *action_structs.ActionRequest) ([]*respon
 			s.Cx(config.React.GoogleCustomSearchID)
 			search, err := s.Do()
 			if err != nil {
-				logger.Warn().Err(err).Msg("failed to perform api search, falling back to openai search scraping")
+				logger.Warn().Err(err).Msg("failed to perform api search, falling back to search scraping")
 			} else {
 				for k := range search.Items {
 					results = append(results, googleResult{
@@ -50,7 +50,7 @@ func (a *GoogleAction) Execute(request *action_structs.ActionRequest) ([]*respon
 					})
 				}
 				if len(results) == 0 {
-					logger.Warn().Msg("no results from api, falling back to openai search scraping")
+					logger.Warn().Msg("no results from api, falling back to search scraping")
 				} else {
 					fallback = false
 				}

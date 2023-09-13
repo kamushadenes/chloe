@@ -70,7 +70,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
-	_, err := chat.ChatStreamWithContext(ctx, writer, messages.UserMessage(params.Content))
+	_, err := chat.ChatStreamWithContext(ctx, writer, msg, messages.UserMessage(params.Content))
 	if err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return

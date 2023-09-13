@@ -1,11 +1,12 @@
 package scrape
 
 import (
-	"fmt"
-	"github.com/gocolly/colly"
+	"encoding/json"
 	url2 "net/url"
 	"strings"
 	"time"
+
+	"github.com/gocolly/colly"
 )
 
 type News struct {
@@ -58,30 +59,32 @@ func (n *News) SetAuthor(author string) {
 	n.Author = strings.TrimSpace(author)
 }
 
-func (n *News) GetStorableContent() string {
-	var msg string
+func (n *News) GetResponse() string {
+	resm := make(map[string]string)
 
 	if len(n.Title) > 0 {
-		msg += fmt.Sprintf("Title: %s", n.Title)
+		resm["Title"] = n.Title
 	} else {
-		msg += fmt.Sprintf("Title: %s", n.s.Title)
+		resm["Title"] = n.s.Title
 	}
-	msg += fmt.Sprintf("\nURL: %s", n.s.URL)
+	resm["URL"] = n.s.URL
 	if len(n.Author) > 0 {
-		msg += fmt.Sprintf("\nAuthor: %s", n.Author)
+		resm["Author"] = n.Author
 	}
 	if len(n.Summary) > 0 {
-		msg += fmt.Sprintf("\nSummary: %s", n.Summary)
+		resm["Summary"] = n.Summary
 	}
 	if len(n.Paragraphs) > 0 {
-		msg += fmt.Sprintf("\nContent: %s", strings.Join(n.Paragraphs, "\n"))
+		resm["Content"] = strings.Join(n.Paragraphs, "\n")
 	} else if len(n.Content) > 0 {
-		msg += fmt.Sprintf("\nContent: %s", n.Content)
+		resm["Content"] = n.Content
 	} else {
-		msg += fmt.Sprintf("\nContent: %s", n.s.Content)
+		resm["Content"] = n.s.Content
 	}
 
-	return msg
+	resb, _ := json.Marshal(resm)
+
+	return string(resb)
 }
 
 func parseNews(c *colly.Collector, scrapeResult *ScrapeResult, u *url2.URL) {

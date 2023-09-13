@@ -7,6 +7,7 @@ require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/MichaelMure/go-term-markdown v0.1.4
 	github.com/alecthomas/kong v0.7.1
+	github.com/antonmedv/expr v1.15.2
 	github.com/aquilax/truncate v1.0.0
 	github.com/biter777/countries v1.6.4
 	github.com/briandowns/spinner v1.23.0
@@ -22,14 +23,16 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.4.6
 	github.com/mattn/go-isatty v0.0.18
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
+	github.com/pkg/profile v1.7.0
 	github.com/pkoukk/tiktoken-go v0.1.3
 	github.com/rocketlaunchr/google-search v1.1.5
 	github.com/rs/zerolog v1.29.0
 	github.com/sashabaranov/go-openai v1.15.2
 	github.com/slack-go/slack v0.12.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.4
 	github.com/trietmn/go-wiki v1.0.0
 	golang.org/x/crypto v0.11.0
+	golang.org/x/term v0.10.0
 	google.golang.org/api v0.116.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/postgres v1.5.0
@@ -53,6 +56,7 @@ require (
 	github.com/antchfx/htmlquery v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.3.15 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
+	github.com/briandowns/openweathermap v0.19.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/dlclark/regexp2 v1.9.0 // indirect
@@ -86,8 +90,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/microsoft/go-mssqldb v0.21.0 // indirect
-	github.com/pkg/profile v1.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/ramsgoli/Golang-OpenWeatherMap v0.0.0-20200819054846-b9de37dc5370 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
@@ -96,7 +100,6 @@ require (
 	golang.org/x/net v0.13.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/term v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

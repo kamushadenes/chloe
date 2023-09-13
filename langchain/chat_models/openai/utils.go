@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/tokenizer"
 )
@@ -26,6 +27,17 @@ func (c *ChatOpenAI) LoadUserMessages(ctx context.Context) ([]messages.Message, 
 		} else {
 			m.Content = mmsgs[k].GetContent()
 		}
+
+		m.Name = mmsgs[k].Name
+
+		if mmsgs[k].FunctionCallName != "" {
+			m.FunctionCall = &functions.FunctionCall{
+				Name:      mmsgs[k].FunctionCallName,
+				Arguments: mmsgs[k].FunctionCallArguments,
+			}
+		}
+
+		m.ID = mmsgs[k].ID
 
 		msgs = append(msgs, m)
 	}

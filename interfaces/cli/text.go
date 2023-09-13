@@ -45,7 +45,7 @@ func Complete(ctx context.Context, text string, writer writer_structs.ChloeWrite
 		})
 	}
 
-	_, err := chat.ChatStreamWithContext(ctx, writer, messages.UserMessage(text))
+	_, err := chat.ChatStreamWithContext(ctx, writer, msg, messages.UserMessage(text))
 
 	return err
 }

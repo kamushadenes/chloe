@@ -21,12 +21,12 @@ func complete(ctx context.Context, msg *memory.Message) error {
 	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if config.Slack.StreamMessages {
-		_, err := chat.ChatStreamWithContext(ctx, request.Writer, messages.UserMessage(promptFromMessage(msg)))
+		_, err := chat.ChatStreamWithContext(ctx, request.Writer, msg, messages.UserMessage(promptFromMessage(msg)))
 		if err != nil {
 			return err
 		}
 	} else {
-		res, err := chat.ChatWithContext(ctx, messages.UserMessage(promptFromMessage(msg)))
+		res, err := chat.ChatWithContext(ctx, msg, messages.UserMessage(promptFromMessage(msg)))
 		if err != nil {
 			return err
 		}

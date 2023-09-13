@@ -19,6 +19,7 @@ type generatedAction struct {
 	OverrideStructName string
 	Package            string
 	Params             []*action_structs.ActionParameter
+	SkipFunctionCall   bool
 	SkipNewAction      bool
 	SkipGetName        bool
 	SkipGetDescription bool
@@ -97,9 +98,10 @@ var actionsToGenerate = []*generatedAction{
 		},
 	},
 	{
-		Name:        "image",
-		Description: "Generate an image from a prompt",
-		Package:     "image",
+		Name:             "image",
+		Description:      "Generate an image from a prompt",
+		Package:          "image",
+		SkipFunctionCall: true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "prompt",
@@ -111,9 +113,10 @@ var actionsToGenerate = []*generatedAction{
 		SkipRunPreActions: true,
 	},
 	{
-		Name:        "variation",
-		Description: "Generate a variation of an image",
-		Package:     "image",
+		Name:             "variation",
+		Description:      "Generate a variation of an image",
+		Package:          "image",
+		SkipFunctionCall: true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "path",
@@ -124,9 +127,10 @@ var actionsToGenerate = []*generatedAction{
 		},
 	},
 	{
-		Name:        "latex",
-		Description: "Render a LaTeX formula",
-		Package:     "latex",
+		Name:             "latex",
+		Description:      "Render a LaTeX formula",
+		Package:          "latex",
+		SkipFunctionCall: true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "formula",
@@ -150,9 +154,23 @@ var actionsToGenerate = []*generatedAction{
 		},
 	},
 	{
-		Name:        "mock",
-		Description: "Mock a message",
-		Package:     "mock",
+		Name:        "weather",
+		Description: "Get weather",
+		Package:     "weather",
+		Params: []*action_structs.ActionParameter{
+			{
+				Name:        "location",
+				Description: "Location to get weather from",
+				Type:        "string",
+				Required:    true,
+			},
+		},
+	},
+	{
+		Name:             "mock",
+		Description:      "Mock a message",
+		Package:          "mock",
+		SkipFunctionCall: true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "foo",
@@ -206,9 +224,10 @@ var actionsToGenerate = []*generatedAction{
 		SkipRunPostActions: true,
 	},
 	{
-		Name:        "transcribe",
-		Description: "Transcribe an audio file",
-		Package:     "transcribe",
+		Name:             "transcribe",
+		Description:      "Transcribe an audio file",
+		Package:          "transcribe",
+		SkipFunctionCall: true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "path",
@@ -239,6 +258,7 @@ var actionsToGenerate = []*generatedAction{
 		Description:        "Text to speech",
 		Package:            "tts",
 		OverrideStructName: "TTS",
+		SkipFunctionCall:   true,
 		Params: []*action_structs.ActionParameter{
 			{
 				Name:        "text",
@@ -371,6 +391,10 @@ func New{{ .StructName }}Action() action_structs.Action {
 }
 {{- end }}
 
+func (a *{{ .StructName }}Action) SkipFunctionCall() bool {
+	return {{ .Action.SkipFunctionCall }}
+}
+
 // CheckRequiredParams checks if all required params are set
 func (a *{{ .StructName }}Action) CheckRequiredParams() error {
 	return a.Params.CheckRequiredParams()
@@ -434,30 +458,31 @@ func (a *{{ .StructName }}Action) RunPostActions(request *action_structs.ActionR
 {{- end }}
 
 func (a *{{ .StructName }}Action) GetSchema() *functions.FunctionDefinition {
-	params := make(map[string]interface{})
+	params:= make(map[string]interface{})
 	
-	params["parameters"] = make(map[string]interface{})
-	
-	params["parameters"].(map[string]interface{})["type"] = "object"
-	params["parameters"].(map[string]interface{})["required"] = []string{}
+	params["type"] = "object"
+	params["required"] = []string{}
+	params["properties"] = make(map[string]interface{})
 	
 	for k := range a.GetParams() {
 		p := a.GetParams()[k]
-		params["parameters"].(map[string]interface{})[p.Name] = make(map[string]interface{})	
+		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})	
 		
-		params["parameters"].(map[string]interface{})[p.Name].(map[string]interface{})["type"] = p.Type
-		params["parameters"].(map[string]interface{})[p.Name].(map[string]interface{})["description"] = p.Description
-		params["parameters"].(map[string]interface{})[p.Name].(map[string]interface{})["enum"] = p.Enum
+		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["type"] = p.Type
+		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["description"] = p.Description
+		if p.Enum != nil {
+			params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["enum"] = p.Enum
+		}
 		
 		if p.Required {
-			params["parameters"].(map[string]interface{})["required"] = append(params["parameters"].(map[string]interface{})["required"].([]string), p.Name)
+			params["required"] = append(params["required"].([]string), p.Name)
 		}
 	}
 
 	return &functions.FunctionDefinition{
 		Name:        a.GetName(),
 		Description: a.GetDescription(),
-		Parameters:      a.GetParams(),
+		Parameters:  params,
 	}
 }
 `))

@@ -18,18 +18,18 @@ import (
 	"github.com/kamushadenes/chloe/langchain/actions/scrape"
 	"github.com/kamushadenes/chloe/langchain/actions/transcribe"
 	"github.com/kamushadenes/chloe/langchain/actions/tts"
+	"github.com/kamushadenes/chloe/langchain/actions/weather"
 	"github.com/kamushadenes/chloe/langchain/actions/wikipedia"
 	"github.com/kamushadenes/chloe/langchain/actions/youtube"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs/action_structs"
-	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/kamushadenes/chloe/utils"
 )
 
 var actions = map[string]func() action_structs.Action{
 	"mock": mock.NewMockAction,
 
-	"search": google.NewGoogleAction,
+	"google": google.NewGoogleAction,
 
 	"news":            news.NewNewsAction,
 	"news_by_country": news.NewNewsByCountryAction,
@@ -47,8 +47,8 @@ var actions = map[string]func() action_structs.Action{
 
 	"wikipedia": wikipedia.NewWikipediaAction,
 
-	"summarize_youtube":  youtube.NewYoutubeSummarizeAction,
-	"transcribe_youtube": youtube.NewYoutubeSummarizeAction,
+	"youtube_summarize":  youtube.NewYoutubeSummarizeAction,
+	"youtube_transcribe": youtube.NewYoutubeTranscribeAction,
 
 	"latex": latex.NewLatexAction,
 
@@ -56,6 +56,19 @@ var actions = map[string]func() action_structs.Action{
 	"write_file":  file.NewWriteFileAction,
 	"delete_file": file.NewDeleteFileAction,
 	"read_file":   file.NewReadFileAction,
+
+	"weather": weather.NewWeatherAction,
+}
+
+func GetAllowedActions() []action_structs.Action {
+	var acts []action_structs.Action
+	for k := range actions {
+		act := actions[k]()
+		if !act.SkipFunctionCall() {
+			acts = append(acts, act)
+		}
+	}
+	return acts
 }
 
 func HandleAction(request *action_structs.ActionRequest) (err error) {
@@ -101,10 +114,12 @@ func HandleAction(request *action_structs.ActionRequest) (err error) {
 
 	if !utils.Testing() {
 		request.Message.NotifyAction(act.GetNotification())
-		if err = StoreActionDetectionResult(request, "assistant", act.GetNotification(), ""); err != nil {
-			logger.Error().Err(err).Msg("error storing action detection result")
-			return
-		}
+		/*
+			if err = StoreActionDetectionResult(request, "assistant", act.GetNotification(), ""); err != nil {
+				logger.Error().Err(err).Msg("error storing action detection result")
+				return
+			}
+		*/
 	}
 
 	logger.Info().Msg("executing action")
@@ -119,31 +134,31 @@ func HandleAction(request *action_structs.ActionRequest) (err error) {
 	logger.Info().Msg("writing action results")
 
 	for k := range objs {
-		if !errors.Is(err, errors.ErrProceed) {
-			// Handle HTTP writers
-			for kk := range objs[k].Header() {
-				for kkk := range objs[k].Header()[kk] {
-					request.Writer.Header().Add(kk, objs[k].Header()[kk][kkk])
+		// Handle HTTP writers
+		for kk := range objs[k].Header() {
+			for kkk := range objs[k].Header()[kk] {
+				request.Writer.Header().Add(kk, objs[k].Header()[kk][kkk])
+			}
+		}
+
+		if err = request.Writer.WriteObject(objs[k]); err != nil {
+			return err
+		}
+
+		request.Writer.WriteHeader(objs[k].HTTPStatusCode)
+
+		/*
+			if !utils.Testing() {
+				var summary string
+				switch objs[k].Type {
+				case response_object_structs.Image, response_object_structs.Audio:
+					summary = objs[k].GetStorableContent()
+				}
+				if err := StoreActionDetectionResult(request, "user", objs[k].GetStorableContent(), summary); err != nil {
+					return errors.Wrap(errors.ErrActionFailed, err)
 				}
 			}
-
-			if err = request.Writer.WriteObject(objs[k]); err != nil {
-				return err
-			}
-
-			request.Writer.WriteHeader(objs[k].HTTPStatusCode)
-		}
-
-		if !utils.Testing() {
-			var summary string
-			switch objs[k].Type {
-			case response_object_structs.Image, response_object_structs.Audio:
-				summary = objs[k].GetStorableContent()
-			}
-			if err := StoreActionDetectionResult(request, "user", objs[k].GetStorableContent(), summary); err != nil {
-				return errors.Wrap(errors.ErrActionFailed, err)
-			}
-		}
+		*/
 	}
 
 	if !request.SkipClose {

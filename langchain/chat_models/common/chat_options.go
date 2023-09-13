@@ -5,6 +5,7 @@ import (
 
 	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
+	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
 type ChatOptions interface {
@@ -30,4 +31,6 @@ type ChatOptions interface {
 	WithExamples(promptName string) ChatOptions
 	WithFunctions([]*functions.FunctionDefinition) ChatOptions
 	GetFunctions() []*functions.FunctionDefinition
+	WithUserMessage(message *memory.Message) ChatOptions
+	GetUserMessage() *memory.Message
 }

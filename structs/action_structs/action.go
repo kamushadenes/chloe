@@ -44,6 +44,9 @@ type Action interface {
 
 	// GetSchema Get the schema of the action to be passed to `functions`
 	GetSchema() *functions.FunctionDefinition
+
+	// SkipFunctionCall Check if the action can be automatically executed by the AI
+	SkipFunctionCall() bool
 }
 
 type ActionParameterSet struct {

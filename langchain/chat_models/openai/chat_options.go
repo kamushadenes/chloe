@@ -1,11 +1,14 @@
 package openai
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/langchain/prompts"
 	"github.com/sashabaranov/go-openai"
 )
@@ -16,6 +19,7 @@ type ChatOptionsOpenAI struct {
 	bootstrap messages.Message
 	system    messages.Message
 	examples  []messages.Message
+	userMsg   *memory.Message
 }
 
 func NewChatOptionsOpenAI() common.ChatOptions {
@@ -56,7 +60,21 @@ func (c ChatOptionsOpenAI) GetSystemMessages() []messages.Message {
 }
 
 func (c ChatOptionsOpenAI) GetRequest() interface{} {
+	b, _ := json.MarshalIndent(c.req, "", "  ")
+
+	fmt.Println(string(b))
+
 	return c.req
+}
+
+func (c ChatOptionsOpenAI) WithUserMessage(msg *memory.Message) common.ChatOptions {
+	c.userMsg = msg
+
+	return c
+}
+
+func (c ChatOptionsOpenAI) GetUserMessage() *memory.Message {
+	return c.userMsg
 }
 
 func (c ChatOptionsOpenAI) WithMessages(messages []messages.Message) common.ChatOptions {
@@ -64,11 +82,20 @@ func (c ChatOptionsOpenAI) WithMessages(messages []messages.Message) common.Chat
 
 	for k := range messages {
 		msg := messages[k]
-		msgs = append(msgs, openai.ChatCompletionMessage{
+
+		nmsg := openai.ChatCompletionMessage{
 			Role:    string(msg.Role),
 			Content: msg.Content,
 			Name:    msg.Name,
-		})
+		}
+
+		if msg.FunctionCall != nil {
+			nmsg.FunctionCall = &openai.FunctionCall{
+				Name:      msg.FunctionCall.Name,
+				Arguments: msg.FunctionCall.Arguments,
+			}
+		}
+		msgs = append(msgs, nmsg)
 	}
 
 	c.req.Messages = msgs
@@ -142,7 +169,9 @@ func (c ChatOptionsOpenAI) GetTimeout() time.Duration {
 
 func (c ChatOptionsOpenAI) WithSystemPrompt(promptName string) common.ChatOptions {
 	if prompt, err := prompts.GetPrompt(promptName, make(map[string]interface{})); err == nil {
-		c.system = messages.SystemMessage(prompt)
+		msg := messages.SystemMessage(prompt)
+		msg.ID = 999999999999
+		c.system = msg
 	}
 
 	return c
@@ -160,11 +189,15 @@ func (c ChatOptionsOpenAI) WithBootstrap(args interface{}) common.ChatOptions {
 		}
 
 		if bootstrap, err := prompts.GetPrompt("bootstrap", v); err == nil {
-			c.bootstrap = messages.SystemMessage(bootstrap)
+			msg := messages.SystemMessage(bootstrap)
+			msg.ID = 999999999998
+			c.bootstrap = msg
 		}
 	default:
 		if bootstrap, err := prompts.GetPrompt("bootstrap", v); err == nil {
-			c.bootstrap = messages.SystemMessage(bootstrap)
+			msg := messages.SystemMessage(bootstrap)
+			msg.ID = 999999999998
+			c.bootstrap = msg
 		}
 	}
 

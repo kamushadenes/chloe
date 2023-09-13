@@ -1,6 +1,7 @@
 package wikipedia
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/kamushadenes/chloe/config"
@@ -47,9 +48,19 @@ func (a *WikipediaAction) Execute(request *action_structs.ActionRequest) ([]*res
 			continue
 		}
 
-		if _, err := obj.Write([]byte(
-			fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s",
-				page.URL, page.Title, utils.Truncate(content, truncateTokenCount)))); err != nil {
+		var resm = make(map[string]string)
+		resm["URL"] = page.URL
+		resm["Title"] = page.Title
+		resm["Content"] = utils.Truncate(content, truncateTokenCount)
+
+		resb, err := json.Marshal(resm)
+		if err != nil {
+			if utils.Testing() {
+				return nil, errors.Wrap(errors.ErrActionFailed, err)
+			}
+		}
+
+		if _, err := obj.Write(resb); err != nil {
 			return nil, errors.Wrap(errors.ErrActionFailed, err)
 		}
 	}

@@ -2,12 +2,13 @@ package memory
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type CLIMessageSource struct{}
@@ -63,19 +64,22 @@ type MessageModeration struct {
 
 type Message struct {
 	gorm.Model
-	Context    context.Context    `json:"-" gorm:"-"`
-	ExternalID string             `json:"externalId"`
-	Interface  string             `json:"interface"`
-	User       *User              `json:"user,omitempty"`
-	UserID     uint               `json:"userId,omitempty"`
-	Source     *MessageSource     `json:"source" gorm:"-"`
-	Role       string             `json:"role"`
-	Content    string             `json:"content"`
-	Summary    string             `json:"summary"`
-	Moderated  bool               `json:"moderated"`
-	TokenCount int                `json:"tokenCount"`
-	Moderation *MessageModeration `json:"moderation" gorm:"embedded;embeddedPrefix:moderation_"`
-	ErrorCh    chan error         `json:"-" gorm:"-"`
-	audioPaths []string
-	imagePaths []string
+	Context               context.Context    `json:"-" gorm:"-"`
+	ExternalID            string             `json:"externalId"`
+	Interface             string             `json:"interface"`
+	User                  *User              `json:"user,omitempty"`
+	UserID                uint               `json:"userId,omitempty"`
+	Source                *MessageSource     `json:"source" gorm:"-"`
+	Name                  string             `json:"name"`
+	Role                  string             `json:"role"`
+	Content               string             `json:"content"`
+	Summary               string             `json:"summary"`
+	FunctionCallName      string             `json:"functionCallName"`
+	FunctionCallArguments string             `json:"functionCallArguments"`
+	Moderated             bool               `json:"moderated"`
+	TokenCount            int                `json:"tokenCount"`
+	Moderation            *MessageModeration `json:"moderation" gorm:"embedded;embeddedPrefix:moderation_"`
+	ErrorCh               chan error         `json:"-" gorm:"-"`
+	audioPaths            []string
+	imagePaths            []string
 }

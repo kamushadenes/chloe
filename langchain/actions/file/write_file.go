@@ -29,7 +29,7 @@ func (a *WriteFileAction) Execute(request *action_structs.ActionRequest) ([]*res
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 
-	if _, err := obj.Write([]byte(fmt.Sprintf("File written: **%s**", fname))); err != nil {
+	if _, err := obj.Write(action_structs.SuccessMessage); err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
 	}
 

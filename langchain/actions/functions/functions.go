@@ -1,8 +1,6 @@
 package functions
 
-import (
-	"github.com/kamushadenes/chloe/structs/response_object_structs"
-)
+import "encoding/json"
 
 type FunctionCall struct {
 	Name      string `json:"name,omitempty"`
@@ -20,28 +18,12 @@ type FunctionDefinition struct {
 	Parameters any `json:"parameters"`
 }
 
-func (fnc *FunctionCall) Run() ([]*response_object_structs.ResponseObject, error) {
-	/*
-		w := writer_structs.NewMockWriter()
+type FunctionResult struct {
+	Result string `json:"result"`
+}
 
-		req := action_structs.NewActionRequest()
+func (f *FunctionResult) String() string {
+	b, _ := json.Marshal(f)
 
-		req.Action = fnc.Name
-		req.Writer = w
-
-		var args map[string]string
-		if err := json.Unmarshal([]byte(fnc.Arguments), &args); err != nil {
-			return nil, err
-		}
-
-		req.Params = args
-
-		if err := actions.HandleAction(req); err != nil {
-			return nil, err
-		}
-
-		return w.GetObjects(), nil
-	*/
-
-	return nil, nil
+	return string(b)
 }

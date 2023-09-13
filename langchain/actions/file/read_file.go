@@ -12,7 +12,7 @@ import (
 )
 
 func (a *ReadFileAction) GetNotification() string {
-	return fmt.Sprintf("📄 Writing file: **%s**", a.MustGetParam("path"))
+	return fmt.Sprintf("📄 Reading file: **%s**", a.MustGetParam("path"))
 }
 
 func (a *ReadFileAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {

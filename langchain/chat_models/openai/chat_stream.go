@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/gofrs/uuid"
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
@@ -16,12 +17,45 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-func (c *ChatOpenAI) ChatStream(w io.Writer, messages ...messages.Message) (common.ChatResult, error) {
-	return c.ChatStreamWithContext(context.Background(), w, messages...)
+func (c *ChatOpenAI) ChatStream(w io.Writer, userMsg *memory.Message, messages ...messages.Message) (common.ChatResult, error) {
+	return c.ChatStreamWithContext(context.Background(), w, userMsg, messages...)
 }
 
-func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, messages ...messages.Message) (common.ChatResult, error) {
-	opts := NewChatOptionsOpenAI().WithMessages(messages).WithModel(c.Model.Name)
+func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, userMsg *memory.Message, messages ...messages.Message) (common.ChatResult, error) {
+	logger := logging.GetLogger()
+
+	msgs, err := c.LoadUserMessages(ctx)
+	if err != nil {
+		logger.Error().
+			Str("provider", "openai").
+			Str("model", c.Model.Name).
+			Err(err).
+			Msg("chat completion error")
+
+		return common.ChatResult{}, err
+	}
+
+	for k := range msgs {
+		msg := msgs[k]
+
+		found := false
+		for kk := range messages {
+			if msg.ID == messages[kk].ID {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			messages = append(messages, msg)
+		}
+	}
+
+	opts := NewChatOptionsOpenAI().
+		WithMessages(msgs).
+		WithModel(c.Model.Name).
+		WithTimeout(config.Timeouts.Completion).
+		WithUserMessage(userMsg)
 
 	return c.ChatStreamWithOptions(ctx, w, opts)
 }
@@ -29,13 +63,15 @@ func (c *ChatOpenAI) ChatStreamWithContext(ctx context.Context, w io.Writer, mes
 func (c *ChatOpenAI) ChatStreamWithOptions(ctx context.Context, w io.Writer, opts common.ChatOptions) (common.ChatResult, error) {
 	logger := logging.GetLogger()
 
-	msgs, err := c.LoadUserMessages(ctx)
-	if err != nil {
-		return common.ChatResult{}, err
+	var fmsgs []messages.Message
+	omsgs := opts.GetMessages()
+	for k := range omsgs {
+		if omsgs[k].Role != messages.System {
+			fmsgs = append(fmsgs, omsgs[k])
+		}
 	}
 
-	msgs = append(msgs, opts.GetMessages()...)
-	msgs = c.ReduceTokens(opts.GetSystemMessages(), msgs)
+	msgs := c.ReduceTokens(opts.GetSystemMessages(), fmsgs)
 
 	opts = opts.WithMessages(msgs)
 
