@@ -13,4 +13,6 @@ type TTSOptions interface {
 	WithLanguage(language string) TTSOptions
 	WithTimeout(time.Duration) TTSOptions
 	GetTimeout() time.Duration
+	WithSimilarityBoost(float32) TTSOptions
+	WithStability(float32) TTSOptions
 }

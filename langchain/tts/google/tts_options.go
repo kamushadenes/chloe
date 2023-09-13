@@ -23,11 +23,11 @@ func (c TTSOptionsGoogle) GetRequest() interface{} {
 	}
 
 	if c.req.Voice.LanguageCode == "" {
-		c.req.Voice.LanguageCode = config.GCP.TTSLanguageCode
+		c.req.Voice.LanguageCode = config.Google.TTSLanguageCode
 	}
 
 	if c.req.Voice.Name == "" {
-		c.req.Voice.Name = config.GCP.TTSVoiceName
+		c.req.Voice.Name = config.Google.TTSVoiceName
 	}
 
 	if c.req.AudioConfig == nil {
@@ -35,22 +35,30 @@ func (c TTSOptionsGoogle) GetRequest() interface{} {
 	}
 
 	if c.req.AudioConfig.AudioEncoding == 0 {
-		c.req.AudioConfig.AudioEncoding = config.GCP.TTSEncoding
+		c.req.AudioConfig.AudioEncoding = config.Google.TTSEncoding
 	}
 
 	if c.req.AudioConfig.SpeakingRate == 0 {
-		c.req.AudioConfig.SpeakingRate = config.GCP.TTSSpeakingRate
+		c.req.AudioConfig.SpeakingRate = config.Google.TTSSpeakingRate
 	}
 
 	if c.req.AudioConfig.Pitch == 0 {
-		c.req.AudioConfig.Pitch = config.GCP.TTSPitch
+		c.req.AudioConfig.Pitch = config.Google.TTSPitch
 	}
 
 	if c.req.AudioConfig.VolumeGainDb == 0 {
-		c.req.AudioConfig.VolumeGainDb = config.GCP.TTSVolumeGain
+		c.req.AudioConfig.VolumeGainDb = config.Google.TTSVolumeGain
 	}
 
 	return c.req
+}
+
+func (c TTSOptionsGoogle) WithSimilarityBoost(sb float32) common.TTSOptions {
+	return c
+}
+
+func (c TTSOptionsGoogle) WithStability(st float32) common.TTSOptions {
+	return c
 }
 
 func (c TTSOptionsGoogle) WithText(text string) common.TTSOptions {

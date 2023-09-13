@@ -1,15 +1,16 @@
 package config
 
 import (
-	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"fmt"
-	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/models"
-	"github.com/kamushadenes/chloe/utils"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
+	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/models"
+	"github.com/kamushadenes/chloe/utils"
 )
 
 func envOrDefault(key, defaultValue string) string {
@@ -178,6 +179,39 @@ func envOrDefaultFloat64(key string, defaultValue float64) float64 {
 
 func envOrDefaultFloat64InRange(key string, defaultValue, min, max float64) float64 {
 	value := envOrDefaultFloat64(key, defaultValue)
+	if value < min || value > max {
+		panic(errors.Wrap(
+			errors.ErrInvalidEnv,
+			fmt.Errorf("env: %s", key),
+			fmt.Errorf("value: %f", value),
+			fmt.Errorf("min: %f", min),
+			fmt.Errorf("max %f", max),
+		))
+	}
+
+	return value
+}
+
+func envOrDefaultFloat32(key string, defaultValue float32) float32 {
+	if value := os.Getenv(key); value != "" {
+
+		f, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			panic(errors.Wrap(
+				errors.ErrInvalidEnv,
+				fmt.Errorf("env: %s", key),
+				fmt.Errorf("value: %s", value),
+				err,
+			))
+		}
+		return float32(f)
+	}
+
+	return defaultValue
+}
+
+func envOrDefaultFloat32InRange(key string, defaultValue, min, max float32) float32 {
+	value := envOrDefaultFloat32(key, defaultValue)
 	if value < min || value > max {
 		panic(errors.Wrap(
 			errors.ErrInvalidEnv,

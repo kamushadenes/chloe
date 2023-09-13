@@ -2,14 +2,15 @@ package google
 
 import (
 	"bytes"
+	"context"
+	"io"
+
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
-	"context"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
 	"github.com/kamushadenes/chloe/logging"
-	"io"
 )
 
 type TTSGoogle struct{}
@@ -79,7 +80,7 @@ func (c *TTSGoogle) TTSWithOptions(ctx context.Context, opts common.TTSOptions) 
 	}
 
 	logger.Info().
-		Str("provider", "openai").
+		Str("provider", "google").
 		Msg("tts done")
 
 	return res, nil

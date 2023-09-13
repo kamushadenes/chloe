@@ -20,6 +20,6 @@ var Timeouts = &TimeoutsConfig{
 	ImageGeneration: envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_GENERATION", 120*time.Second),
 	ImageEdit:       envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_EDIT", 120*time.Second),
 	ImageVariation:  envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_VARIATION", 120*time.Second),
-	TTS:             envOrDefaultDuration("CHLOE_TIMEOUT_TTS", 10*time.Second),
+	TTS:             envOrDefaultDuration("CHLOE_TIMEOUT_TTS", 60*time.Second),
 	SlownessWarning: envOrDefaultDuration("CHLOE_TIMEOUT_SLOWNESS_WARNING", 5*time.Second),
 }
