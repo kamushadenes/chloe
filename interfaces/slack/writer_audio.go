@@ -2,13 +2,25 @@ package slack
 
 import (
 	"fmt"
+
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/slack-go/slack"
 )
 
 func (w *SlackWriter) closeAudio() error {
 	logger := logging.FromContext(w.Context)
+
+	var found bool
+	for k := range w.objs {
+		if w.objs[k].Type == response_object_structs.Audio {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return nil
+	}
 
 	content := fmt.Sprintf("Prompt: %s", w.Prompt)
 
@@ -19,7 +31,7 @@ func (w *SlackWriter) closeAudio() error {
 
 	for k := range w.objs {
 		obj := w.objs[k]
-		if obj.Type == structs.Audio {
+		if obj.Type == response_object_structs.Audio {
 			logger.Debug().Str("chatID", w.ChatID).Msg("replying with audio")
 			if _, err := w.Bot.UploadFileV2(slack.UploadFileV2Parameters{
 				Reader:          obj,

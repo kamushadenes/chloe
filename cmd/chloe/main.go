@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
+
+	"github.com/pkg/profile"
 
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/interfaces/cli"
@@ -15,11 +15,14 @@ import (
 	"github.com/rs/zerolog"
 )
 
+var prf interface{ Stop() }
+
 func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) {
 	for {
 		select {
 		case <-quitCh:
 			cancel()
+			prf.Stop()
 			os.Exit(0)
 		case err := <-errorCh:
 			if err != nil {
@@ -27,23 +30,27 @@ func wait(quitCh chan os.Signal, errorCh chan error, cancel context.CancelFunc) 
 				fmt.Println(err)
 			}
 			cancel()
+			prf.Stop()
 			os.Exit(1)
 		}
 	}
 }
 
 func main() {
+	prf = profile.Start(profile.CPUProfile, profile.ProfilePath("."))
+	defer prf.Stop()
+
 	flags.Debug = os.Getenv("DEBUG") == "true"
 
 	ctx, cancel := context.WithCancel(context.Background())
 
 	quitCh := make(chan os.Signal, 1)
-	signal.Notify(quitCh,
+	/*signal.Notify(quitCh,
 		os.Interrupt,
 		syscall.SIGTERM,
 		syscall.SIGINT,
 		syscall.SIGQUIT,
-	)
+	)*/
 
 	errorCh := make(chan error)
 

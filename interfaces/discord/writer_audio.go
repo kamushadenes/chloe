@@ -2,9 +2,10 @@ package discord
 
 import (
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 func (w *DiscordWriter) closeAudio() error {
@@ -15,7 +16,7 @@ func (w *DiscordWriter) closeAudio() error {
 	for k := range w.objs {
 		obj := w.objs[k]
 
-		if obj.Type == structs.Audio {
+		if obj.Type == response_object_structs.Audio {
 			files = append(files, &discordgo.File{
 				Name:        fmt.Sprintf("generated-%d.mp3", k),
 				ContentType: "audio/mpeg",

@@ -3,7 +3,7 @@ package discord
 import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/kamushadenes/chloe/utils"
 )
 
@@ -12,7 +12,7 @@ func (w *DiscordWriter) closeText() error {
 
 	for kk := range w.objs {
 		obj := w.objs[kk]
-		if obj.Type == structs.Text {
+		if obj.Type == response_object_structs.Text {
 			logger.Debug().Str("chatID", w.ChatID).Msg("replying with text")
 			msgs := utils.StringToChunks(obj.String(), config.Discord.MaxMessageLength)
 

@@ -4,36 +4,36 @@ import (
 	"context"
 
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/tokenizer"
 )
 
-func (c *ChatOpenAI) LoadUserMessages(ctx context.Context) ([]common.Message, error) {
-	var messages []common.Message
+func (c *ChatOpenAI) LoadUserMessages(ctx context.Context) ([]messages.Message, error) {
+	var msgs []messages.Message
 
-	msgs, err := c.User.ListMessages(ctx)
+	mmsgs, err := c.User.ListMessages(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	for k := range msgs {
-		m := common.Message{
-			Role: common.Role(msgs[k].Role),
+	for k := range mmsgs {
+		m := messages.Message{
+			Role: messages.Role(mmsgs[k].Role),
 		}
 
-		if k >= len(messages)-config.OpenAI.MessagesToKeepFullContent {
-			m.Content = msgs[k].Content
+		if k >= len(mmsgs)-config.OpenAI.MessagesToKeepFullContent {
+			m.Content = mmsgs[k].Content
 		} else {
-			m.Content = msgs[k].GetContent()
+			m.Content = mmsgs[k].GetContent()
 		}
 
-		messages = append(messages, m)
+		msgs = append(msgs, m)
 	}
 
-	return messages, nil
+	return msgs, nil
 }
 
-func (c *ChatOpenAI) ReduceTokens(systemMessages []common.Message, messages []common.Message) []common.Message {
+func (c *ChatOpenAI) ReduceTokens(systemMessages []messages.Message, msgs []messages.Message) []messages.Message {
 	modelName := c.Model.Tokenizer
 	if c.Model.Tokenizer == "" {
 		modelName = c.Model.Name
@@ -45,15 +45,15 @@ func (c *ChatOpenAI) ReduceTokens(systemMessages []common.Message, messages []co
 			tokenCount += tokenizer.CountTokens(modelName, systemMessages[k].Content)
 		}
 
-		for k := range messages {
-			tokenCount += tokenizer.CountTokens(modelName, messages[k].Content)
+		for k := range msgs {
+			tokenCount += tokenizer.CountTokens(modelName, msgs[k].Content)
 		}
 
 		if tokenCount > c.Model.ContextSize {
-			messages = messages[1:]
+			msgs = msgs[1:]
 			continue
 		}
 
-		return append(systemMessages, messages...)
+		return append(systemMessages, msgs...)
 	}
 }

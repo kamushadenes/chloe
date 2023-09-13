@@ -4,7 +4,6 @@ import "time"
 
 type TimeoutsConfig struct {
 	Completion      time.Duration
-	ChainOfThought  time.Duration
 	Transcription   time.Duration
 	Moderation      time.Duration
 	ImageGeneration time.Duration
@@ -16,7 +15,6 @@ type TimeoutsConfig struct {
 
 var Timeouts = &TimeoutsConfig{
 	Completion:      envOrDefaultDuration("CHLOE_TIMEOUT_COMPLETION", 60*time.Second),
-	ChainOfThought:  envOrDefaultDuration("CHLOE_TIMEOUT_CHAIN_OF_THOUGHT", 60*time.Second),
 	Transcription:   envOrDefaultDuration("CHLOE_TIMEOUT_TRANSCRIPTION", 120*time.Second),
 	Moderation:      envOrDefaultDuration("CHLOE_TIMEOUT_MODERATION", 60*time.Second),
 	ImageGeneration: envOrDefaultDuration("CHLOE_TIMEOUT_IMAGE_GENERATION", 120*time.Second),

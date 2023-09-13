@@ -13,7 +13,8 @@ var (
 		ContextUnit:      schema.ContextUnitToken,
 		TokensPerMessage: 4,
 		TokensPerName:    -1,
-		UsageCost:        &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		PromptCost:       &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		CompletionCost:   &schema.CostObject{Price: 0.002, Unit: schema.CostUnitToken, UnitSize: 1000},
 	}
 
 	GPT35Turbo0301 = &common.ChatModel{
@@ -22,7 +23,8 @@ var (
 		ContextUnit:      schema.ContextUnitToken,
 		TokensPerMessage: 4,
 		TokensPerName:    -1,
-		UsageCost:        &schema.CostObject{Price: 0.002, Unit: schema.CostUnitToken, UnitSize: 1000},
+		PromptCost:       &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		CompletionCost:   &schema.CostObject{Price: 0.002, Unit: schema.CostUnitToken, UnitSize: 1000},
 	}
 
 	GPT35Turbo0613 = &common.ChatModel{
@@ -31,7 +33,8 @@ var (
 		ContextUnit:      schema.ContextUnitToken,
 		TokensPerMessage: 4,
 		TokensPerName:    -1,
-		UsageCost:        &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		PromptCost:       &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		CompletionCost:   &schema.CostObject{Price: 0.002, Unit: schema.CostUnitToken, UnitSize: 1000},
 	}
 
 	GPT35Turbo16K = &common.ChatModel{
@@ -40,7 +43,8 @@ var (
 		ContextUnit:      schema.ContextUnitToken,
 		TokensPerMessage: 4,
 		TokensPerName:    -1,
-		UsageCost:        &schema.CostObject{Price: 0.0015, Unit: schema.CostUnitToken, UnitSize: 1000},
+		PromptCost:       &schema.CostObject{Price: 0.003, Unit: schema.CostUnitToken, UnitSize: 1000},
+		CompletionCost:   &schema.CostObject{Price: 0.004, Unit: schema.CostUnitToken, UnitSize: 1000},
 	}
 
 	GPT4 = &common.ChatModel{

@@ -2,11 +2,12 @@ package slack
 
 import (
 	"context"
+	"strings"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
-	"strings"
 )
 
 func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, error) {
@@ -21,9 +22,12 @@ func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, er
 
 	if err != nil {
 		var userInfo *slack.User
-		userInfo, err = msg.Source.Slack.API.GetUserInfo(msg.Source.Slack.Message.User)
-		if err != nil {
-			return nil, err
+
+		if msg.Source.Slack.Message != nil {
+			userInfo, err = msg.Source.Slack.API.GetUserInfo(msg.Source.Slack.Message.User)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		names := strings.Fields(userInfo.Profile.DisplayNameNormalized)

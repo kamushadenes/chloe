@@ -2,9 +2,10 @@ package cli
 
 import (
 	"bufio"
-	"github.com/kamushadenes/chloe/structs"
 	"net/http"
 	"os"
+
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type CLIWriter struct {
@@ -25,7 +26,7 @@ func (w *CLIWriter) Write(p []byte) (n int, err error) {
 	return w.w.Write(p)
 }
 
-func (w *CLIWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *CLIWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	_, err := w.Write(obj.Data)
 
 	return err
@@ -43,4 +44,8 @@ func (w *CLIWriter) WriteHeader(statusCode int) {}
 func (w *CLIWriter) Header() http.Header        { return http.Header{} }
 func (w *CLIWriter) SetPreWriteCallback(fn func()) {
 	w.callback = fn
+}
+
+func (w *CLIWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return nil
 }

@@ -2,12 +2,14 @@ package slack
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/aquilax/truncate"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/slack-go/slack"
-	"net/http"
-	"time"
 )
 
 type SlackWriter struct {
@@ -18,7 +20,7 @@ type SlackWriter struct {
 	Type             string
 	ReplyID          string
 	Request          structs.ActionOrCompletionRequest
-	objs             []*structs.ResponseObject
+	objs             []*response_object_structs.ResponseObject
 	externalID       string
 	lastUpdate       *time.Time
 	preWriteCallback func()
@@ -107,8 +109,8 @@ func (w *SlackWriter) Write(p []byte) (n int, err error) {
 		w.preWriteCallback()
 	}
 	if len(w.objs) == 0 {
-		w.objs = append(w.objs, &structs.ResponseObject{
-			Type:   structs.Text,
+		w.objs = append(w.objs, &response_object_structs.ResponseObject{
+			Type:   response_object_structs.Text,
 			Result: true,
 		})
 	}
@@ -118,7 +120,7 @@ func (w *SlackWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (w *SlackWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *SlackWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	w.objs = append(w.objs, obj)
 
 	return nil
@@ -132,4 +134,8 @@ func (w *SlackWriter) WriteHeader(statusCode int) {}
 func (w *SlackWriter) Header() http.Header        { return http.Header{} }
 func (w *SlackWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
+}
+
+func (w *SlackWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return w.objs
 }

@@ -11,6 +11,6 @@ var (
 		Name:        openai.Whisper1,
 		ContextSize: 26214400, // 25MB
 		ContextUnit: schema.ContextUnitByte,
-		UsageCost:   &schema.CostObject{Price: 0.005, Unit: schema.CostUnitMinute, UnitSize: 1},
+		UsageCost:   &schema.CostObject{Price: 0.006, Unit: schema.CostUnitMinute, UnitSize: 1},
 	}
 )

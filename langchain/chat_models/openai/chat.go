@@ -2,9 +2,12 @@ package openai
 
 import (
 	"context"
+
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/sashabaranov/go-openai"
@@ -24,11 +27,11 @@ func NewChatOpenAIWithDefaultModel(token string, user *memory.User) common.Chat 
 	return NewChatOpenAI(token, GPT35Turbo, user)
 }
 
-func (c *ChatOpenAI) Chat(messages ...common.Message) (common.ChatResult, error) {
+func (c *ChatOpenAI) Chat(messages ...messages.Message) (common.ChatResult, error) {
 	return c.ChatWithContext(context.Background(), messages...)
 }
 
-func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...common.Message) (common.ChatResult, error) {
+func (c *ChatOpenAI) ChatWithContext(ctx context.Context, messages ...messages.Message) (common.ChatResult, error) {
 
 	opts := NewChatOptionsOpenAI().
 		WithMessages(messages).
@@ -78,21 +81,52 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 	for k := range resp.Choices {
 		m := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), "internal")
 		m.Context = ctx
-		m.Role = string(common.Assistant)
+		m.Role = string(messages.Assistant)
 		m.User = c.User
 		m.SetContent(resp.Choices[k].Message.Content)
 		if err := m.Save(ctx); err != nil {
 			return common.ChatResult{}, err
 		}
 
-		res.Generations = append(res.Generations, common.ChatGeneration{
-			Text: resp.Choices[k].Message.Content,
-			Message: common.Message{
+		g := common.ChatGeneration{
+			FinishReason: string(resp.Choices[k].FinishReason),
+			Text:         resp.Choices[k].Message.Content,
+			Message: messages.Message{
 				Name:    resp.Choices[k].Message.Name,
-				Role:    common.Role(resp.Choices[k].Message.Role),
+				Role:    messages.Role(resp.Choices[k].Message.Role),
 				Content: resp.Choices[k].Message.Content,
 			},
-		})
+		}
+
+		if resp.Choices[k].Message.FunctionCall != nil {
+			g.Message.FunctionCall = &functions.FunctionCall{
+				Name:      resp.Choices[k].Message.FunctionCall.Name,
+				Arguments: resp.Choices[k].Message.FunctionCall.Arguments,
+			}
+		}
+
+		res.Generations = append(res.Generations, g)
+	}
+
+	for k := range res.Generations {
+		g := res.Generations[k]
+
+		if g.Message.FunctionCall != nil {
+			objs, err := g.Message.FunctionCall.Run()
+			if err != nil {
+				continue
+			}
+
+			for kk := range objs {
+				obj := objs[kk]
+
+				msgs = append(msgs, messages.FunctionMessage(g.Message.FunctionCall.Name, string(obj.Bytes())))
+			}
+
+			opts = opts.WithMessages(msgs)
+			return c.ChatWithOptions(ctx, opts)
+		}
+
 	}
 
 	res.Usage = common.ChatUsage{

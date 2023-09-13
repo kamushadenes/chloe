@@ -3,15 +3,16 @@ package http
 import (
 	"context"
 	"fmt"
+	"io/fs"
+	"net/http"
+	"sync"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/utils"
-	"io/fs"
-	"net/http"
-	"sync"
-	"time"
 )
 
 func setMiddlewares(ctx context.Context, r *chi.Mux) {
@@ -90,7 +91,7 @@ func Start(ctx context.Context) {
 	logger := logging.GetLogger().With().Str("interface", "http").Logger()
 	ctx = logger.WithContext(ctx)
 
-	logger.Info().Msg("starting http interface")
+	logger.Info().Str("host", config.HTTP.Host).Int("port", config.HTTP.Port).Msg("starting http interface")
 
 	router := getRouter(ctx)
 

@@ -2,26 +2,19 @@ package slack
 
 import (
 	"context"
+
+	"github.com/kamushadenes/chloe/langchain/actions"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/langchain/tts/common"
-	"github.com/kamushadenes/chloe/langchain/tts/google"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
 func tts(ctx context.Context, msg *memory.Message) error {
-	req := structs.NewActionRequest()
+	req := action_structs.NewActionRequest()
 	req.Message = msg
 	req.Context = ctx
-	req.Writer = NewSlackWriter(ctx, req, false)
+	req.Action = "tts"
+	req.Params["text"] = promptFromMessage(msg)
+	req.Writer = NewSlackWriter(ctx, req, false, promptFromMessage(msg))
 
-	t := google.NewTTSGoogle()
-
-	res, err := t.TTSWithContext(ctx, common.TTSMessage{Text: promptFromMessage(msg)})
-	if err != nil {
-		return err
-	}
-
-	_, _ = req.Writer.Write(res.Audio)
-
-	return req.Writer.Close()
+	return actions.HandleAction(req)
 }

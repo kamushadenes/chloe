@@ -1,18 +1,21 @@
 package openai
 
 import (
+	"time"
+
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/prompts"
 	"github.com/sashabaranov/go-openai"
-	"time"
 )
 
 type ChatOptionsOpenAI struct {
 	req       openai.ChatCompletionRequest
 	timeout   time.Duration
-	bootstrap common.Message
-	system    common.Message
-	examples  []common.Message
+	bootstrap messages.Message
+	system    messages.Message
+	examples  []messages.Message
 }
 
 func NewChatOptionsOpenAI() common.ChatOptions {
@@ -29,12 +32,12 @@ func NewChatOptionsOpenAI() common.ChatOptions {
 		WithExamples("default")
 }
 
-func (c ChatOptionsOpenAI) GetMessages() []common.Message {
-	var msgs []common.Message
+func (c ChatOptionsOpenAI) GetMessages() []messages.Message {
+	var msgs []messages.Message
 	for k := range c.req.Messages {
 		msg := c.req.Messages[k]
-		msgs = append(msgs, common.Message{
-			Role:    common.Role(msg.Role),
+		msgs = append(msgs, messages.Message{
+			Role:    messages.Role(msg.Role),
 			Content: msg.Content,
 			Name:    msg.Name,
 		})
@@ -43,8 +46,8 @@ func (c ChatOptionsOpenAI) GetMessages() []common.Message {
 	return msgs
 }
 
-func (c ChatOptionsOpenAI) GetSystemMessages() []common.Message {
-	var msgs []common.Message
+func (c ChatOptionsOpenAI) GetSystemMessages() []messages.Message {
+	var msgs []messages.Message
 	msgs = append(msgs, c.bootstrap)
 	msgs = append(msgs, c.system)
 	msgs = append(msgs, c.examples...)
@@ -56,7 +59,7 @@ func (c ChatOptionsOpenAI) GetRequest() interface{} {
 	return c.req
 }
 
-func (c ChatOptionsOpenAI) WithMessages(messages []common.Message) common.ChatOptions {
+func (c ChatOptionsOpenAI) WithMessages(messages []messages.Message) common.ChatOptions {
 	var msgs []openai.ChatCompletionMessage
 
 	for k := range messages {
@@ -139,7 +142,7 @@ func (c ChatOptionsOpenAI) GetTimeout() time.Duration {
 
 func (c ChatOptionsOpenAI) WithSystemPrompt(promptName string) common.ChatOptions {
 	if prompt, err := prompts.GetPrompt(promptName, make(map[string]interface{})); err == nil {
-		c.system = common.SystemMessage(prompt)
+		c.system = messages.SystemMessage(prompt)
 	}
 
 	return c
@@ -157,11 +160,11 @@ func (c ChatOptionsOpenAI) WithBootstrap(args interface{}) common.ChatOptions {
 		}
 
 		if bootstrap, err := prompts.GetPrompt("bootstrap", v); err == nil {
-			c.bootstrap = common.SystemMessage(bootstrap)
+			c.bootstrap = messages.SystemMessage(bootstrap)
 		}
 	default:
 		if bootstrap, err := prompts.GetPrompt("bootstrap", v); err == nil {
-			c.bootstrap = common.SystemMessage(bootstrap)
+			c.bootstrap = messages.SystemMessage(bootstrap)
 		}
 	}
 
@@ -169,9 +172,37 @@ func (c ChatOptionsOpenAI) WithBootstrap(args interface{}) common.ChatOptions {
 }
 
 func (c ChatOptionsOpenAI) WithExamples(promptName string) common.ChatOptions {
-	if examples, err := prompts.GetExamples(promptName, make(map[string]interface{})); err == nil {
-		c.examples = examples
+	/*
+		if examples, err := prompts.GetExamples(promptName, make(map[string]interface{})); err == nil {
+			c.examples = examples
+		}
+	*/
+
+	return c
+}
+
+func (c ChatOptionsOpenAI) WithFunctions(functions []*functions.FunctionDefinition) common.ChatOptions {
+	for k := range functions {
+		c.req.Functions = append(c.req.Functions, openai.FunctionDefinition{
+			Name:        functions[k].Name,
+			Description: functions[k].Description,
+			Parameters:  functions[k].Parameters,
+		})
 	}
 
 	return c
+}
+
+func (c ChatOptionsOpenAI) GetFunctions() []*functions.FunctionDefinition {
+	var fns []*functions.FunctionDefinition
+
+	for k := range c.req.Functions {
+		fns = append(fns, &functions.FunctionDefinition{
+			Name:        c.req.Functions[k].Name,
+			Description: c.req.Functions[k].Description,
+			Parameters:  c.req.Functions[k].Parameters,
+		})
+	}
+
+	return fns
 }

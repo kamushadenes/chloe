@@ -3,8 +3,8 @@ package telegram
 import (
 	"context"
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/media"
@@ -54,7 +54,7 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 	}
 	msg.User = user
 
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = msg.SendError(err)
 		return
 	}

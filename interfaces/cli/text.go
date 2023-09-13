@@ -2,20 +2,20 @@ package cli
 
 import (
 	"context"
+	"time"
+
 	"github.com/briandowns/spinner"
 	"github.com/gofrs/uuid"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/colors"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
 	"github.com/kamushadenes/chloe/langchain/chat_models"
-	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/structs"
-	"time"
+	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 
-func Complete(ctx context.Context, text string, writer structs.ChloeWriter) error {
+func Complete(ctx context.Context, text string, writer writer_structs.ChloeWriter) error {
 	s := spinner.New(spinner.CharSets[40], 100*time.Millisecond)
 
 	if flags.InteractiveCLI {
@@ -33,7 +33,7 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 
 	msg.SetContent(text)
 
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		return err
 	}
 
@@ -45,7 +45,7 @@ func Complete(ctx context.Context, text string, writer structs.ChloeWriter) erro
 		})
 	}
 
-	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(text))
+	_, err := chat.ChatStreamWithContext(ctx, writer, messages.UserMessage(text))
 
 	return err
 }

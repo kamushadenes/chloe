@@ -3,20 +3,17 @@ package http
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
+	"github.com/kamushadenes/chloe/langchain/actions"
 	"github.com/kamushadenes/chloe/langchain/chat_models"
-	"github.com/kamushadenes/chloe/langchain/chat_models/common"
-	common2 "github.com/kamushadenes/chloe/langchain/diffusion_models/common"
-	openai2 "github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	common3 "github.com/kamushadenes/chloe/langchain/tts/common"
-	"github.com/kamushadenes/chloe/langchain/tts/google"
-	"github.com/kamushadenes/chloe/structs"
-	"net/http"
+	"github.com/kamushadenes/chloe/structs/action_structs"
 )
 
 var msgCtxKey = struct{}{}
@@ -64,7 +61,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	msg.SetContent(params.Content)
 
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
@@ -73,7 +70,7 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
-	_, err := chat.ChatStreamWithContext(ctx, writer, common.UserMessage(params.Content))
+	_, err := chat.ChatStreamWithContext(ctx, writer, messages.UserMessage(params.Content))
 	if err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
@@ -98,22 +95,24 @@ func generate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Prompt)
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	dif := openai2.NewDiffusionOpenAI(config.OpenAI.APIKey)
+	req := action_structs.NewActionRequest()
+	req.Context = ctx
+	req.Message = msg
+	req.Action = "generate"
+	req.Params["prompt"] = params.Prompt
+	req.Writer = NewHTTPResponseWriteCloser(w)
+	req.Count = config.Telegram.ImageCount
+	req.SkipClose = true
 
-	res, err := dif.GenerateWithContext(ctx, common2.DiffusionMessage{Prompt: params.Prompt})
-	if err != nil {
+	if err := actions.HandleAction(req); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
-
-	writer := NewHTTPResponseWriteCloser(w)
-
-	_, _ = writer.Write(res.Images[0])
 }
 
 func tts(w http.ResponseWriter, r *http.Request) {
@@ -134,22 +133,23 @@ func tts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(params.Content)
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	t := google.NewTTSGoogle()
+	req := action_structs.NewActionRequest()
+	req.Message = msg
+	req.Context = ctx
+	req.Action = "tts"
+	req.Params["text"] = params.Content
+	req.Writer = NewHTTPResponseWriteCloser(w)
+	req.SkipClose = true
 
-	res, err := t.TTS(common3.TTSMessage{Text: params.Content})
-	if err != nil {
+	if err := actions.HandleAction(req); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
-
-	writer := NewHTTPResponseWriteCloser(w)
-
-	_, _ = writer.Write(res.Audio)
 }
 
 func forget(w http.ResponseWriter, r *http.Request) {
@@ -189,25 +189,24 @@ func action(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg.SetContent(fmt.Sprintf("%s %s", params.Action, params.Params))
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	req := structs.NewActionRequest()
+	req := action_structs.NewActionRequest()
 	req.Context = ctx
 	req.Message = msg
 	req.Action = params.Action
 	req.Params["text"] = params.Params
-	req.Thought = fmt.Sprintf("User wants to run action %s", params.Action)
 	req.Writer = &HTTPWriter{Writer: w}
 
-	go func() {
-		if err := channels.RunAction(req); err != nil {
+	/*go func() {
+		if err := structs.RunAction(req); err != nil {
 			_ = render.Render(w, r, ErrInvalidRequest(err))
 			return
 		}
-	}()
+	}()*/
 
 	for {
 		select {

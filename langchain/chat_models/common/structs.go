@@ -2,12 +2,14 @@ package common
 
 import (
 	"github.com/kamushadenes/chloe/cost"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/utils"
 )
 
 type ChatGeneration struct {
-	Text    string
-	Message Message
+	Text         string
+	Message      messages.Message
+	FinishReason string
 }
 
 type ChatUsage struct {

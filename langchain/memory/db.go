@@ -2,6 +2,8 @@ package memory
 
 import (
 	"context"
+	"time"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
@@ -10,7 +12,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
-	"time"
 )
 
 var db *gorm.DB

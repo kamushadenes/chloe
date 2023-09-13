@@ -3,9 +3,11 @@ package memory
 import (
 	"context"
 	"fmt"
+
 	"github.com/gofrs/uuid"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
 	"github.com/sashabaranov/go-openai"
 )
@@ -26,7 +28,7 @@ func LoadNonModeratedMessages(ctx context.Context) ([]*Message, error) {
 
 	if err := db.WithContext(ctx).Where("moderated = ? AND "+
 		"content IS NOT NULL AND "+
-		"content != ''", false).
+		"content != '' AND interface != 'internal'", false).
 		Find(&messages).Error; err != nil {
 		return nil, errors.Wrap(errors.ErrLoadMessages, err)
 	}
@@ -140,6 +142,25 @@ func (m *Message) Save(ctx context.Context) error {
 
 	if err != nil {
 		return errors.Wrap(errors.ErrSaveMessage, err)
+	}
+
+	logger := logging.FromContext(ctx).Info()
+
+	if m.User != nil {
+		logger = logger.Uint("userID", m.User.ID).
+			Str("username", m.User.Username).
+			Str("firstName", m.User.FirstName).
+			Str("lastName", m.User.LastName)
+	}
+
+	logger = logger.
+		Str("interface", m.Interface).
+		Str("content", m.Content)
+
+	if m.Interface != "internal" {
+		logger.Msg("message received")
+	} else {
+		logger.Msg("internal message")
 	}
 
 	return nil

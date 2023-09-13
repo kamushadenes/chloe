@@ -25,8 +25,6 @@ func (c *OpenAIConfig) GetModel(purpose ModelPurpose) *models.Model {
 	switch purpose {
 	case Completion:
 		return c.DefaultModel.Completion
-	case ChainOfThought:
-		return c.DefaultModel.ChainOfThought
 	case Transcription:
 		return c.DefaultModel.Transcription
 	case Moderation:

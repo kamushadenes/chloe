@@ -3,7 +3,7 @@ package telegram
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 func (w *TelegramWriter) closeAudio() error {
@@ -11,7 +11,7 @@ func (w *TelegramWriter) closeAudio() error {
 
 	for k := range w.objs {
 		obj := w.objs[k]
-		if obj.Type == structs.Audio {
+		if obj.Type == response_object_structs.Audio {
 			logger.Debug().Int64("chatID", w.ChatID).Msg("replying with audio")
 
 			tmsg := tgbotapi.NewVoice(w.ChatID, tgbotapi.FileReader{

@@ -2,9 +2,10 @@ package discord
 
 import (
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 func (w *DiscordWriter) closeImage() error {
@@ -13,7 +14,7 @@ func (w *DiscordWriter) closeImage() error {
 	var files []*discordgo.File
 	for k := range w.objs {
 		obj := w.objs[k]
-		if obj.Type == structs.Image {
+		if obj.Type == response_object_structs.Image {
 			files = append(files, &discordgo.File{
 				Name:        fmt.Sprintf("generated-%d.png", k),
 				ContentType: "image/png",

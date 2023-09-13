@@ -2,15 +2,16 @@ package telegram
 
 import (
 	"context"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/chat_models"
-	"github.com/kamushadenes/chloe/langchain/chat_models/common"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/completion_request_structs"
 )
 
 func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
-	request := structs.NewCompletionRequest()
+	request := completion_request_structs.NewCompletionRequest()
 
 	request.Message = msg
 
@@ -21,12 +22,12 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if config.Slack.StreamMessages {
-		_, err := chat.ChatStreamWithContext(ctx, request.Writer, common.UserMessage(promptFromMessage(msg)))
+		_, err := chat.ChatStreamWithContext(ctx, request.Writer, messages.UserMessage(promptFromMessage(msg)))
 		if err != nil {
 			return err
 		}
 	} else {
-		res, err := chat.ChatWithContext(ctx, common.UserMessage(promptFromMessage(msg)))
+		res, err := chat.ChatWithContext(ctx, messages.UserMessage(promptFromMessage(msg)))
 		if err != nil {
 			return err
 		}

@@ -3,12 +3,12 @@ package discord
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/bwmarrin/discordgo"
-	"github.com/kamushadenes/chloe/channels"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"strings"
 )
 
 func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -40,7 +40,7 @@ func handleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	msg.User = user
 
-	if err := channels.RegisterIncomingMessage(msg); err != nil {
+	if err := msg.Save(ctx); err != nil {
 		_ = msg.SendError(err)
 		return
 	}
@@ -101,7 +101,7 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(fmt.Sprintf("%s %s", act, params))
 
-		if err := channels.RegisterIncomingMessage(msg); err != nil {
+		if err := msg.Save(ctx); err != nil {
 			_ = msg.SendError(err)
 			return
 		}
@@ -123,7 +123,7 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(prompt)
 
-		if err := channels.RegisterIncomingMessage(msg); err != nil {
+		if err := msg.Save(ctx); err != nil {
 			_ = msg.SendError(err)
 			return
 		}
@@ -145,7 +145,7 @@ func handleCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCrea
 
 		msg.SetContent(text)
 
-		if err := channels.RegisterIncomingMessage(msg); err != nil {
+		if err := msg.Save(ctx); err != nil {
 			_ = msg.SendError(err)
 			return
 		}

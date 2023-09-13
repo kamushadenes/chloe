@@ -2,13 +2,15 @@ package discord
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/aquilax/truncate"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs"
-	"net/http"
-	"time"
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type DiscordWriter struct {
@@ -19,7 +21,7 @@ type DiscordWriter struct {
 	Type             string
 	ReplyID          string
 	Request          structs.ActionOrCompletionRequest
-	objs             []*structs.ResponseObject
+	objs             []*response_object_structs.ResponseObject
 	externalID       string
 	lastUpdate       *time.Time
 	preWriteCallback func()
@@ -100,8 +102,8 @@ func (w *DiscordWriter) Write(p []byte) (n int, err error) {
 	}
 
 	if len(w.objs) == 0 {
-		w.objs = append(w.objs, &structs.ResponseObject{
-			Type:   structs.Text,
+		w.objs = append(w.objs, &response_object_structs.ResponseObject{
+			Type:   response_object_structs.Text,
 			Result: true,
 		})
 	}
@@ -111,7 +113,7 @@ func (w *DiscordWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (w *DiscordWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *DiscordWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	w.objs = append(w.objs, obj)
 
 	return nil
@@ -125,4 +127,8 @@ func (w *DiscordWriter) WriteHeader(statusCode int) {}
 func (w *DiscordWriter) Header() http.Header        { return http.Header{} }
 func (w *DiscordWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
+}
+
+func (w *DiscordWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return w.objs
 }

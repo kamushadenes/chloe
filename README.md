@@ -6,7 +6,6 @@
   <img src=".github/resources/images/chloe_avatar.png" alt="Chloe" />
 </p>
 
-
 ![tests status](https://img.shields.io/github/actions/workflow/status/kamushadenes/chloe/test.yml?label=tests)
 ![license](https://img.shields.io/github/license/kamushadenes/chloe)
 
@@ -18,14 +17,11 @@ and [DALL-E](https://openai.com/product/dall-e-2)) along
 with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine to provide versatile
 and comprehensive assistance.
 
-It offers multiple interfaces and utilizes
-the [Chain of Thought](https://til.simonwillison.net/llms/python-react-pattern) approach to
-understand and respond to complex instructions.
+It offers multiple interfaces and is able to
+understand and respond to complex instructions making use of several tools.
 
 ## 🚀 Features
 
-- Uses criticism techniques (ReAct, Chain of Thought) to determine actions, falling back to standard
-  completion if no action is found
 - Calculates and logs the cost of each request as well as the total cost of the session
 - Scrapes websites to have them on its context
 - Searches Google for information
@@ -40,7 +36,7 @@ understand and respond to complex instructions.
 
 [complete.webm](https://user-images.githubusercontent.com/242529/226281153-152b77c3-4d1f-4d22-bb04-41a39cdd740b.webm)
 
-## 🌟 Power Chloe's Growth: Lend Your Support!
+## 🌟 Power Chloe's Growth: Lend Your Support
 
 For the price of a single coffee, you can play a crucial role in advancing Chloe, an exciting
 project that's pushing the boundaries of fully autonomous AI! This labor of love is developed during

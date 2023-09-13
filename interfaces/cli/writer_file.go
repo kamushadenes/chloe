@@ -1,10 +1,11 @@
 package cli
 
 import (
-	"github.com/kamushadenes/chloe/structs"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type FileWriter struct {
@@ -36,7 +37,7 @@ func (w *FileWriter) Write(p []byte) (n int, err error) {
 	return w.f.Write(p)
 }
 
-func (w *FileWriter) WriteObject(obj *structs.ResponseObject) error {
+func (w *FileWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	_, err := w.Write(obj.Data)
 
 	return err
@@ -52,4 +53,8 @@ func (w *FileWriter) WriteHeader(statusCode int) {}
 func (w *FileWriter) Header() http.Header        { return http.Header{} }
 func (w *FileWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
+}
+
+func (w *FileWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return nil
 }

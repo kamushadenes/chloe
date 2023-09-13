@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"strings"
 	"text/template"
+
+	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/errors"
 )
 
 //go:embed prompts/chatgpt/*.prompt
@@ -47,7 +47,8 @@ func GetPrompt(prompt string, args interface{}) (string, error) {
 	return buf.String(), nil
 }
 
-func GetExamples(prompt string, args interface{}) ([]common.Message, error) {
+/*
+func GetExamples(prompt string, args interface{}) ([]messages.Message, error) {
 	tmpl, err := template.ParseFS(
 		prompts,
 		fmt.Sprintf("prompts/chatgpt/%s.prompt.examples", prompt),
@@ -62,7 +63,7 @@ func GetExamples(prompt string, args interface{}) ([]common.Message, error) {
 		return nil, errors.Wrap(errors.ErrPromptError, err)
 	}
 
-	var examples []common.Message
+	var examples []messages.Message
 
 	for _, line := range strings.Split(buf.String(), "\n") {
 		line = strings.TrimSpace(line)
@@ -75,9 +76,9 @@ func GetExamples(prompt string, args interface{}) ([]common.Message, error) {
 			name := fields[0]
 			example := strings.Join(fields[1:], " ")
 
-			examples = append(examples, common.Message{
+			examples = append(examples, messages.Message{
 				Content: example,
-				Role:    common.System,
+				Role:    messages.System,
 				Name:    name,
 			})
 		}
@@ -85,6 +86,7 @@ func GetExamples(prompt string, args interface{}) ([]common.Message, error) {
 
 	return examples, nil
 }
+*/
 
 func GetPromptSize(prompt string) (int, error) {
 	prompt, err := GetPrompt(prompt, &PromptArgs{Args: make(map[string]interface{}), Mode: prompt})

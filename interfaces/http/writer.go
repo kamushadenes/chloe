@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/kamushadenes/chloe/structs"
 	"net/http"
+
+	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
 type HTTPWriter struct {
@@ -22,7 +23,7 @@ func (rwc *HTTPWriter) Write(p []byte) (n int, err error) {
 	return rwc.Writer.Write(p)
 }
 
-func (rwc *HTTPWriter) WriteObject(obj *structs.ResponseObject) error {
+func (rwc *HTTPWriter) WriteObject(obj *response_object_structs.ResponseObject) error {
 	_, err := rwc.Write(obj.Data)
 
 	return err
@@ -46,4 +47,8 @@ func (rwc *HTTPWriter) Flush() {
 }
 func (w *HTTPWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
+}
+
+func (w *HTTPWriter) GetObjects() []*response_object_structs.ResponseObject {
+	return nil
 }

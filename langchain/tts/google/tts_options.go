@@ -1,9 +1,11 @@
 package google
 
 import (
-	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
-	"github.com/kamushadenes/chloe/langchain/tts/common"
 	"time"
+
+	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
+	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/tts/common"
 )
 
 type TTSOptionsGoogle struct {
@@ -16,6 +18,38 @@ func NewTTSOptionsGoogle() common.TTSOptions {
 }
 
 func (c TTSOptionsGoogle) GetRequest() interface{} {
+	if c.req.Voice == nil {
+		c.req.Voice = &texttospeechpb.VoiceSelectionParams{}
+	}
+
+	if c.req.Voice.LanguageCode == "" {
+		c.req.Voice.LanguageCode = config.GCP.TTSLanguageCode
+	}
+
+	if c.req.Voice.Name == "" {
+		c.req.Voice.Name = config.GCP.TTSVoiceName
+	}
+
+	if c.req.AudioConfig == nil {
+		c.req.AudioConfig = &texttospeechpb.AudioConfig{}
+	}
+
+	if c.req.AudioConfig.AudioEncoding == 0 {
+		c.req.AudioConfig.AudioEncoding = config.GCP.TTSEncoding
+	}
+
+	if c.req.AudioConfig.SpeakingRate == 0 {
+		c.req.AudioConfig.SpeakingRate = config.GCP.TTSSpeakingRate
+	}
+
+	if c.req.AudioConfig.Pitch == 0 {
+		c.req.AudioConfig.Pitch = config.GCP.TTSPitch
+	}
+
+	if c.req.AudioConfig.VolumeGainDb == 0 {
+		c.req.AudioConfig.VolumeGainDb = config.GCP.TTSVolumeGain
+	}
+
 	return c.req
 }
 

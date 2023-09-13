@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/llm/common"
 	"github.com/kamushadenes/chloe/logging"
@@ -18,7 +19,7 @@ func NewLLMOpenAI(token string, model *common.LLMModel) common.LLM {
 }
 
 func NewLLMOpenAIWithDefaultModel(token string) common.LLM {
-	return NewLLMOpenAI(token, TextDavinci003)
+	return NewLLMOpenAI(token, GPT3Dot5TurboInstruct)
 }
 
 func (c *LLMOpenAI) Generate(prompt ...string) (common.LLMResult, error) {

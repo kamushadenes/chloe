@@ -2,34 +2,22 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"github.com/gofrs/uuid"
-	"github.com/kamushadenes/chloe/channels"
-	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/langchain/memory"
-	"github.com/kamushadenes/chloe/langchain/react"
-	"github.com/kamushadenes/chloe/langchain/react/actions"
-	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
 )
 
 func MonitorMessages(ctx context.Context) {
-	logger := logging.GetLogger()
+	//logger := logging.GetLogger()
 
-	for {
-		select {
-		case msg := <-channels.IncomingMessagesCh:
-			if err := ProcessMessage(ctx, msg); err != nil {
-				logger.Err(err).Msg("failed to process message")
-			}
+	/*for msg := range structs.IncomingMessagesCh {
+		if err := ProcessMessage(ctx, msg); err != nil {
+			logger.Err(err).Msg("failed to process message")
 		}
-	}
+	}*/
 }
 
 func MonitorRequests(ctx context.Context) {
-	for {
+	/*for {
 		select {
-		case req := <-channels.ActionRequestsCh:
+		case req := <-structs.ActionRequestsCh:
 			logger := structs.LoggerFromRequest(req)
 
 			go func() {
@@ -39,26 +27,27 @@ func MonitorRequests(ctx context.Context) {
 				}
 				if err != nil {
 					if errors.Is(err, errors.ErrProceed) {
-						// duplicate code
-						msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), req.Message.Interface)
-						msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
-						msg.ErrorCh = req.Message.ErrorCh
-						msg.Role = "user"
-						msg.User = req.Message.User
-						msg.Context = req.Message.Context
-						msg.Source = req.Message.Source
-						if err := msg.Save(req.GetContext()); err != nil {
-							_ = msg.SendError(errors.Wrap(errors.ErrSaveMessage, err))
-						}
+						/*
+							// duplicate code
+							msg := memory.NewMessage(uuid.Must(uuid.NewV4()).String(), req.Message.Interface)
+							msg.SetContent(fmt.Sprintf("summarize everything since \"%s\", never mention the checkpoint, try to make it look like a news article or a Wikipedia page, don't provide explanation", react.CheckpointMarker))
+							msg.ErrorCh = req.Message.ErrorCh
+							msg.Role = "user"
+							msg.User = req.Message.User
+							msg.Context = req.Message.Context
+							msg.Source = req.Message.Source
+							if err := msg.Save(req.GetContext()); err != nil {
+								_ = msg.SendError(errors.Wrap(errors.ErrSaveMessage, err))
+							}
 
-						channels.CompletionRequestsCh <- req.ToCompletionRequest()
+							structs.CompletionRequestsCh <- req.ToCompletionRequest()
 					} else {
 						logger.Err(err).Msg("failed to handle action")
 					}
 				}
 			}()
 			/*
-				case req := <-channels.CompletionRequestsCh:
+				case req := <-structs.CompletionRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := openai.Complete(req)
@@ -69,7 +58,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to complete text")
 						}
 					}()
-				case req := <-channels.TranscribeRequestsCh:
+				case req := <-structs.TranscribeRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := openai.Transcribe(req)
@@ -80,7 +69,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to transcribe audio")
 						}
 					}()
-				case req := <-channels.GenerationRequestsCh:
+				case req := <-structs.GenerationRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := openai.Generate(req)
@@ -91,7 +80,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to generate image")
 						}
 					}()
-				case req := <-channels.EditRequestsCh:
+				case req := <-structs.EditRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := openai.Edits(req)
@@ -102,7 +91,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to edit image")
 						}
 					}()
-				case req := <-channels.VariationRequestsCh:
+				case req := <-structs.VariationRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := openai.Variations(req)
@@ -113,7 +102,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to create image variations")
 						}
 					}()
-				case req := <-channels.TTSRequestsCh:
+				case req := <-structs.TTSRequestsCh:
 					logger := structs.LoggerFromRequest(req)
 					go func() {
 						err := google.TTS(req)
@@ -124,7 +113,7 @@ func MonitorRequests(ctx context.Context) {
 							logger.Err(err).Msg("failed to generate audio")
 						}
 					}()
-			*/
 		}
 	}
+	*/
 }

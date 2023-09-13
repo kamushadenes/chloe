@@ -2,13 +2,14 @@ package cli
 
 import (
 	"context"
+
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/common"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
-	"github.com/kamushadenes/chloe/structs"
+	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 
-func Generate(ctx context.Context, text string, writer structs.ChloeWriter) error {
+func Generate(ctx context.Context, text string, writer writer_structs.ChloeWriter) error {
 	dif := openai.NewDiffusionOpenAI(config.OpenAI.APIKey)
 
 	res, err := dif.GenerateWithContext(ctx, common.DiffusionMessage{Prompt: text})

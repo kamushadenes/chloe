@@ -10,14 +10,10 @@ import (
 )
 
 func newBot(ctx context.Context, token string, appLevelToken string) (*slack.Client, error) {
-	logger := logging.FromContext(ctx)
-
 	api := slack.New(
 		token,
 		slack.OptionAppLevelToken(appLevelToken),
 	)
-
-	logger.Info().Msg("slack bot created")
 
 	return api, nil
 }

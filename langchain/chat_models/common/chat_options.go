@@ -2,11 +2,14 @@ package common
 
 import (
 	"time"
+
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
+	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 )
 
 type ChatOptions interface {
 	GetRequest() interface{}
-	WithMessages(messages []Message) ChatOptions
+	WithMessages(messages []messages.Message) ChatOptions
 	WithModel(model string) ChatOptions
 	WithMaxTokens(maxTokens int) ChatOptions
 	WithTemperature(temperature float32) ChatOptions
@@ -18,11 +21,13 @@ type ChatOptions interface {
 	WithFrequencyPenalty(frequencyPenalty float32) ChatOptions
 	WithLogitBias(logitBias map[string]int) ChatOptions
 	WithUser(user string) ChatOptions
-	GetSystemMessages() []Message
-	GetMessages() []Message
+	GetSystemMessages() []messages.Message
+	GetMessages() []messages.Message
 	WithTimeout(time.Duration) ChatOptions
 	GetTimeout() time.Duration
 	WithSystemPrompt(promptName string) ChatOptions
 	WithBootstrap(args interface{}) ChatOptions
 	WithExamples(promptName string) ChatOptions
+	WithFunctions([]*functions.FunctionDefinition) ChatOptions
+	GetFunctions() []*functions.FunctionDefinition
 }
