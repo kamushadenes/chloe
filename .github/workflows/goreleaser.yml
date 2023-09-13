@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   linux-amd64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -43,7 +43,7 @@ jobs:
 
   darwin-amd64:
     needs: [ linux-amd64 ] # wait for the release to be created
-    runs-on: macos-latest
+    runs-on: macos-13-xl
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -74,7 +74,7 @@ jobs:
 
   darwin-arm64:
     needs: [ linux-amd64 ] # wait for the release to be created
-    runs-on: macos-latest
+    runs-on: macos-13-xl
     steps:
       - name: Checkout
         uses: actions/checkout@v3
