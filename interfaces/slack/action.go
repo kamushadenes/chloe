@@ -2,6 +2,7 @@ package slack
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/actions"
 	"strings"
 
 	"github.com/kamushadenes/chloe/langchain/memory"
@@ -15,8 +16,7 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = fields[0]
 	req.Params["text"] = strings.Join(fields[1:], " ")
-	req.Writer = NewSlackWriter(ctx, req, false)
+	req.Writer = NewSlackWriter(ctx, msg, false)
 
-	//return structs.RunAction(req)
-	return nil
+	return actions.HandleAction(req)
 }

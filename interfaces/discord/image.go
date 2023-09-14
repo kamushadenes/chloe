@@ -15,7 +15,7 @@ func generate(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = "generate"
 	req.Params["prompt"] = promptFromMessage(msg)
-	req.Writer = NewDiscordWriter(ctx, req, false, req.Params["prompt"])
+	req.Writer = NewDiscordWriter(ctx, msg, false, req.Params["prompt"])
 	req.Count = config.Discord.ImageCount
 
 	return actions.HandleAction(req)

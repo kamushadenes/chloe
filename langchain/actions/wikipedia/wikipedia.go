@@ -6,7 +6,6 @@ import (
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/structs/action_structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/kamushadenes/chloe/utils"
@@ -21,11 +20,7 @@ func (a *WikipediaAction) Execute(request *action_structs.ActionRequest) ([]*res
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
 	var truncateTokenCount int
-	if utils.Testing() {
-		truncateTokenCount = 1000
-	} else {
-		truncateTokenCount = structs.GetAvailableTokenCount(request)
-	}
+	truncateTokenCount = 1000
 
 	res, _, err := gowiki.Search(a.MustGetParam("query"), config.React.WikipediaMaxResults, false)
 	if err != nil {

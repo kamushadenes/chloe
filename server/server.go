@@ -12,7 +12,6 @@ import (
 	"github.com/kamushadenes/chloe/interfaces/telegram"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/providers/openai"
 )
 
 func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
@@ -32,12 +31,6 @@ func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 	go memory.Start(ctx)
 
 	go cost.MonitorCost(ctx)
-
-	go MonitorMessages(ctx)
-	go MonitorRequests(ctx)
-
-	go openai.MonitorSummary(ctx)
-	go openai.MonitorModeration(ctx)
 
 	if isCLI {
 		go cli.Start(ctx)

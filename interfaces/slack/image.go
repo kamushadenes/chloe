@@ -15,7 +15,7 @@ func generate(ctx context.Context, msg *memory.Message) error {
 	req.Message = msg
 	req.Action = "generate"
 	req.Params["prompt"] = promptFromMessage(msg)
-	req.Writer = NewSlackWriter(ctx, req, false, promptFromMessage(msg))
+	req.Writer = NewSlackWriter(ctx, msg, false, promptFromMessage(msg))
 	req.Count = config.Slack.ImageCount
 
 	return actions.HandleAction(req)

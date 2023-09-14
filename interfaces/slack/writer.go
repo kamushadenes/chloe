@@ -2,12 +2,12 @@ package slack
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"net/http"
 	"time"
 
 	"github.com/aquilax/truncate"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/slack-go/slack"
 )
@@ -19,29 +19,29 @@ type SlackWriter struct {
 	ChatID           string
 	Type             string
 	ReplyID          string
-	Request          structs.ActionOrCompletionRequest
+	Message          *memory.Message
 	objs             []*response_object_structs.ResponseObject
 	externalID       string
 	lastUpdate       *time.Time
 	preWriteCallback func()
 }
 
-func NewSlackWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *SlackWriter {
+func NewSlackWriter(ctx context.Context, msg *memory.Message, reply bool, prompt ...string) *SlackWriter {
 	var chatID string
 	var ts string
 
-	if request.GetMessage().Source.Slack.Message != nil {
-		chatID = request.GetMessage().Source.Slack.Message.Channel
-		ts = request.GetMessage().Source.Slack.Message.TimeStamp
+	if msg.Source.Slack.Message != nil {
+		chatID = msg.Source.Slack.Message.Channel
+		ts = msg.Source.Slack.Message.TimeStamp
 	} else {
-		chatID = request.GetMessage().Source.Slack.SlashCommand.ChannelID
+		chatID = msg.Source.Slack.SlashCommand.ChannelID
 	}
 
 	w := &SlackWriter{
 		Context: ctx,
-		Bot:     request.GetMessage().Source.Slack.API,
+		Bot:     msg.Source.Slack.API,
 		ChatID:  chatID,
-		Request: request,
+		Message: msg,
 	}
 
 	if len(prompt) > 0 {

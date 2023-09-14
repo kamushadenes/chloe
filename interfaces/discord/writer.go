@@ -2,6 +2,7 @@ package discord
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"net/http"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
@@ -20,19 +20,19 @@ type DiscordWriter struct {
 	ChatID           string
 	Type             string
 	ReplyID          string
-	Request          structs.ActionOrCompletionRequest
+	Message          *memory.Message
 	objs             []*response_object_structs.ResponseObject
 	externalID       string
 	lastUpdate       *time.Time
 	preWriteCallback func()
 }
 
-func NewDiscordWriter(ctx context.Context, req structs.ActionOrCompletionRequest, reply bool, prompt ...string) *DiscordWriter {
+func NewDiscordWriter(ctx context.Context, msg *memory.Message, reply bool, prompt ...string) *DiscordWriter {
 	w := &DiscordWriter{
 		Context: ctx,
-		Bot:     req.GetMessage().Source.Discord.API,
-		ChatID:  req.GetMessage().Source.Discord.Message.ChannelID,
-		Request: req,
+		Bot:     msg.Source.Discord.API,
+		ChatID:  msg.Source.Discord.Message.ChannelID,
+		Message: msg,
 	}
 
 	if len(prompt) > 0 {
@@ -40,7 +40,7 @@ func NewDiscordWriter(ctx context.Context, req structs.ActionOrCompletionRequest
 	}
 
 	if reply {
-		w.ReplyID = req.GetMessage().Source.Discord.Message.ID
+		w.ReplyID = msg.Source.Discord.Message.ID
 	}
 
 	return w
@@ -88,7 +88,7 @@ func (w *DiscordWriter) Close() error {
 
 	for k := range funcs {
 		if err := funcs[k](); err != nil {
-			logger.Error().Err(err).Str("requestID", w.Request.GetID()).Msgf("error closing writer %d", k)
+			logger.Error().Err(err).Msgf("error closing writer %d", k)
 			return err
 		}
 	}

@@ -5,8 +5,8 @@ import (
 	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
-func processText(ctx context.Context, msg *memory.Message, ch chan interface{}) error {
-	err := aiComplete(ctx, msg, ch)
+func processText(ctx context.Context, msg *memory.Message) error {
+	err := aiComplete(ctx, msg)
 	if err != nil {
 		return err
 	}

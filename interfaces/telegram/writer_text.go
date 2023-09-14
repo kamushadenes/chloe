@@ -20,7 +20,7 @@ func (w *TelegramWriter) closeText() error {
 
 			if w.externalID == 0 {
 				for k := range msgs {
-					if err := w.Request.GetMessage().SendText(msgs[k], true, w.ReplyID); err != nil {
+					if err := w.Message.SendText(msgs[k], true, w.ReplyID); err != nil {
 						return err
 					}
 				}
@@ -30,7 +30,7 @@ func (w *TelegramWriter) closeText() error {
 				}
 
 				for k := range msgs[1:] {
-					if err := w.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					if err := w.Message.SendText(msgs[k], true); err != nil {
 						return err
 					}
 				}

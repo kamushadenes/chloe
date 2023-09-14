@@ -19,7 +19,7 @@ func (w *SlackWriter) closeText() error {
 
 			if w.externalID == "" {
 				for k := range msgs {
-					if err := w.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					if err := w.Message.SendText(msgs[k], true); err != nil {
 						return err
 					}
 				}
@@ -29,7 +29,7 @@ func (w *SlackWriter) closeText() error {
 				}
 
 				for k := range msgs[1:] {
-					if err := w.Request.GetMessage().SendText(msgs[k], true); err != nil {
+					if err := w.Message.SendText(msgs[k], true); err != nil {
 						return err
 					}
 				}

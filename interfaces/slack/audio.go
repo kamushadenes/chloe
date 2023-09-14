@@ -14,7 +14,7 @@ func tts(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = "tts"
 	req.Params["text"] = promptFromMessage(msg)
-	req.Writer = NewSlackWriter(ctx, req, false, promptFromMessage(msg))
+	req.Writer = NewSlackWriter(ctx, msg, false, promptFromMessage(msg))
 
 	return actions.HandleAction(req)
 }

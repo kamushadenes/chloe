@@ -14,7 +14,7 @@ func tts(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = "tts"
 	req.Params["text"] = promptFromMessage(msg)
-	req.Writer = NewDiscordWriter(ctx, req, false)
+	req.Writer = NewDiscordWriter(ctx, msg, false)
 
 	return actions.HandleAction(req)
 }

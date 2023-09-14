@@ -2,13 +2,13 @@ package telegram
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/memory"
 	"net/http"
 	"time"
 
 	"github.com/aquilax/truncate"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )
 
@@ -19,19 +19,19 @@ type TelegramWriter struct {
 	ChatID           int64
 	Type             string
 	ReplyID          int
-	Request          structs.ActionOrCompletionRequest
+	Message          *memory.Message
 	objs             []*response_object_structs.ResponseObject
 	externalID       int
 	lastUpdate       *time.Time
 	preWriteCallback func()
 }
 
-func NewTelegramWriter(ctx context.Context, request structs.ActionOrCompletionRequest, reply bool, prompt ...string) *TelegramWriter {
+func NewTelegramWriter(ctx context.Context, msg *memory.Message, reply bool, prompt ...string) *TelegramWriter {
 	w := &TelegramWriter{
 		Context: ctx,
-		Bot:     request.GetMessage().Source.Telegram.API,
-		ChatID:  request.GetMessage().Source.Telegram.Update.Message.Chat.ID,
-		Request: request,
+		Bot:     msg.Source.Telegram.API,
+		ChatID:  msg.Source.Telegram.Update.Message.Chat.ID,
+		Message: msg,
 	}
 
 	if len(prompt) > 0 {
@@ -39,7 +39,7 @@ func NewTelegramWriter(ctx context.Context, request structs.ActionOrCompletionRe
 	}
 
 	if reply {
-		w.ReplyID = request.GetMessage().Source.Telegram.Update.Message.MessageID
+		w.ReplyID = msg.Source.Telegram.Update.Message.MessageID
 	}
 
 	return w

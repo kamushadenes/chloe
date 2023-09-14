@@ -24,7 +24,7 @@ func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 			return err
 		}
 
-		tw := NewTelegramWriter(ctx, req, true)
+		tw := NewTelegramWriter(ctx, msg, true)
 		if _, err := tw.Write(w.GetObjects()[0].Bytes()); err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 			return err
 		}
 
-		return processText(ctx, msg, nil)
+		return processText(ctx, msg)
 	}
 
 	return nil
@@ -51,7 +51,7 @@ func aiTTS(ctx context.Context, msg *memory.Message) error {
 	req.Context = ctx
 	req.Action = "tts"
 	req.Params["text"] = promptFromMessage(msg)
-	req.Writer = NewTelegramWriter(ctx, req, false)
+	req.Writer = NewTelegramWriter(ctx, msg, false)
 
 	return actions.HandleAction(req)
 }

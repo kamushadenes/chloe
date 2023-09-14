@@ -12,7 +12,7 @@ import (
 
 func handleTextUpdate(ctx context.Context, msg *memory.Message) {
 	_, _ = msg.Source.Telegram.API.Send(tgbotapi.NewChatAction(msg.Source.Telegram.Update.Message.Chat.ID, tgbotapi.ChatTyping))
-	_ = processText(ctx, msg, nil)
+	_ = processText(ctx, msg)
 }
 
 func handleAudioUpdate(ctx context.Context, msg *memory.Message) {

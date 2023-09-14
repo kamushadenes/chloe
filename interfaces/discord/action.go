@@ -2,6 +2,7 @@ package discord
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/actions"
 	"strings"
 
 	"github.com/kamushadenes/chloe/config"
@@ -17,9 +18,8 @@ func action(ctx context.Context, msg *memory.Message) error {
 	req.Message = msg
 	req.Action = fields[0]
 	req.Params["text"] = strings.Join(fields[1:], " ")
-	req.Writer = NewDiscordWriter(ctx, req, false)
+	req.Writer = NewDiscordWriter(ctx, msg, false)
 	req.Count = config.Discord.ImageCount
 
-	//return structs.RunAction(req)
-	return nil
+	return actions.HandleAction(req)
 }
