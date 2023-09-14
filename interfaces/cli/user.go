@@ -14,8 +14,7 @@ func getUser(ctx context.Context) (*memory.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = u.AddExternalID(ctx, "cli", "cli")
-		if err != nil {
+		if err := u.AddExternalID(ctx, "cli", "cli"); err != nil {
 			return nil, err
 		}
 	}

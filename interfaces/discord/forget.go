@@ -7,10 +7,5 @@ import (
 )
 
 func forgetUser(ctx context.Context, msg *memory.Message) error {
-	err := msg.User.DeleteMessages(ctx)
-	if err != nil {
-		return errors.Wrap(errors.ErrForgetUser, err)
-	}
-
-	return nil
+	return errors.Wrap(errors.ErrForgetUser, msg.User.DeleteMessages(ctx))
 }

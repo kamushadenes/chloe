@@ -40,8 +40,7 @@ func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, er
 		if err != nil {
 			return nil, err
 		}
-		err = user.AddExternalID(ctx, msg.Source.Slack.Message.User, "slack")
-		if err != nil {
+		if err := user.AddExternalID(ctx, msg.Source.Slack.Message.User, "slack"); err != nil {
 			return nil, err
 		}
 	}

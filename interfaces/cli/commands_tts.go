@@ -2,8 +2,6 @@ package cli
 
 import (
 	"github.com/kamushadenes/chloe/flags"
-	"github.com/kamushadenes/chloe/langchain/tts/common"
-	"github.com/kamushadenes/chloe/langchain/tts/google"
 	"strings"
 )
 
@@ -13,23 +11,13 @@ type TTSCmd struct {
 }
 
 func (c *TTSCmd) Run(globals *Globals) error {
-	tts := google.NewTTSGoogle()
-
-	res, err := tts.TTSWithContext(globals.Context, common.TTSMessage{Text: strings.Join(c.Prompt, " ")})
-	if err != nil {
-		return err
-	}
-
 	if len(c.OutputPath) > 0 {
-		_, err = NewFileWriter(c.OutputPath).Write(res.Audio)
-		return err
+		return TTS(globals.Context, strings.Join(c.Prompt, " "), NewFileWriter(c.OutputPath))
 	}
 
 	if flags.InteractiveCLI {
-		_, err = NewFileWriter("generated.mp3").Write(res.Audio)
-		return err
+		return TTS(globals.Context, strings.Join(c.Prompt, " "), NewFileWriter("generated.wav"))
 	}
 
-	_, err = NewCLIWriter().Write(res.Audio)
-	return err
+	return TTS(globals.Context, strings.Join(c.Prompt, " "), NewCLIWriter())
 }

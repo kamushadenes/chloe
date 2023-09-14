@@ -30,7 +30,5 @@ func GetMediaDuration(path string) (time.Duration, error) {
 		return 0, errors.Wrap(errors.ErrCommandError, err)
 	}
 
-	dur := time.Duration(f * float64(time.Second))
-
-	return dur, nil
+	return time.Duration(f * float64(time.Second)), nil
 }

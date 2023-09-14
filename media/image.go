@@ -19,11 +19,6 @@ func ConvertImageToPNG(filePath string) (string, error) {
 		"-resize", "1024x1024>",
 		"-extent", "1:1>",
 		filePath, npath)
-	err := cmd.Run()
 
-	if err != nil {
-		return npath, errors.Wrap(errors.ErrImageMagickError, err)
-	}
-
-	return npath, nil
+	return npath, errors.Wrap(errors.ErrImageMagickError, cmd.Run())
 }

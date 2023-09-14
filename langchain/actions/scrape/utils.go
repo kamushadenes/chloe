@@ -52,8 +52,7 @@ func scrape(url string) (*ScrapeResult, error) {
 	})
 
 	c.OnHTML("html", func(e *colly.HTMLElement) {
-		html, err := e.DOM.Html()
-		if err == nil {
+		if html, err := e.DOM.Html(); err == nil {
 			scrapeResult.SetHTML(html)
 		}
 	})

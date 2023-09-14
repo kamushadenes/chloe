@@ -16,10 +16,8 @@ func ExtractJSON(s string) string {
 	var m map[string]interface{}
 	var buf bytes.Buffer
 
-	err := json.Unmarshal([]byte(s), &m)
-	if err == nil {
-		err = json.Compact(&buf, []byte(s))
-		if err == nil {
+	if err := json.Unmarshal([]byte(s), &m); err == nil {
+		if err := json.Compact(&buf, []byte(s)); err == nil {
 			return buf.String()
 		}
 	}
@@ -29,10 +27,8 @@ func ExtractJSON(s string) string {
 		return ""
 	}
 
-	err = json.Unmarshal([]byte(matches[0]), &m)
-	if err == nil {
-		err = json.Compact(&buf, []byte(matches[0]))
-		if err == nil {
+	if err := json.Unmarshal([]byte(matches[0]), &m); err == nil {
+		if err := json.Compact(&buf, []byte(matches[0])); err == nil {
 			return buf.String()
 		}
 	}

@@ -20,8 +20,7 @@ func (w *TelegramWriter) closeAudio() error {
 			})
 
 			tmsg.ReplyToMessageID = w.ReplyID
-			_, err := w.Bot.Send(tmsg)
-			if err != nil {
+			if _, err := w.Bot.Send(tmsg); err != nil {
 				logger.Error().Err(err).Msg("failed to send audio")
 			}
 		}

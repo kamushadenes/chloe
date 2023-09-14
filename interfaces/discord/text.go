@@ -2,9 +2,9 @@ package discord
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
 
 	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/langchain/chat_models"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
 )
@@ -12,11 +12,10 @@ import (
 func complete(ctx context.Context, msg *memory.Message) error {
 	w := NewDiscordWriter(ctx, msg, false)
 
-	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
+	chat := base.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if config.Discord.StreamMessages {
-		_, err := chat.ChatStreamWithContext(ctx, w, msg, messages.UserMessage(promptFromMessage(msg)))
-		if err != nil {
+		if _, err := chat.ChatStreamWithContext(ctx, w, msg, messages.UserMessage(promptFromMessage(msg))); err != nil {
 			return err
 		}
 	} else {
@@ -26,8 +25,7 @@ func complete(ctx context.Context, msg *memory.Message) error {
 		}
 
 		for k := range res.Generations {
-			_, err = w.Write([]byte(res.Generations[k].Text))
-			if err != nil {
+			if _, err := w.Write([]byte(res.Generations[k].Text)); err != nil {
 				return err
 			}
 		}

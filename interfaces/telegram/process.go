@@ -6,12 +6,7 @@ import (
 )
 
 func processText(ctx context.Context, msg *memory.Message) error {
-	err := aiComplete(ctx, msg)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return aiComplete(ctx, msg)
 }
 
 func processAudio(ctx context.Context, msg *memory.Message) error {

@@ -65,8 +65,7 @@ func Start(ctx context.Context) {
 		bot.AddHandler(handlers[k])
 	}
 
-	err = bot.Open()
-	if err != nil {
+	if err := bot.Open(); err != nil {
 		logger.Error().Err(err).Msg("error in discord interface")
 		return
 	}

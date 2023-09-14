@@ -22,8 +22,7 @@ func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, er
 		if err != nil {
 			return nil, err
 		}
-		err = user.AddExternalID(ctx, msg.Source.Discord.Message.Author.ID, "discord")
-		if err != nil {
+		if err := user.AddExternalID(ctx, msg.Source.Discord.Message.Author.ID, "discord"); err != nil {
 			return nil, err
 		}
 	}

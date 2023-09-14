@@ -247,35 +247,22 @@ func (u *User) DeleteOldestMessage(ctx context.Context) error {
 		return errors.Wrap(errors.ErrLoadMessages, err)
 	}
 
-	err := db.WithContext(ctx).
-		Delete(&message).Error
-
-	if err != nil {
-		return errors.Wrap(errors.ErrDeleteMessage, err)
-	}
-
-	return nil
+	return errors.Wrap(errors.ErrDeleteMessage, db.WithContext(ctx).
+		Delete(&message).Error)
 }
 
 func (u *User) GetExternalIDs() ([]*ExternalID, error) {
 	var eids []*ExternalID
-	if err := db.
+	err := db.
 		Where("user_id = ?", u.ID).
-		Find(&eids).Error; err != nil {
-		return nil, errors.Wrap(errors.ErrGetUser, err)
-	}
+		Find(&eids).Error
 
-	return eids, nil
+	return eids, errors.Wrap(errors.ErrGetUser, err)
 }
 
 func (u *User) CreateAPIKey(ctx context.Context) (string, error) {
 	apiKey := NewAPIKey(u)
 
 	err := db.WithContext(ctx).Save(apiKey).Error
-
-	if err != nil {
-		return "", errors.Wrap(errors.ErrCreateAPIKey, err)
-	}
-
-	return apiKey.Key, nil
+	return apiKey.Key, errors.Wrap(errors.ErrCreateAPIKey, err)
 }

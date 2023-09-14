@@ -23,8 +23,7 @@ func InitServer(ctx context.Context, isCLI bool, readyCh chan bool) {
 		logger.Fatal().Msg("OpenAI API key is not set")
 	}
 
-	_, err := memory.Setup(ctx)
-	if err != nil {
+	if _, err := memory.Setup(ctx); err != nil {
 		panic(err)
 	}
 

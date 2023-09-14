@@ -2,15 +2,15 @@ package cli
 
 import (
 	"context"
+	base "github.com/kamushadenes/chloe/langchain/diffusion_models/diffusion"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/common"
-	"github.com/kamushadenes/chloe/langchain/diffusion_models/openai"
 	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 
 func Generate(ctx context.Context, text string, writer writer_structs.ChloeWriter) error {
-	dif := openai.NewDiffusionOpenAI(config.OpenAI.APIKey)
+	dif := base.NewDiffusionWithDefaultModel(config.Diffusion.Provider)
 
 	res, err := dif.GenerateWithContext(ctx, common.DiffusionMessage{Prompt: text})
 	if err != nil {
@@ -18,7 +18,7 @@ func Generate(ctx context.Context, text string, writer writer_structs.ChloeWrite
 	}
 
 	for k := range res.Images {
-		_, err = writer.Write([]byte(res.Images[k]))
+		_, err = writer.Write(res.Images[k])
 		if err != nil {
 			return err
 		}

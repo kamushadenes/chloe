@@ -5,7 +5,7 @@ import (
 )
 
 func MonitorMessages(ctx context.Context) {
-	//logger := logging.GetLogger()
+	// logger := logging.GetLogger()
 
 	/*for msg := range structs.IncomingMessagesCh {
 		if err := ProcessMessage(ctx, msg); err != nil {

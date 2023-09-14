@@ -2,16 +2,16 @@ package cli
 
 import (
 	"context"
-
+	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
-	"github.com/kamushadenes/chloe/langchain/tts/google"
+	base "github.com/kamushadenes/chloe/langchain/tts/tts"
 	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 
 func TTS(ctx context.Context, text string, writer writer_structs.ChloeWriter) error {
-	tts := google.NewTTSGoogle()
+	t := base.NewTTSWithDefaultModel(config.TTS.Provider)
 
-	res, err := tts.TTSWithContext(ctx, common.TTSMessage{Text: text})
+	res, err := t.TTSWithContext(ctx, common.TTSMessage{Text: text})
 	if err != nil {
 		return err
 	}

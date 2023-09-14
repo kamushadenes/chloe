@@ -21,7 +21,9 @@ func NewChatWithDefaultModel(provider config.ChatProvider, user *memory.User) co
 	switch provider {
 	case config.OpenAIChat:
 		return openai.NewChatOpenAIWithDefaultModel(config.OpenAI.APIKey, user)
+	case config.GPT4AllChat:
+		return gpt4all.NewChatGPT4All(gpt4all.GetModel(config.GPT4All.DefaultModel), user)
 	}
 
-	return gpt4all.NewChatGPT4All(nil, user)
+	return nil
 }

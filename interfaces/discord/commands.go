@@ -57,8 +57,7 @@ func getCommands() []*discordgo.ApplicationCommand {
 
 func registerCommands(s *discordgo.Session) error {
 	for _, command := range getCommands() {
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, "", command)
-		if err != nil {
+		if _, err := s.ApplicationCommandCreate(s.State.User.ID, "", command); err != nil {
 			return err
 		}
 	}

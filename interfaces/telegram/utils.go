@@ -38,8 +38,7 @@ func userFromMessage(ctx context.Context, msg *memory.Message) (*memory.User, er
 			logger.Error().Err(err).Msg("error getting user from message")
 			return nil, err
 		}
-		err = user.AddExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram")
-		if err != nil {
+		if err = user.AddExternalID(ctx, fmt.Sprintf("%d", msg.Source.Telegram.Update.Message.From.ID), "telegram"); err != nil {
 			logger.Error().Err(err).Msg("error getting user from message")
 			return nil, err
 		}

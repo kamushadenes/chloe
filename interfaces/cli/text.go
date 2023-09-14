@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -9,7 +10,6 @@ import (
 	"github.com/kamushadenes/chloe/colors"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/flags"
-	"github.com/kamushadenes/chloe/langchain/chat_models"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs/writer_structs"
@@ -37,7 +37,7 @@ func Complete(ctx context.Context, text string, writer writer_structs.ChloeWrite
 		return err
 	}
 
-	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
+	chat := base.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if flags.InteractiveCLI {
 		writer.SetPreWriteCallback(func() {

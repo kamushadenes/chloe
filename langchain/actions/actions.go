@@ -169,7 +169,7 @@ func HandleAction(request *action_structs.ActionRequest) (err error) {
 
 	if err = act.RunPostActions(request); err != nil {
 		if errors.Is(err, errors.ErrNotImplemented) {
-			err = defaultPostActions(act, request)
+			return defaultPostActions(act, request)
 		}
 	}
 

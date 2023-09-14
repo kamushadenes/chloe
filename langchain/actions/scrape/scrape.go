@@ -15,7 +15,7 @@ func (a *ScrapeAction) GetNotification() string {
 func (a *ScrapeAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	//truncateTokenCount := structs.GetAvailableTokenCount(request)
+	// truncateTokenCount := structs.GetAvailableTokenCount(request)
 
 	res, err := scrape(a.MustGetParam("url"))
 	if err != nil {

@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -10,7 +11,6 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/i18n"
 	"github.com/kamushadenes/chloe/langchain/actions"
-	"github.com/kamushadenes/chloe/langchain/chat_models"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs/action_structs"
@@ -68,10 +68,9 @@ func complete(w http.ResponseWriter, r *http.Request) {
 
 	writer := NewHTTPResponseWriteCloser(w)
 
-	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
+	chat := base.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
-	_, err := chat.ChatStreamWithContext(ctx, writer, msg, messages.UserMessage(params.Content))
-	if err != nil {
+	if _, err := chat.ChatStreamWithContext(ctx, writer, msg, messages.UserMessage(params.Content)); err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}

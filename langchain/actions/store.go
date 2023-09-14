@@ -30,8 +30,7 @@ func StoreActionDetectionResult(request structs.ActionOrCompletionRequest, role 
 		return errors.Wrap(errors.ErrSaveMessage, err)
 	}
 	var buf bytes.Buffer
-	err = json.Compact(&buf, b)
-	if err != nil {
+	if err := json.Compact(&buf, b); err != nil {
 		return errors.Wrap(errors.ErrSaveMessage, err)
 	}
 

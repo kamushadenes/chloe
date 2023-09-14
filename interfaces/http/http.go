@@ -21,7 +21,7 @@ func setMiddlewares(ctx context.Context, r *chi.Mux) {
 
 	for _, mid := range []func(http.Handler) http.Handler{
 		LoggingMiddleware(ctx),
-		//httplog.RequestLogger(*logger),
+		// httplog.RequestLogger(*logger),
 		middleware.Heartbeat("/ping"),
 		middleware.RequestID,
 		middleware.Recoverer,

@@ -19,12 +19,11 @@ func NewFileWriter(path string) *FileWriter {
 		Path: path,
 	}
 
-	f, err := os.Create(path)
-	if err != nil {
+	if f, err := os.Create(path); err != nil {
 		panic(err)
+	} else {
+		w.f = f
 	}
-
-	w.f = f
 
 	return w
 }

@@ -81,8 +81,7 @@ func handleUpdates(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Up
 
 	if update.Message.Photo != nil {
 		photo := update.Message.Photo[len(update.Message.Photo)-1]
-		path, err := media.ConvertImageToPNG(downloadFile(ctx, bot, photo.FileID))
-		if err == nil {
+		if path, err := media.ConvertImageToPNG(downloadFile(ctx, bot, photo.FileID)); err == nil {
 			msg.AddImage(path)
 		}
 
