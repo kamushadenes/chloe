@@ -30,7 +30,7 @@ jobs:
         run: go generate -v ./...
 
       - name: Test
-        run: go test -v ./...
+        run: make test
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp.json

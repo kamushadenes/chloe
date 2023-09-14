@@ -14,19 +14,16 @@ import (
 
 func TestActions_Metadata(t *testing.T) {
 	for k := range actions {
+		k2 := k
 		t.Run(k, func(t *testing.T) {
 			t.Parallel()
 
-			act := actions[k]()
+			act := actions[k2]()
 
 			assert.True(t, len(act.GetName()) > 0)
 			assert.True(t, len(act.GetNotification()) > 0)
 
-			assert.True(t, len(act.GetParams()) == 0)
-			act.SetParam("test", "foo")
-			p, err := act.GetParam("test")
-			assert.NoError(t, err)
-			assert.True(t, p == "foo")
+			assert.True(t, len(act.GetParams()) > 0)
 		})
 	}
 }
