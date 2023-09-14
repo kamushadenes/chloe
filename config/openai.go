@@ -65,7 +65,7 @@ var OpenAI = &OpenAIConfig{
 		ImageVariation:  envOrDefaultImageSize("CHLOE_IMAGE_VARIATION_SIZE", "1024x1024"),
 	},
 
-	APIKey: mustEnv("OPENAI_API_KEY"),
+	APIKey: envOrDefault("OPENAI_API_KEY", ""),
 
 	MessagesToKeepFullContent: envOrDefaultInt("CHLOE_MESSAGES_TO_KEEP_FULL_CONTENT", 4),
 	UseAzure:                  envOrDefaultBool("CHLOE_USE_AZURE", false),
