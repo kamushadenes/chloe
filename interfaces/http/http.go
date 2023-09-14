@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -82,7 +83,7 @@ func listen(ctx context.Context, server *http.Server, wg *sync.WaitGroup) {
 	wg.Add(1)
 	defer wg.Done()
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logger.Panic().Err(err).Msg("error in http listen")
 	}
 }
@@ -109,7 +110,7 @@ func Start(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			logger.Warn().Err(ctx.Err()).Msg("closing http interface")
-			if err := server.Shutdown(ctx); err != nil && err != http.ErrServerClosed {
+			if err := server.Shutdown(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				logger.Error().Err(err).Msg("error in http interface")
 			}
 			wg.Wait()

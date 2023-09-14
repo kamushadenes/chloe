@@ -30,7 +30,7 @@ func GetUser(ctx context.Context, id uint) (*User, error) {
 		First(&u, id).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.Wrap(errors.ErrUserNotFound, err)
 		}
 		return nil, errors.Wrap(errors.ErrGetUser, err)
@@ -132,7 +132,7 @@ func (u *User) MustGetExternalID(ctx context.Context, interf string) *ExternalID
 	if tx := db.WithContext(ctx).
 		Where("user_id = ?", u.ID).
 		Where("interface = ?", interf).
-		First(&eid); tx.Error == gorm.ErrRecordNotFound {
+		First(&eid); errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		eid = ExternalID{
 			UserID:    u.ID,
 			Interface: interf,
@@ -154,7 +154,7 @@ func (u *User) AddExternalID(ctx context.Context, externalID, interf string) err
 	if tx := db.WithContext(ctx).
 		Where("user_id = ?", u.ID).
 		Where("interface = ?", interf).
-		First(&eid); tx.Error == gorm.ErrRecordNotFound {
+		First(&eid); errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		eid = ExternalID{
 			ExternalID: externalID,
 			UserID:     u.ID,

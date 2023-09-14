@@ -53,7 +53,7 @@ func (a *NewsAction) Execute(request *action_structs.ActionRequest) ([]*response
 				continue
 			}
 			aobjs, err := na.Execute(request)
-			if err != nil && err != errors.ErrProceed {
+			if err != nil && !errors.Is(err, errors.ErrProceed) {
 				continue
 			}
 			objs = append(objs, aobjs...)

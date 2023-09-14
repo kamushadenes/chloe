@@ -202,7 +202,7 @@ func (c *ChatOpenAI) ChatWithOptions(ctx context.Context, opts common.ChatOption
 
 			req.Params = args
 
-			if err := actions.HandleAction(req); (err != nil && err != errors.ErrProceed) || len(w.GetObjects()) == 0 {
+			if err := actions.HandleAction(req); (err != nil && !errors.Is(err, errors.ErrProceed)) || len(w.GetObjects()) == 0 {
 				if err != nil {
 					fm.SetContent(fmt.Sprintf("error: %s", err.Error()))
 				} else {
