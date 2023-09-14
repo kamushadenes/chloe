@@ -21,7 +21,7 @@ whisper:
 	cd workspace/models/audio_models/whisper.cpp/bindings/go && make whisper
 
 test:
-	LIBRARY_PATH=workspace/models/audio_models/whisper.cpp C_INCLUDE_PATH=workspace/models/audio_models/whisper.cpp CGO_ENABLED=1 go test ./...
+	LIBRARY_PATH=workspace/models/audio_models/whisper.cpp C_INCLUDE_PATH=workspace/models/audio_models/whisper.cpp CGO_ENABLED=1 go test -v ./...
 
 clean:
 	rm ./cmd/chloe/chloe
