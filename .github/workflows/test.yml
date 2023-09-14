@@ -29,7 +29,10 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Generate
-        run: go generate -v ./...
+        run: make generate
+
+      - name: Whisper
+        run: make whisper
 
       - name: Test
         run: make test
