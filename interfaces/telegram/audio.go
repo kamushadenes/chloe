@@ -10,7 +10,6 @@ import (
 
 func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 	for _, path := range msg.GetAudios() {
-
 		req := action_structs.NewActionRequest()
 		req.Message = msg
 		req.Context = ctx
@@ -39,7 +38,9 @@ func aiTranscribe(ctx context.Context, msg *memory.Message) error {
 			return err
 		}
 
-		return processText(ctx, msg)
+		if err := processText(ctx, msg); err != nil {
+			return err
+		}
 	}
 
 	return nil

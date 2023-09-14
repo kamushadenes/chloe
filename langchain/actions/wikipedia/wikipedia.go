@@ -19,8 +19,7 @@ func (a *WikipediaAction) GetNotification() string {
 func (a *WikipediaAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	var truncateTokenCount int
-	truncateTokenCount = 1000
+	var truncateTokenCount = 1000
 
 	res, _, err := gowiki.Search(a.MustGetParam("query"), config.React.WikipediaMaxResults, false)
 	if err != nil {

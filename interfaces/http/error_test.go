@@ -18,7 +18,7 @@ func TestErrInvalidRequest(t *testing.T) {
 	_ = render.Render(rr, req, ErrInvalidRequest(err))
 
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
-	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))
+	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 	// Test response body, which should contain JSON with error data:
 	// {"status":"Invalid request.","error":"invalid request"}
 }
@@ -31,7 +31,7 @@ func TestErrRender(t *testing.T) {
 	_ = render.Render(rr, req, ErrRender(err))
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rr.Code)
-	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))
+	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 	// Test response body, which should contain JSON with error data:
 	// {"status":"Error rendering response.","error":"error rendering response"}
 }
@@ -43,7 +43,7 @@ func TestErrNotFound_Render(t *testing.T) {
 	_ = render.Render(rr, req, ErrNotFound)
 
 	assert.Equal(t, http.StatusNotFound, rr.Code)
-	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"))
+	assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 	// Test response body, which should contain JSON with error data:
 	// {"status":"Resource not found."}
 }
