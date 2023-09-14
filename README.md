@@ -14,7 +14,7 @@ that leverages OpenAI
 technologies ([ChatGPT](https://openai.com/product/gpt-4),
 [Whisper](https://openai.com/research/whisper),
 and [DALL-E](https://openai.com/product/dall-e-2)) along
-with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine to provide versatile
+with [Google's Text-to-Speech](https://cloud.google.com/text-to-speech) engine and [ElevenLabs' Text-To-Speech](https://elevenlabs.io/) engine to provide versatile
 and comprehensive assistance.
 
 It offers multiple interfaces and is able to

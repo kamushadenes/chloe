@@ -14,11 +14,11 @@ type ASROpenAI struct {
 	model  *common.ASRModel
 }
 
-func NewASROpenAI(token string, model *common.ASRModel) *ASROpenAI {
+func NewASROpenAI(token string, model *common.ASRModel) common.ASR {
 	return &ASROpenAI{client: openai.NewClient(token), model: model}
 }
 
-func NewASROpenAIWithDefaultModel(token string) *ASROpenAI {
+func NewASROpenAIWithDefaultModel(token string) common.ASR {
 	return NewASROpenAI(token, Whisper1)
 }
 
@@ -54,7 +54,7 @@ func (c *ASROpenAI) TranscribeWithOptions(ctx context.Context, opts common.ASROp
 
 	dur, err := media.GetMediaDuration(opts.GetAudioFile())
 	if err != nil {
-		return common.ASRResult{}, err
+		logger.Error().Err(err).Msg("error getting media duration")
 	}
 
 	res.Usage = common.ASRUsage{

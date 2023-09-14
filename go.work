@@ -1,0 +1,6 @@
+go 1.21
+
+use (
+	.
+	workspace/models/audio_models/whisper.cpp/bindings/go
+)

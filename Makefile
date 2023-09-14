@@ -9,11 +9,16 @@ all: build
 generate:
 	go generate ./...
 
-build: generate
-	CGO_ENABLED=1 go build -o ./cmd/chloe/chloe ./cmd/chloe/main.go
+build: generate whisper
+	cd cmd/chloe && LIBRARY_PATH=../../workspace/models/audio_models/whisper.cpp C_INCLUDE_PATH=../../workspace/models/audio_models/whisper.cpp CGO_ENABLED=1 go build
+
+run:
+	cd cmd/chloe && ./chloe
+
+whisper:
+	cd workspace/models/audio_models/whisper.cpp/bindings/go && make whisper > /dev/null
+	cd workspace/models/audio_models/whisper.cpp && make main > /dev/null
+	cd workspace/models/audio_models/whisper.cpp && bash ./models/download-ggml-model.sh medium
 
 clean:
 	rm ./cmd/chloe/chloe
-
-run: build
-	cd cmd/chloe && ./chloe

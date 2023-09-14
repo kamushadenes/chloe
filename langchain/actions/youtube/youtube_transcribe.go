@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/media"
 	"os"
 	"os/exec"
 	"path"
@@ -15,7 +16,7 @@ import (
 )
 
 func (a *YoutubeTranscribeAction) GetNotification() string {
-	return fmt.Sprintf("🎥️ Transcribing video: **%s** (this might take a while)", a.MustGetParam("url"))
+	return fmt.Sprintf("🎥️ Downloading and transcribing video: **%s** (this might take a while)", a.MustGetParam("url"))
 }
 
 func (a *YoutubeTranscribeAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
@@ -53,8 +54,13 @@ func (a *YoutubeTranscribeAction) Execute(request *action_structs.ActionRequest)
 		return nil, errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandError, err)
 	}
 
+	wavPath, err := media.ConvertAudioToWav(request.Context, path.Join(tmpDir, "audio.mp3"))
+	if err != nil {
+		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
+	}
+
 	na := transcribe.NewTranscribeAction()
-	na.SetParam("path", path.Join(tmpDir, "audio.mp3"))
+	na.SetParam("path", wavPath)
 	na.SetMessage(request.Message)
 	request.Message.NotifyAction(na.GetNotification())
 

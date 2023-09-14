@@ -1,0 +1,6 @@
+[submodule "langchain/audio_models/whispercpp/whisper.cpp"]
+	path = langchain/audio_models/whispercpp/whisper.cpp
+	url = https://github.com/ggerganov/whisper.cpp.git
+[submodule "workspace/models/audio_models/whisper.cpp"]
+	path = workspace/models/audio_models/whisper.cpp
+	url = https://github.com/ggerganov/whisper.cpp.git

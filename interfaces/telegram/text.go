@@ -21,7 +21,7 @@ func aiComplete(ctx context.Context, msg *memory.Message, ch chan interface{}) e
 
 	chat := chat_models.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
-	if config.Slack.StreamMessages {
+	if config.Telegram.StreamMessages {
 		_, err := chat.ChatStreamWithContext(ctx, request.Writer, msg, messages.UserMessage(promptFromMessage(msg)))
 		if err != nil {
 			return err

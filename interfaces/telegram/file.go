@@ -71,7 +71,7 @@ func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) stri
 	}
 
 	if path.Ext(filePath) == ".ogg" || path.Ext(filePath) == ".oga" {
-		nfilePath, err := media.ConvertAudioToMp3(ctx, filePath)
+		nfilePath, err := media.ConvertAudioToWav(ctx, filePath)
 		defer func(name string) {
 			_ = os.Remove(name)
 		}(filePath)

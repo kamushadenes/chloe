@@ -7,6 +7,9 @@ cmd/chloe/telegram
 cmd/chloe/chloe.db
 cmd/chloe/gcp-credentials.json
 cmd/chloe/chloe
+cmd/chloe/libwhisper.a
+cmd/chloe/whisper.h
+
 flags/version.txt
 cmd/chloe/panic.log
 server/chloe.db
@@ -14,6 +17,6 @@ server/chloe.db
 dist/
 logging.iml
 
-workspace/
+cmd/chloe/workspace/
 
 .vscode
