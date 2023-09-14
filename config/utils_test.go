@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/kamushadenes/chloe/models"
 	"os"
 	"testing"
 	"time"
@@ -44,42 +43,6 @@ func TestEnvOrDefaultImageSize(t *testing.T) {
 
 	// Then
 	assert.Equal(t, expected, result, "Value should be equal to the default value")
-}
-
-func TestEnvOrDefaultCompletionModel(t *testing.T) {
-	// Given
-	expected := "gpt-3.5-turbo"
-	key := "COMPLETION_MODEL_ENV_VAR"
-
-	// When
-	result := envOrDefaultCompletionModel(key, models.GPT35Turbo)
-
-	// Then
-	assert.Equal(t, expected, result.String(), "Value should be equal to the default value")
-}
-
-func TestEnvOrDefaultTranscriptionModel(t *testing.T) {
-	// Given
-	expected := "whisper-1"
-	key := "TRANSCRIPTION_MODEL_ENV_VAR"
-
-	// When
-	result := envOrDefaultTranscriptionModel(key, models.Whisper1)
-
-	// Then
-	assert.Equal(t, expected, result.String(), "Value should be equal to the default value")
-}
-
-func TestEnvOrDefaultModerationModel(t *testing.T) {
-	// Given
-	expected := "text-moderation-stable"
-	key := "MODERATION_MODEL_ENV_VAR"
-
-	// When
-	result := envOrDefaultModerationModel(key, models.TextModerationStable)
-
-	// Then
-	assert.Equal(t, expected, result.String(), "Value should be equal to the default value")
 }
 
 func TestEnvOrDefaultGCPTTSEncoding(t *testing.T) {

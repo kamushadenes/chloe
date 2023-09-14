@@ -9,7 +9,6 @@ import (
 
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"github.com/kamushadenes/chloe/errors"
-	"github.com/kamushadenes/chloe/models"
 	"github.com/kamushadenes/chloe/utils"
 )
 
@@ -42,33 +41,6 @@ func envOrDefaultImageSize(key, defaultValue string) string {
 			"512x512",
 			"1024x1024",
 		})
-}
-
-func envOrDefaultCompletionModel(key string, defaultValue *models.Model) *models.Model {
-	return models.GetModel(envOrDefaultWithOptions(key, defaultValue.String(),
-		models.ModelsToString(
-			models.GPT35Turbo,
-			models.GPT35Turbo0301,
-			models.GPT4,
-			models.GPT40314,
-			models.GPT432K,
-			models.GPT432K0314,
-		)))
-}
-
-func envOrDefaultTranscriptionModel(key string, defaultValue *models.Model) *models.Model {
-	return models.GetModel(envOrDefaultWithOptions(key, defaultValue.String(),
-		models.ModelsToString(
-			models.Whisper1,
-		)))
-}
-
-func envOrDefaultModerationModel(key string, defaultValue *models.Model) *models.Model {
-	return models.GetModel(envOrDefaultWithOptions(key, defaultValue.String(),
-		models.ModelsToString(
-			models.TextModerationStable,
-			models.TextModerationLatest,
-		)))
 }
 
 func envOrDefaultGCPTTSEncoding(key string, defaultValue texttospeechpb.AudioEncoding) texttospeechpb.AudioEncoding {

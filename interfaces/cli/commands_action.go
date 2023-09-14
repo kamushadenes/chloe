@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/kamushadenes/chloe/langchain/actions"
 	"strings"
 
 	"github.com/kamushadenes/chloe/structs/action_structs"
@@ -18,7 +19,5 @@ func (a *ActionCmd) Run(globals *Globals) error {
 	req.Params["text"] = strings.Join(a.Params, " ")
 	req.Writer = NewCLIWriter()
 
-	return nil
-
-	//return structs.RunAction(req)
+	return actions.HandleAction(req)
 }

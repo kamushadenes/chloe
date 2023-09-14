@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
@@ -18,7 +19,7 @@ func (a *WriteFileAction) GetNotification() string {
 func (a *WriteFileAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	fname := path.Join(config.React.FileWorkspace, a.MustGetParam("path"))
+	fname := filepath.Join(config.React.FileWorkspace, a.MustGetParam("path"))
 	content := a.MustGetParam("content")
 
 	if err := os.MkdirAll(path.Dir(fname), 0755); err != nil {
@@ -34,5 +35,4 @@ func (a *WriteFileAction) Execute(request *action_structs.ActionRequest) ([]*res
 	}
 
 	return []*response_object_structs.ResponseObject{obj}, nil
-
 }

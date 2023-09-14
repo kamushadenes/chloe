@@ -2,7 +2,7 @@ package config
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -19,9 +19,9 @@ type MiscConfig struct {
 }
 
 var Misc = &MiscConfig{
-	TempDir:              envOrDefault("CHLOE_TEMP_DIR", path.Join(os.TempDir(), "chloe")),
+	TempDir:              envOrDefault("CHLOE_TEMP_DIR", filepath.Join(os.TempDir(), "chloe")),
 	CostTrackingInterval: envOrDefaultDuration("CHLOE_COST_TRACKING_INTERVAL", 5*time.Minute),
-	WorkspaceDir: envOrDefault("CHLOE_WORKSPACE_DIR", path.Join(func() string {
+	WorkspaceDir: envOrDefault("CHLOE_WORKSPACE_DIR", filepath.Join(func() string {
 		if wd, err := os.Getwd(); err == nil {
 			return wd
 		}

@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func ConvertImageToPng(filePath string) (string, error) {
+func ConvertImageToPNG(filePath string) (string, error) {
 	if _, err := exec.LookPath("convert"); err != nil {
 		return "", fmt.Errorf("unable to locate `convert`: %w", err)
 	}

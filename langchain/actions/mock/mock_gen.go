@@ -4,17 +4,18 @@ package mock
 
 import (
 	"fmt"
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs/action_structs"
-	"github.com/kamushadenes/chloe/langchain/actions/functions"
 )
 
 type MockAction struct {
 	Name        string
 	Description string
-	Params *action_structs.ActionParameterSet
-	Extra map[string]interface{}
+	Params      *action_structs.ActionParameterSet
+	Extra       map[string]interface{}
 }
+
 // NewMockAction creates a new MockAction with Params initialized
 func NewMockAction() action_structs.Action {
 	var params action_structs.ActionParameterSet
@@ -27,9 +28,9 @@ func NewMockAction() action_structs.Action {
 	})
 
 	return &MockAction{
-		Name:   "mock",
+		Name:        "mock",
 		Description: "Mock a message",
-		Params: &params,
+		Params:      &params,
 	}
 }
 
@@ -52,10 +53,10 @@ func (a *MockAction) SetParam(key, value string) {
 }
 func (a *MockAction) GetParam(key string) (string, error) {
 	p, err := a.Params.GetParam(key)
-	
+
 	if p == nil {
 		return "", fmt.Errorf("param %s not found", key)
-	}	
+	}
 
 	return p.Value, err
 }
@@ -70,22 +71,22 @@ func (a *MockAction) GetParams() []*action_structs.ActionParameter {
 func (a *MockAction) SetMessage(msg *memory.Message) {}
 
 func (a *MockAction) GetSchema() *functions.FunctionDefinition {
-	params:= make(map[string]interface{})
-	
+	params := make(map[string]interface{})
+
 	params["type"] = "object"
 	params["required"] = []string{}
 	params["properties"] = make(map[string]interface{})
-	
+
 	for k := range a.GetParams() {
 		p := a.GetParams()[k]
-		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})	
-		
+		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})
+
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["type"] = p.Type
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["description"] = p.Description
 		if p.Enum != nil {
 			params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["enum"] = p.Enum
 		}
-		
+
 		if p.Required {
 			params["required"] = append(params["required"].([]string), p.Name)
 		}

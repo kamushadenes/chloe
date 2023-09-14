@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"github.com/kamushadenes/chloe/colors"
-	"github.com/kamushadenes/chloe/config"
-	"github.com/kamushadenes/chloe/models"
 )
 
 type CompleteCmd struct {
@@ -17,8 +15,6 @@ type CompleteCmd struct {
 }
 
 func (c *CompleteCmd) Run(globals *Globals) error {
-	config.OpenAI.DefaultModel.Completion = models.GetModel(c.Model)
-
 	if len(c.Prompt) > 0 {
 		return Complete(globals.Context, strings.Join(c.Prompt, " "), NewCLIWriter())
 	}

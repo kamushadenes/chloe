@@ -5,17 +5,18 @@ package file
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs/action_structs"
-	"github.com/kamushadenes/chloe/langchain/actions/functions"
 )
 
 type WriteFileAction struct {
 	Name        string
 	Description string
-	Params *action_structs.ActionParameterSet
-	Extra map[string]interface{}
+	Params      *action_structs.ActionParameterSet
+	Extra       map[string]interface{}
 }
+
 // NewWriteFileAction creates a new WriteFileAction with Params initialized
 func NewWriteFileAction() action_structs.Action {
 	var params action_structs.ActionParameterSet
@@ -35,9 +36,9 @@ func NewWriteFileAction() action_structs.Action {
 	})
 
 	return &WriteFileAction{
-		Name:   "write_file",
+		Name:        "write_file",
 		Description: "Write content to a file",
-		Params: &params,
+		Params:      &params,
 	}
 }
 
@@ -60,10 +61,10 @@ func (a *WriteFileAction) SetParam(key, value string) {
 }
 func (a *WriteFileAction) GetParam(key string) (string, error) {
 	p, err := a.Params.GetParam(key)
-	
+
 	if p == nil {
 		return "", fmt.Errorf("param %s not found", key)
-	}	
+	}
 
 	return p.Value, err
 }
@@ -84,22 +85,22 @@ func (a *WriteFileAction) RunPostActions(request *action_structs.ActionRequest) 
 }
 
 func (a *WriteFileAction) GetSchema() *functions.FunctionDefinition {
-	params:= make(map[string]interface{})
-	
+	params := make(map[string]interface{})
+
 	params["type"] = "object"
 	params["required"] = []string{}
 	params["properties"] = make(map[string]interface{})
-	
+
 	for k := range a.GetParams() {
 		p := a.GetParams()[k]
-		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})	
-		
+		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})
+
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["type"] = p.Type
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["description"] = p.Description
 		if p.Enum != nil {
 			params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["enum"] = p.Enum
 		}
-		
+
 		if p.Required {
 			params["required"] = append(params["required"].([]string), p.Name)
 		}

@@ -3,7 +3,7 @@ package file
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
@@ -18,7 +18,7 @@ func (a *DeleteFileAction) GetNotification() string {
 func (a *DeleteFileAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	fname := path.Join(config.React.FileWorkspace, a.MustGetParam("path"))
+	fname := filepath.Join(config.React.FileWorkspace, a.MustGetParam("path"))
 
 	if err := os.Remove(fname); err != nil {
 		return nil, errors.Wrap(errors.ErrActionFailed, err)
@@ -29,5 +29,4 @@ func (a *DeleteFileAction) Execute(request *action_structs.ActionRequest) ([]*re
 	}
 
 	return []*response_object_structs.ResponseObject{obj}, nil
-
 }

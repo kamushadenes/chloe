@@ -3,7 +3,7 @@ package file
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
@@ -18,7 +18,7 @@ func (a *ReadFileAction) GetNotification() string {
 func (a *ReadFileAction) Execute(request *action_structs.ActionRequest) ([]*response_object_structs.ResponseObject, error) {
 	obj := response_object_structs.NewResponseObject(response_object_structs.Text)
 
-	fname := path.Join(config.React.FileWorkspace, a.MustGetParam("path"))
+	fname := filepath.Join(config.React.FileWorkspace, a.MustGetParam("path"))
 
 	b, err := os.ReadFile(fname)
 	if err != nil {
@@ -30,5 +30,4 @@ func (a *ReadFileAction) Execute(request *action_structs.ActionRequest) ([]*resp
 	}
 
 	return []*response_object_structs.ResponseObject{obj}, nil
-
 }

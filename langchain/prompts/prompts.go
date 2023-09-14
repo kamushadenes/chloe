@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"github.com/kamushadenes/chloe/tokenizer"
 	"strings"
 	"text/template"
 
-	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 )
 
@@ -94,9 +94,7 @@ func GetPromptSize(prompt string) (int, error) {
 		return 0, err
 	}
 
-	model := config.OpenAI.GetTokenizerModel(config.OpenAI.GetModel(config.Completion))
-
-	return model.CountTokens(prompt), nil
+	return tokenizer.CountTokens("gpt-3.5-turbo", prompt), nil
 }
 
 func ListPrompts() ([]string, error) {

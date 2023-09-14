@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 func getFile(api *tgbotapi.BotAPI, fileID string) (tgbotapi.File, error) {
@@ -51,7 +52,7 @@ func downloadFile(ctx context.Context, api *tgbotapi.BotAPI, fileID string) stri
 		return ""
 	}
 
-	filePath := path.Join(config.Misc.TempDir, "telegram", "downloads", file.FilePath)
+	filePath := filepath.Join(config.Misc.TempDir, "telegram", "downloads", file.FilePath)
 
 	req, err := createRequest(file.Link(api.Token))
 	if err != nil {

@@ -1,5 +1,7 @@
 package config
 
+import "path/filepath"
+
 type ReactConfig struct {
 	ImproveImagePrompts      bool
 	GoogleMaxResults         int
@@ -28,6 +30,6 @@ var React = &ReactConfig{
 	NewsAPISortStrategy: envOrDefaultWithOptions("CHLOE_REACT_NEWSAPI_SORT_STRATEGY", "relevancy",
 		[]string{"relevancy", "popularity", "publishedAt"}),
 	UseAria2:             envOrDefaultBool("CHLOE_REACT_USE_ARIA2", true),
-	FileWorkspace:        envOrDefault("CHLOE_REACT_FILE_WORKSPACE", "workspace/"),
+	FileWorkspace:        envOrDefault("CHLOE_REACT_FILE_WORKSPACE", filepath.Join(Misc.WorkspaceDir, "files")),
 	OpenWeatherMapAPIKey: envOrDefault("CHLOE_REACT_OPENWEATHERMAP_API_KEY", ""),
 }

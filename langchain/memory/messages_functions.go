@@ -4,12 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gofrs/uuid"
-	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
-	"github.com/sashabaranov/go-openai"
 )
 
 func LoadNonSummarizedMessages(ctx context.Context) ([]*Message, error) {
@@ -34,22 +31,6 @@ func LoadNonModeratedMessages(ctx context.Context) ([]*Message, error) {
 	}
 
 	return messages, nil
-}
-
-func MessagesFromOpenAIChatCompletionResponse(user *User, interf string, resp *openai.ChatCompletionResponse) []*Message {
-	var messages []*Message
-
-	for k := range resp.Choices {
-		msg := NewMessage(uuid.Must(uuid.NewV4()).String(), interf)
-
-		msg.SetContent(resp.Choices[k].Message.Content)
-		msg.Role = resp.Choices[k].Message.Role
-		msg.User = user
-
-		messages = append(messages, msg)
-	}
-
-	return messages
 }
 
 func NewMessage(externalID string, interf string) *Message {
@@ -178,7 +159,7 @@ func (m *Message) GetContent() string {
 func (m *Message) SetContent(content string) {
 	m.Content = content
 
-	m.TokenCount = tokenizer.CountTokens(config.OpenAI.DefaultModel.Completion.String(), content)
+	m.TokenCount = tokenizer.CountTokens("gpt-3.5-turbo", content)
 }
 
 func BulkChangeMessageOwner(ctx context.Context, oldUser *User, newUser *User) error {

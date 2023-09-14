@@ -5,17 +5,18 @@ package tts
 import (
 	"fmt"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/langchain/actions/functions"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/structs/action_structs"
-	"github.com/kamushadenes/chloe/langchain/actions/functions"
 )
 
 type TTSAction struct {
 	Name        string
 	Description string
-	Params *action_structs.ActionParameterSet
-	Extra map[string]interface{}
+	Params      *action_structs.ActionParameterSet
+	Extra       map[string]interface{}
 }
+
 // NewTTSAction creates a new TTSAction with Params initialized
 func NewTTSAction() action_structs.Action {
 	var params action_structs.ActionParameterSet
@@ -28,9 +29,9 @@ func NewTTSAction() action_structs.Action {
 	})
 
 	return &TTSAction{
-		Name:   "tts",
+		Name:        "tts",
 		Description: "Text to speech",
-		Params: &params,
+		Params:      &params,
 	}
 }
 
@@ -53,10 +54,10 @@ func (a *TTSAction) SetParam(key, value string) {
 }
 func (a *TTSAction) GetParam(key string) (string, error) {
 	p, err := a.Params.GetParam(key)
-	
+
 	if p == nil {
 		return "", fmt.Errorf("param %s not found", key)
-	}	
+	}
 
 	return p.Value, err
 }
@@ -77,22 +78,22 @@ func (a *TTSAction) RunPostActions(request *action_structs.ActionRequest) error 
 }
 
 func (a *TTSAction) GetSchema() *functions.FunctionDefinition {
-	params:= make(map[string]interface{})
-	
+	params := make(map[string]interface{})
+
 	params["type"] = "object"
 	params["required"] = []string{}
 	params["properties"] = make(map[string]interface{})
-	
+
 	for k := range a.GetParams() {
 		p := a.GetParams()[k]
-		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})	
-		
+		params["properties"].(map[string]interface{})[p.Name] = make(map[string]interface{})
+
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["type"] = p.Type
 		params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["description"] = p.Description
 		if p.Enum != nil {
 			params["properties"].(map[string]interface{})[p.Name].(map[string]interface{})["enum"] = p.Enum
 		}
-		
+
 		if p.Required {
 			params["required"] = append(params["required"].([]string), p.Name)
 		}

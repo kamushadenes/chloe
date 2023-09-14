@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-func ConvertAudioToMp3(ctx context.Context, filePath string) (string, error) {
+func ConvertAudioToMP3(ctx context.Context, filePath string) (string, error) {
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
 		return "", fmt.Errorf("unable to locate `ffmpeg`: %w", err)
 	}

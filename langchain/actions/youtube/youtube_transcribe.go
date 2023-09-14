@@ -5,7 +5,7 @@ import (
 	"github.com/kamushadenes/chloe/media"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 
 	"github.com/kamushadenes/chloe/config"
 	errors2 "github.com/kamushadenes/chloe/errors"
@@ -46,7 +46,7 @@ func (a *YoutubeTranscribeAction) Execute(request *action_structs.ActionRequest)
 	args = append(args,
 		"-x", "--audio-format", "mp3",
 		"-f", "worstaudio/bestaudio/worst",
-		"-o", path.Join(tmpDir, "audio.mp3"),
+		"-o", filepath.Join(tmpDir, "audio.mp3"),
 		a.MustGetParam("url"))
 
 	cmd := exec.Command("youtube-dl", args...)
@@ -54,7 +54,7 @@ func (a *YoutubeTranscribeAction) Execute(request *action_structs.ActionRequest)
 		return nil, errors2.Wrap(errors2.ErrActionFailed, errors2.ErrCommandError, err)
 	}
 
-	wavPath, err := media.ConvertAudioToWav(request.Context, path.Join(tmpDir, "audio.mp3"))
+	wavPath, err := media.ConvertAudioToWav(request.Context, filepath.Join(tmpDir, "audio.mp3"))
 	if err != nil {
 		return nil, errors2.Wrap(errors2.ErrActionFailed, err)
 	}

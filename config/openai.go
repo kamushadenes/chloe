@@ -1,9 +1,5 @@
 package config
 
-import (
-	"github.com/kamushadenes/chloe/models"
-)
-
 type ModelPurpose string
 type ImagePurpose string
 
@@ -19,10 +15,10 @@ const (
 )
 
 type OpenAIConfigModel struct {
-	Completion    *models.Model
-	Transcription *models.Model
-	Moderation    *models.Model
-	Summarization *models.Model
+	Completion    string
+	Transcription string
+	Moderation    string
+	Summarization string
 }
 
 type OpenAIConfigImageSize struct {
@@ -53,10 +49,10 @@ var OpenAI = &OpenAIConfig{
 	MinReplyTokens: envOrDefaultInt("CHLOE_MIN_REPLY_TOKENS", 500),
 
 	DefaultModel: OpenAIConfigModel{
-		Completion:    envOrDefaultCompletionModel("CHLOE_MODEL_COMPLETION", models.GPT35Turbo),
-		Transcription: envOrDefaultTranscriptionModel("CHLOE_MODEL_TRANSCRIPTION", models.Whisper1),
-		Moderation:    envOrDefaultModerationModel("CHLOE_MODEL_MODERATION", models.TextModerationLatest),
-		Summarization: envOrDefaultCompletionModel("CHLOE_MODEL_SUMMARIZATION", models.GPT35Turbo),
+		Completion:    envOrDefault("CHLOE_MODEL_COMPLETION", "gpt-3.5-turbo"),
+		Transcription: envOrDefault("CHLOE_MODEL_TRANSCRIPTION", "whisper-1"),
+		Moderation:    envOrDefault("CHLOE_MODEL_MODERATION", "text-moderation-latest"),
+		Summarization: envOrDefault("CHLOE_MODEL_SUMMARIZATION", "gpt-3.5-turbo"),
 	},
 
 	DefaultSize: OpenAIConfigImageSize{

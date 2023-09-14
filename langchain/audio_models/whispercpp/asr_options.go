@@ -7,7 +7,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/audio_models/common"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -55,7 +55,7 @@ func (c ASROptionsWhisperCpp) WithAudioFile(audioFile string) common.ASROptions 
 }
 
 func (c ASROptionsWhisperCpp) WithModel(model string) common.ASROptions {
-	p := path.Join(config.Misc.WorkspaceDir, "models", "audio_models", "whisper.cpp", "models", fmt.Sprintf("ggml-%s.bin", model))
+	p := filepath.Join(config.Misc.WorkspaceDir, "models", "audio_models", "whisper.cpp", "models", fmt.Sprintf("ggml-%s.bin", model))
 	m, err := whisper.New(p)
 	if err != nil {
 		fmt.Println(fmt.Errorf("error loading model: %w", err))
