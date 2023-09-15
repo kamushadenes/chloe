@@ -15,4 +15,6 @@ type TTSOptions interface {
 	GetTimeout() time.Duration
 	WithSimilarityBoost(float32) TTSOptions
 	WithStability(float32) TTSOptions
+	WithModel(TTSModel) TTSOptions
+	WithPrompt(string) TTSOptions
 }

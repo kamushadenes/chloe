@@ -2,8 +2,6 @@ package elevenlabs
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/haguro/elevenlabs-go"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
@@ -32,10 +30,6 @@ func (c *TTSElevenLabs) TTSWithOptions(ctx context.Context, opts common.TTSOptio
 	logger := logging.GetLogger()
 
 	elevenlabs.SetAPIKey(config.ElevenLabs.APIKey)
-
-	fmt.Println(config.ElevenLabs.APIKey)
-	fmt.Println(opts.(TTSOptionsElevenLabs).voice)
-	fmt.Printf("%+v\n", opts.GetRequest().(elevenlabs.TextToSpeechRequest))
 
 	audio, err := elevenlabs.TextToSpeech(opts.(TTSOptionsElevenLabs).voice, opts.GetRequest().(elevenlabs.TextToSpeechRequest))
 	if err != nil {

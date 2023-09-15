@@ -20,3 +20,5 @@ logging.iml
 cmd/chloe/workspace/
 
 .vscode
+
+*.pprof

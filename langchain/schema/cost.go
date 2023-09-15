@@ -7,6 +7,7 @@ const (
 	CostUnitToken  CostUnit = "token"
 	CostUnitImage  CostUnit = "image"
 	CostUnitMinute CostUnit = "minute"
+	CostUnitSecond CostUnit = "second"
 
 	ContextUnitToken ContextUnit = "token"
 	ContextUnitByte  ContextUnit = "byte"

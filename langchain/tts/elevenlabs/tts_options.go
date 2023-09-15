@@ -53,19 +53,19 @@ func (c TTSOptionsElevenLabs) WithVoice(voice string) common.TTSOptions {
 	return c
 }
 
-func (c TTSOptionsElevenLabs) WithAudioEncoding(encoding string) common.TTSOptions {
+func (c TTSOptionsElevenLabs) WithAudioEncoding(string) common.TTSOptions {
 	return c
 }
 
-func (c TTSOptionsElevenLabs) WithSpeakingRate(rate float64) common.TTSOptions {
+func (c TTSOptionsElevenLabs) WithSpeakingRate(float64) common.TTSOptions {
 	return c
 }
 
-func (c TTSOptionsElevenLabs) WithPitch(pitch float64) common.TTSOptions {
+func (c TTSOptionsElevenLabs) WithPitch(float64) common.TTSOptions {
 	return c
 }
 
-func (c TTSOptionsElevenLabs) WithVolumeGain(gain float64) common.TTSOptions {
+func (c TTSOptionsElevenLabs) WithVolumeGain(float64) common.TTSOptions {
 	return c
 }
 
@@ -85,4 +85,12 @@ func (c TTSOptionsElevenLabs) WithTimeout(timeout time.Duration) common.TTSOptio
 
 func (c TTSOptionsElevenLabs) GetTimeout() time.Duration {
 	return c.timeout
+}
+
+func (c TTSOptionsElevenLabs) WithModel(common.TTSModel) common.TTSOptions {
+	return c
+}
+
+func (c TTSOptionsElevenLabs) WithPrompt(string) common.TTSOptions {
+	return c
 }

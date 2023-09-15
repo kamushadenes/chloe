@@ -53,11 +53,11 @@ func (c TTSOptionsGoogle) GetRequest() interface{} {
 	return c.req
 }
 
-func (c TTSOptionsGoogle) WithSimilarityBoost(sb float32) common.TTSOptions {
+func (c TTSOptionsGoogle) WithSimilarityBoost(float32) common.TTSOptions {
 	return c
 }
 
-func (c TTSOptionsGoogle) WithStability(st float32) common.TTSOptions {
+func (c TTSOptionsGoogle) WithStability(float32) common.TTSOptions {
 	return c
 }
 
@@ -135,4 +135,12 @@ func (c TTSOptionsGoogle) WithTimeout(timeout time.Duration) common.TTSOptions {
 
 func (c TTSOptionsGoogle) GetTimeout() time.Duration {
 	return c.timeout
+}
+
+func (c TTSOptionsGoogle) WithModel(common.TTSModel) common.TTSOptions {
+	return c
+}
+
+func (c TTSOptionsGoogle) WithPrompt(string) common.TTSOptions {
+	return c
 }
