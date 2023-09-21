@@ -3,8 +3,8 @@ package cli
 import (
 	"context"
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/tts/base"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
-	base "github.com/kamushadenes/chloe/langchain/tts/tts"
 	"github.com/kamushadenes/chloe/structs/writer_structs"
 )
 

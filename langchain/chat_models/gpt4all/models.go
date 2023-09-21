@@ -3,7 +3,7 @@ package gpt4all
 import (
 	"github.com/kamushadenes/chloe/langchain/chat_models/common"
 	"github.com/kamushadenes/chloe/langchain/schema"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 var (

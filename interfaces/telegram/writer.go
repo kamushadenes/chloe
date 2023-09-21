@@ -119,8 +119,8 @@ func (w *TelegramWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
 
-func (w *TelegramWriter) WriteHeader(statusCode int) {}
-func (w *TelegramWriter) Header() http.Header        { return http.Header{} }
+func (w *TelegramWriter) WriteHeader(int)     {}
+func (w *TelegramWriter) Header() http.Header { return http.Header{} }
 func (w *TelegramWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
 }

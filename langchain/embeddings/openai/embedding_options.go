@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/kamushadenes/chloe/langchain/embeddings/common"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type EmbeddingOptionsOpenAI struct {

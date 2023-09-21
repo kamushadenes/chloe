@@ -59,9 +59,7 @@ func FromContext(ctx context.Context) *zerolog.Logger {
 	return &logger
 }
 
-func consoleWriter() ConsoleWriter {
-	var w ConsoleWriter
-
+func consoleWriter() zerolog.ConsoleWriter {
 	writer := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "15:04:05", NoColor: false}
 
 	writer.PartsOrder = []string{
@@ -75,7 +73,5 @@ func consoleWriter() ConsoleWriter {
 		return fmt.Sprintf("| %-60s|", i)
 	}
 
-	w.ConsoleWriter = writer
-
-	return w
+	return writer
 }

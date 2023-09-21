@@ -6,7 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/langchain/audio_models/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/media"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type ASROpenAI struct {

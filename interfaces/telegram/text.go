@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
+	"github.com/kamushadenes/chloe/langchain/chat_models/base"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
@@ -15,8 +15,7 @@ func aiComplete(ctx context.Context, msg *memory.Message) error {
 	chat := base.NewChatWithDefaultModel(config.Chat.Provider, msg.User)
 
 	if config.Telegram.StreamMessages {
-		_, err := chat.ChatStreamWithContext(ctx, w, msg, messages.UserMessage(promptFromMessage(msg)))
-		if err != nil {
+		if _, err := chat.ChatStreamWithContext(ctx, w, msg, messages.UserMessage(promptFromMessage(msg))); err != nil {
 			return err
 		}
 	} else {

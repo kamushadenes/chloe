@@ -123,8 +123,8 @@ func (w *DiscordWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
 
-func (w *DiscordWriter) WriteHeader(statusCode int) {}
-func (w *DiscordWriter) Header() http.Header        { return http.Header{} }
+func (w *DiscordWriter) WriteHeader(int)     {}
+func (w *DiscordWriter) Header() http.Header { return http.Header{} }
 func (w *DiscordWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
 }

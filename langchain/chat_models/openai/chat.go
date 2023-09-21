@@ -16,7 +16,7 @@ import (
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/structs/action_structs"
 	"github.com/kamushadenes/chloe/structs/writer_structs"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type ChatOpenAI struct {

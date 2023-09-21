@@ -11,7 +11,7 @@ import (
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 	"github.com/kamushadenes/chloe/utils"
 	googlesearch "github.com/rocketlaunchr/google-search"
-	"google.golang.org/api/customsearch/v1"
+	customsearch "google.golang.org/api/customsearch/v1"
 	"google.golang.org/api/option"
 )
 

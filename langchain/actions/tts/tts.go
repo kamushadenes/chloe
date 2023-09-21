@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kamushadenes/chloe/config"
+	"github.com/kamushadenes/chloe/langchain/tts/base"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
-	base "github.com/kamushadenes/chloe/langchain/tts/tts"
 	"github.com/kamushadenes/chloe/structs/action_structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )

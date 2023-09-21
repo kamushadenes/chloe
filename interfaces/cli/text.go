@@ -2,7 +2,7 @@ package cli
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
+	"github.com/kamushadenes/chloe/langchain/chat_models/base"
 	"time"
 
 	"github.com/briandowns/spinner"

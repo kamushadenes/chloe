@@ -2,7 +2,7 @@ package discord
 
 import (
 	"context"
-	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
+	"github.com/kamushadenes/chloe/langchain/chat_models/base"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"

@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/common"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 	"io"
 	"net/http"
 )

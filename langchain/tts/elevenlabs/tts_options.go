@@ -3,7 +3,7 @@ package elevenlabs
 import (
 	"time"
 
-	"github.com/haguro/elevenlabs-go"
+	elevenlabs "github.com/haguro/elevenlabs-go"
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/tts/common"
 )

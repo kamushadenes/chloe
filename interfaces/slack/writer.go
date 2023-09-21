@@ -130,8 +130,8 @@ func (w *SlackWriter) SetPrompt(prompt string) {
 	w.Prompt = prompt
 }
 
-func (w *SlackWriter) WriteHeader(statusCode int) {}
-func (w *SlackWriter) Header() http.Header        { return http.Header{} }
+func (w *SlackWriter) WriteHeader(int)     {}
+func (w *SlackWriter) Header() http.Header { return http.Header{} }
 func (w *SlackWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
 }

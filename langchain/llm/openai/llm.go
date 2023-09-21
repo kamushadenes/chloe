@@ -6,7 +6,7 @@ import (
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/llm/common"
 	"github.com/kamushadenes/chloe/logging"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type LLMOpenAI struct {

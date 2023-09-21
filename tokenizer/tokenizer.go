@@ -1,6 +1,8 @@
 package tokenizer
 
-import "github.com/pkoukk/tiktoken-go"
+import (
+	tiktoken "github.com/pkoukk/tiktoken-go"
+)
 
 func CountTokens(model string, text string) int {
 	tkm, err := tiktoken.EncodingForModel(model)

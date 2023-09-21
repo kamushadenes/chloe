@@ -10,7 +10,7 @@ import (
 	"github.com/kamushadenes/chloe/langchain/chat_models/messages"
 	"github.com/kamushadenes/chloe/langchain/memory"
 	"github.com/kamushadenes/chloe/langchain/prompts"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type ChatOptionsOpenAI struct {

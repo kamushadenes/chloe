@@ -5,8 +5,8 @@ import (
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/errors"
+	"github.com/kamushadenes/chloe/langchain/diffusion_models/base"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/common"
-	base "github.com/kamushadenes/chloe/langchain/diffusion_models/diffusion"
 	"github.com/kamushadenes/chloe/structs/action_structs"
 	"github.com/kamushadenes/chloe/structs/response_object_structs"
 )

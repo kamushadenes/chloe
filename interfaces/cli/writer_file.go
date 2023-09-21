@@ -48,8 +48,8 @@ func (w *FileWriter) Close() error {
 	return w.f.Close()
 }
 
-func (w *FileWriter) WriteHeader(statusCode int) {}
-func (w *FileWriter) Header() http.Header        { return http.Header{} }
+func (w *FileWriter) WriteHeader(int)     {}
+func (w *FileWriter) Header() http.Header { return http.Header{} }
 func (w *FileWriter) SetPreWriteCallback(fn func()) {
 	w.preWriteCallback = fn
 }

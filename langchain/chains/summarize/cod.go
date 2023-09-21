@@ -6,8 +6,8 @@ import (
 	"github.com/kamushadenes/chloe/langchain/prompts"
 )
 
-func Stuff(text string) (string, error) {
-	prompt, err := prompts.GetPrompt("summarize_stuff", struct{ Text string }{text})
+func ChainOfDensity(text string) (string, error) {
+	prompt, err := prompts.GetPrompt("chain_of_density", struct{ Text string }{text})
 	if err != nil {
 		return "", err
 	}

@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/kamushadenes/chloe/langchain/chat_models/chat"
+	"github.com/kamushadenes/chloe/langchain/chat_models/base"
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"

@@ -8,7 +8,7 @@ import (
 	"github.com/kamushadenes/chloe/langchain/llm/common"
 	"github.com/kamushadenes/chloe/logging"
 	"github.com/kamushadenes/chloe/tokenizer"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 func (c *LLMOpenAI) GenerateStream(w io.Writer, prompt ...string) (common.LLMResult, error) {

@@ -3,7 +3,7 @@ package openai
 import (
 	"github.com/kamushadenes/chloe/langchain/audio_models/common"
 	"github.com/kamushadenes/chloe/langchain/schema"
-	"github.com/sashabaranov/go-openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 var (

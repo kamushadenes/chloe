@@ -5,6 +5,6 @@ import (
 	"github.com/kamushadenes/chloe/langchain/memory"
 )
 
-func NewChatGPT4All(model *common.ChatModel, user *memory.User) common.Chat {
+func NewChatGPT4All(*common.ChatModel, *memory.User) common.Chat {
 	panic("not implemented")
 }

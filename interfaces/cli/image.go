@@ -2,7 +2,7 @@ package cli
 
 import (
 	"context"
-	base "github.com/kamushadenes/chloe/langchain/diffusion_models/diffusion"
+	"github.com/kamushadenes/chloe/langchain/diffusion_models/base"
 
 	"github.com/kamushadenes/chloe/config"
 	"github.com/kamushadenes/chloe/langchain/diffusion_models/common"
