@@ -69,7 +69,7 @@ func TestHTTP(t *testing.T) {
 		method             string
 		body               map[string]interface{}
 		expectedOutput     string
-		expectedHeaders    map[string]string
+		expectedHeaders    map[string][]string
 		expectedStatusCode int
 	}{
 		{
@@ -87,8 +87,8 @@ func TestHTTP(t *testing.T) {
 			body: map[string]interface{}{
 				"prompt": "Create an image of a spooky, old-fashioned library on a stormy night. The scene should be bathed in the eerie glow of lightning and illuminated by the flickering flames of torches mounted on the walls. The atmosphere should feel otherworldly — like something straight out of a Lovecraftian horror story. There should be a sense of heavy rain beating down on the roof and windows, further amplifying the sense of creepiness and dread.",
 			},
-			expectedHeaders: map[string]string{
-				"Content-Type": "image/png",
+			expectedHeaders: map[string][]string{
+				"Content-Type": {"image/png"},
 			},
 			expectedStatusCode: 200,
 		},
@@ -98,8 +98,8 @@ func TestHTTP(t *testing.T) {
 			body: map[string]interface{}{
 				"content": "Hello, my name is Chloe and I'm running tests",
 			},
-			expectedHeaders: map[string]string{
-				"Content-Type": "audio/mpeg",
+			expectedHeaders: map[string][]string{
+				"Content-Type": {"audio/mpeg", "audio/wav"},
 			},
 			expectedStatusCode: 200,
 		},
@@ -155,8 +155,18 @@ func TestHTTP(t *testing.T) {
 		}
 
 		if test.expectedHeaders != nil {
+			found := false
 			for k, v := range test.expectedHeaders {
-				assert.Equal(t, v, resp.Header.Get(k))
+				for _, h := range resp.Header[k] {
+					for _, vv := range v {
+						if h == vv {
+							found = true
+						}
+					}
+				}
+			}
+			if !found {
+				t.Errorf("expected headers not found: wanted %v, found %v", test.expectedHeaders, resp.Header)
 			}
 		}
 	}

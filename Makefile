@@ -4,6 +4,12 @@ endif
 
 .PHONY: all generate build clean whisper test run
 
+UNAME_S = $(shell uname -s 2>/dev/null || echo none)
+
+ifeq ($(UNAME_S),Darwin)    # Darwin is for MacOS
+  LDFLAGS = -framework Metal -framework Foundation
+endif
+
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 LIBRARY_PATH := ${ROOT_DIR}/workspace/models/audio_models/whisper.cpp
 C_INCLUDE_PATH := ${ROOT_DIR}/workspace/models/audio_models/whisper.cpp
@@ -15,7 +21,12 @@ generate:
 	go generate ./...
 
 build:
-	cd cmd/chloe && C_INCLUDE_PATH=${C_INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH} CGO_ENABLED=${CGO_ENABLED} go build
+	cd cmd/chloe && \
+	CGO_LDFLAGS="${LDFLAGS}" \
+	C_INCLUDE_PATH="${C_INCLUDE_PATH}" \
+	LIBRARY_PATH="${LIBRARY_PATH}" \
+	CGO_ENABLED=${CGO_ENABLED} \
+	go build
 
 run:
 	cd cmd/chloe && ./chloe
@@ -26,7 +37,11 @@ whisper:
 	cd workspace/models/audio_models/whisper.cpp/bindings/go && make whisper
 
 test:
-	C_INCLUDE_PATH=${C_INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH} CGO_ENABLED=${CGO_ENABLED} go test -v ./...
+	CGO_LDFLAGS="${LDFLAGS}" \
+	C_INCLUDE_PATH="${C_INCLUDE_PATH}" \
+	LIBRARY_PATH="${LIBRARY_PATH}" \
+	CGO_ENABLED=${CGO_ENABLED} \
+	go test -v ./...
 
 clean:
 	rm ./cmd/chloe/chloe
