@@ -6,7 +6,7 @@ endif
 
 UNAME_S = $(shell uname -s 2>/dev/null || echo none)
 
-ifeq ($(UNAME_S),Darwin)    # Darwin is for MacOS
+ifeq ($(UNAME_S),Darwin)
   LDFLAGS = -framework Metal -framework Foundation
 endif
 
@@ -19,6 +19,7 @@ all: generate whisper build
 
 generate:
 	go generate ./...
+	go fmt ./...
 
 build:
 	cd cmd/chloe && \
