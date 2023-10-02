@@ -31,7 +31,7 @@ require (
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/rocketlaunchr/google-search v1.1.6
 	github.com/rs/zerolog v1.30.0
-	github.com/sashabaranov/go-openai v1.15.3
+	github.com/sashabaranov/go-openai v1.15.4
 	github.com/slack-go/slack v0.12.3
 	github.com/stretchr/testify v1.8.4
 	github.com/trietmn/go-wiki v1.0.1
