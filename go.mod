@@ -24,7 +24,7 @@ require (
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/haguro/elevenlabs-go v0.2.2
 	github.com/iancoleman/strcase v0.3.0
-	github.com/jedib0t/go-pretty/v6 v6.4.7
+	github.com/jedib0t/go-pretty/v6 v6.4.9
 	github.com/mattn/go-isatty v0.0.19
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/pkg/profile v1.7.0
