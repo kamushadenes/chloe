@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/texttospeech v1.7.1
 	github.com/MichaelMure/go-term-markdown v0.1.4
 	github.com/alecthomas/kong v0.8.0
-	github.com/antonmedv/expr v1.15.2
+	github.com/antonmedv/expr v1.15.3
 	github.com/aquilax/truncate v1.0.0
 	github.com/biter777/countries v1.6.6
 	github.com/briandowns/spinner v1.23.0
