@@ -37,7 +37,7 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	golang.org/x/term v0.13.0
 	google.golang.org/api v0.148.0
-	gorm.io/driver/mysql v1.5.1
+	gorm.io/driver/mysql v1.5.2
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.3
 	gorm.io/driver/sqlserver v1.5.1
