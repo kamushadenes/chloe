@@ -1,3 +1,15 @@
+> ⚠️ AI is advancing incredibly fast.
+> 
+> Most of what Chloe and other assistant projects did is now superseeded by advances not only from OpenAI's API but the entire AI space as a whole, including open source models.
+> 
+> Chloe is no longer needed.
+>
+> It was incredibly fun to play around with this exciting technology, and while Chloe is no more (for now), I'll keep busy with AI-related projects for a long time.
+> 
+> Keep hacking!
+
+<hr>
+
 <h1 align="center">Chloe</h1>
 
 <p align="center">A powerful AI assistant</p>
